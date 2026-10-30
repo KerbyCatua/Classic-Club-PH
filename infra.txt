@@ -1,0 +1,29 @@
+classic-club-ph/
+├── assets/
+│   ├── css/
+│   │   └── style.css                # Global theme variables (#101112, #F4F1EA, #028090, Lora)
+│   ├── js/
+│   │   ├── partials.js              # Injects header.html & footer.html into every page
+│   │   └── main.js                  # Cart drawer, filters, and micro-interactions
+│   └── img/                         # Placeholder images & exported SVGs
+├── components/
+│   ├── header.html                  # Reusable Navbar (Partial)
+│   └── footer.html                  # Reusable Footer (Partial)
+├── index.html                       # 01 Home
+├── shop-all.html                    # 02 Shop all
+├── tops-tees.html                   # 03 Tops & tees collection
+├── outerwear-hoodies.html           # 04 Outerwear & hoodies collection
+├── bottoms-accessories.html         # 05 Bottoms & accessories collection
+├── new-arrivals.html                # 06 New arrivals - Latest drop
+├── lookbook.html                    # 07 Lookbook - Quiet form
+├── product-detail.html              # 08 Product detail - Essential Heavyweight Tee
+├── size-guide.html                  # 09 Size & fit guide
+├── cart.html                        # 10 Shopping bag
+├── checkout.html                    # 11 Checkout
+├── order-confirmation.html          # 12 Order confirmation
+├── auth.html                        # 13 Sign in & create account
+├── account-dashboard.html           # 14 Account dashboard & order history
+├── wishlist.html                    # 15 Saved wishlist
+├── about.html                       # 16 About Classic Club PH
+├── contact.html                     # 17 Contact us
+└── faq-shipping.html                # 18 FAQ & shipping / returns

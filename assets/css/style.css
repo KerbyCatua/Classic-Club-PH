@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  --cc-bg: #101112;
+  --cc-surface: #181A1B;
+  --cc-border: #26292B;
+  --cc-text: #F4F1EA;
+  --cc-muted: #9E9D99;
+  --cc-accent: #028090;
+  --cc-accent-hover: #039bb0;
+  --font-serif: 'Lora', serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+body {
+  background-color: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Lora Accent Headings matching Figma specs */
+h1, h2, h3, .font-lora {
+  font-family: var(--font-serif);
+  color: var(--cc-text);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+
+/* Reusable Buttons & Cards */
+.btn-accent {
+  background-color: var(--cc-accent);
+  color: var(--cc-text);
+  border: 1px solid var(--cc-accent);
+  border-radius: 0;
+  padding: 0.75rem 1.75rem;
+  transition: all 0.25s ease;
+}
+
+.btn-accent:hover {
+  background-color: var(--cc-accent-hover);
+  color: var(--cc-text);
+  transform: translateY(-2px);
+}
+
+.cc-card {
+  background-color: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-radius: 0;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.cc-card:hover {
+  border-color: var(--cc-accent);
+  transform: translateY(-4px);
+}
+
+/* Image Placeholders */
+.img-placeholder {
+  background-color: #1A1C1E;
+  border: 1px dashed var(--cc-border);
+  aspect-ratio: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cc-muted);
+  font-size: 0.85rem;
+}
