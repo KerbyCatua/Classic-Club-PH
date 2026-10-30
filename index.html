@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Classic Club PH | Minimalist Apparel</title>
+  <title>Classic Club PH | Nothing Loud. Everything Considered.</title>
   <!-- Bootstrap 5.3 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom Global Theme -->
@@ -11,27 +11,545 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-  <!-- Reusable Header Partial -->
+  <!-- Reusable Header Partial (Injected via partials.js) -->
   <div id="header-partial"></div>
 
-  <!-- Page Specific Content Goes Here -->
+  <!-- 01 Home Page Content -->
   <main class="flex-grow-1">
-    <section class="container py-5">
-      <div class="row align-items-center g-5">
-        <div class="col-12 col-lg-6">
-          <p class="text-uppercase small mb-2" style="color: #028090; letter-spacing: 0.15em;">Drop 01 — Quiet Form</p>
-          <h1 class="display-4 mb-4">Nothing loud. Everything considered.</h1>
-          <p class="text-secondary mb-4">Elevated everyday essentials crafted with heavyweight fabrics and clean architectural silhouettes.</p>
-          <a href="/shop-all.html" class="btn btn-accent">Explore Collection</a>
-        </div>
-        <div class="col-12 col-lg-6">
-          <div class="img-placeholder" style="aspect-ratio: 4/3;">[ Hero Editorial Placeholder ]</div>
+
+    <!-- 1. HERO SECTION -->
+    <section class="cc-section-px py-4 py-lg-5 bg-cc-dark">
+      <div class="container-fluid px-0">
+        <div class="row align-items-center g-4 g-lg-5">
+          <!-- Hero Left Column -->
+          <div class="col-12 col-lg-5 d-flex flex-column align-items-start gap-4">
+            <span class="cc-eyebrow-teal">DROP 03 / QUIET FORM</span>
+            <h1 class="cc-hero-title mb-0 mt-lg-4">Nothing loud. Everything considered.</h1>
+            <p class="cc-body-text mb-0" style="max-width: 430px;">
+              Modern essentials for the rhythm of everyday life. Restrained silhouettes, tactile fabrics and a distinctly Philippine point of view.
+            </p>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <a href="/new-arrivals.html" class="btn-cc-teal">
+                <span>Explore the latest drop</span>
+                <span>&rarr;</span>
+              </a>
+              <a href="/shop-all.html" class="btn-cc-outline">
+                <span>Shop all</span>
+                <span>&rarr;</span>
+              </a>
+            </div>
+            <div class="d-flex align-items-baseline gap-4 pt-3 pt-lg-4 w-100">
+              <span class="cc-eyebrow flex-shrink-0">SEASON 03</span>
+              <span class="cc-xs-text">Less, but better. A wardrobe in quiet balance.</span>
+            </div>
+          </div>
+
+          <!-- Hero Right Placeholder -->
+          <div class="col-12 col-lg-7">
+            <div class="cc-asset-box" style="min-height: 420px; height: min(650px, 75vh);">
+              <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+              <div class="cc-asset-center-pill">
+                <div class="cc-asset-icon"></div>
+                <div class="cc-asset-label">Campaign hero / two looks in quiet architectural space</div>
+              </div>
+              <span class="cc-asset-bl">EDITORIAL CAMPAIGN / LANDSCAPE</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- 2. VALUE PROPOSITION BAR -->
+    <section class="cc-section-px border-top border-bottom border-cc bg-cc-dark">
+      <div class="container-fluid px-0">
+        <div class="row row-cols-2 row-cols-md-4 g-3 align-items-center py-3" style="min-height: 76px;">
+          <div class="col cc-eyebrow">DESIGNED FOR REPEAT WEAR</div>
+          <div class="col cc-eyebrow text-md-center">THOUGHTFUL FIT &amp; FABRIC</div>
+          <div class="col cc-eyebrow text-md-center">PHILIPPINES &middot; PHP &#8369;</div>
+          <div class="col cc-eyebrow text-md-end">A WARDROBE, NOT A MOMENT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. THE CURRENT ROTATION (4-COL PRODUCT GRID) -->
+    <section class="cc-section-px cc-section-py bg-cc-dark">
+      <div class="container-fluid px-0">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 pb-2">
+          <div>
+            <span class="cc-eyebrow mb-2">THE CURRENT ROTATION</span>
+            <h2 class="cc-sec-title mb-0">New forms. Familiar ease.</h2>
+          </div>
+          <a href="/new-arrivals.html" class="cc-underline-link">View all new arrivals &#8599;</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+          <!-- Product 1 -->
+          <div class="col">
+            <div class="cc-product-card d-flex flex-column gap-3">
+              <div class="position-relative">
+                <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                <a href="/product-detail.html" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <div class="cc-asset-label">Essential Heavyweight Tee / Obsidian</div>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow">CORE / 240 GSM</span>
+                <a href="/product-detail.html" class="cc-product-title">Essential Heavyweight Tee</a>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="cc-xs-text">Obsidian</span>
+                  <span class="text-light-cc" style="font-size: 13px;">&#8369;1,890.00</span>
+                </div>
+                <div class="d-flex align-items-center gap-1 pt-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 2 -->
+          <div class="col">
+            <div class="cc-product-card d-flex flex-column gap-3">
+              <div class="position-relative">
+                <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                <a href="/product-detail.html" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <div class="cc-asset-label">Structured Overshirt / Graphite</div>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                <a href="/product-detail.html" class="cc-product-title">Structured Overshirt</a>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="cc-xs-text">Graphite</span>
+                  <span class="text-light-cc" style="font-size: 13px;">&#8369;4,890.00</span>
+                </div>
+                <div class="d-flex align-items-center gap-1 pt-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 3 -->
+          <div class="col">
+            <div class="cc-product-card d-flex flex-column gap-3">
+              <div class="position-relative">
+                <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                <a href="/product-detail.html" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <div class="cc-asset-label">Relaxed Tailored Trouser / Charcoal</div>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                <a href="/product-detail.html" class="cc-product-title">Relaxed Tailored Trouser</a>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="cc-xs-text">Charcoal</span>
+                  <span class="text-light-cc" style="font-size: 13px;">&#8369;3,690.00</span>
+                </div>
+                <div class="d-flex align-items-center gap-1 pt-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 4 -->
+          <div class="col">
+            <div class="cc-product-card d-flex flex-column gap-3">
+              <div class="position-relative">
+                <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                <a href="/product-detail.html" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <div class="cc-asset-label">Textured Knit Polo / Oat</div>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                <a href="/product-detail.html" class="cc-product-title">Textured Knit Polo</a>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="cc-xs-text">Oat</span>
+                  <span class="text-light-cc" style="font-size: 13px;">&#8369;2,890.00</span>
+                </div>
+                <div class="d-flex align-items-center gap-1 pt-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. BUILD YOUR EVERYDAY (3-COL CATEGORIES) -->
+    <section class="cc-section-px cc-section-py bg-cc-surface">
+      <div class="container-fluid px-0">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 pb-2">
+          <h2 class="cc-sec-title mb-0">Build your everyday.</h2>
+          <p class="cc-small-text mb-0" style="max-width: 390px;">
+            Start with the foundation. Layer with intention. Find the pieces that feel like you.
+          </p>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          <!-- Category 1 -->
+          <div class="col">
+            <a href="/tops-tees.html" class="text-decoration-none cc-category-card d-flex flex-column gap-3">
+              <div class="cc-asset-box" style="height: 330px;">
+                <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                <div class="cc-asset-center-pill">
+                  <div class="cc-asset-icon"></div>
+                  <div class="cc-asset-label">Tops &amp; tees / category composition</div>
+                </div>
+                <span class="cc-asset-bl">IMAGE PLACEHOLDER</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-light-cc" style="font-size: 16px;">Tops &amp; tees</span>
+                <span class="text-light-cc" style="font-size: 15px;">&#8599;</span>
+              </div>
+              <div class="cc-xs-text mt-n2">The foundation of every rotation.</div>
+            </a>
+          </div>
+
+          <!-- Category 2 -->
+          <div class="col">
+            <a href="/outerwear-hoodies.html" class="text-decoration-none cc-category-card d-flex flex-column gap-3">
+              <div class="cc-asset-box" style="height: 330px;">
+                <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                <div class="cc-asset-center-pill">
+                  <div class="cc-asset-icon"></div>
+                  <div class="cc-asset-label">Outerwear &amp; hoodies / category composition</div>
+                </div>
+                <span class="cc-asset-bl">IMAGE PLACEHOLDER</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-light-cc" style="font-size: 16px;">Outerwear &amp; hoodies</span>
+                <span class="text-light-cc" style="font-size: 15px;">&#8599;</span>
+              </div>
+              <div class="cc-xs-text mt-n2">A new dimension, an easy layer.</div>
+            </a>
+          </div>
+
+          <!-- Category 3 -->
+          <div class="col">
+            <a href="/bottoms-accessories.html" class="text-decoration-none cc-category-card d-flex flex-column gap-3">
+              <div class="cc-asset-box" style="height: 330px;">
+                <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                <div class="cc-asset-center-pill">
+                  <div class="cc-asset-icon"></div>
+                  <div class="cc-asset-label">Bottoms &amp; accessories / category composition</div>
+                </div>
+                <span class="cc-asset-bl">IMAGE PLACEHOLDER</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-light-cc" style="font-size: 16px;">Bottoms &amp; accessories</span>
+                <span class="text-light-cc" style="font-size: 15px;">&#8599;</span>
+              </div>
+              <div class="cc-xs-text mt-n2">The details that bring it together.</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. THE CLASSIC CLUB WAY (PHILOSOPHY) -->
+    <section class="cc-section-px cc-section-py bg-cc-dark">
+      <div class="container-fluid px-0">
+        <div class="row g-4 g-lg-5 align-items-start">
+          <div class="col-12 col-lg-3 d-flex flex-column gap-3">
+            <span class="cc-eyebrow">THE CLASSIC CLUB WAY</span>
+            <a href="/about.html" class="cc-underline-link">Read our philosophy &#8599;</a>
+          </div>
+          <div class="col-12 col-lg-9 d-flex flex-column gap-4">
+            <h2 class="cc-phil-title mb-0">Style is not what you add. It is what you choose to keep.</h2>
+            <p class="cc-body-text mb-0" style="max-width: 820px;">
+              We design for the space between occasions: the early commute, the unplanned evening, the everyday in between. A small collection of useful things, made to work beautifully together.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SUBSTANCE YOU CAN FEEL (FABRIC STUDY) -->
+    <section class="cc-section-px cc-section-py bg-cc-surface">
+      <div class="container-fluid px-0">
+        <div class="row g-4 g-lg-5 align-items-center">
+          <div class="col-12 col-lg-6">
+            <div class="cc-asset-box" style="height: 430px;">
+              <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+              <div class="cc-asset-center-pill">
+                <div class="cc-asset-icon"></div>
+                <div class="cc-asset-label">Fabric study / heavyweight cotton and seam detail</div>
+              </div>
+              <span class="cc-asset-bl">IMAGE PLACEHOLDER</span>
+            </div>
+          </div>
+          <div class="col-12 col-lg-6 d-flex flex-column align-items-start gap-4 ps-lg-4">
+            <span class="cc-eyebrow">THE FEEL OF CONSIDERATION</span>
+            <h2 class="cc-sub-title mb-0">Substance you can feel.</h2>
+            <p class="cc-body-text mb-0">
+              Dense cotton jersey. Soft loopback. Crisp, structured twill. Each fabric is chosen for its hand, drape and place in your daily rotation—not simply for how it looks on a hanger.
+            </p>
+            <div class="row row-cols-2 g-4 w-100 pt-1">
+              <div class="col d-flex flex-column gap-2">
+                <span class="cc-eyebrow">240 GSM</span>
+                <span class="text-light-cc" style="font-size: 13px; line-height: 21.45px;">Our essential cotton jersey</span>
+              </div>
+              <div class="col d-flex flex-column gap-2">
+                <span class="cc-eyebrow">RELAXED BY DESIGN</span>
+                <span class="text-light-cc" style="font-size: 13px; line-height: 21.45px;">Room to move, shape to stay</span>
+              </div>
+            </div>
+            <a href="/size-guide.html" class="cc-underline-link pt-1">Explore fit &amp; fabric &#8599;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. LOOKBOOK / SEASON 03 -->
+    <section class="cc-section-px cc-section-py bg-cc-dark">
+      <div class="container-fluid px-0">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 pb-2">
+          <div>
+            <span class="cc-eyebrow mb-2">LOOKBOOK / SEASON 03</span>
+            <h2 class="cc-sec-title mb-0">Quiet form, in motion.</h2>
+          </div>
+          <a href="/lookbook.html" class="btn-cc-outline">
+            <span>Enter the lookbook</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+
+        <div class="row g-4 align-items-start">
+          <div class="col-12 col-lg-8">
+            <div class="cc-asset-box" style="min-height: 380px; height: 540px;">
+              <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+              <div class="cc-asset-center-pill">
+                <div class="cc-asset-icon"></div>
+                <div class="cc-asset-label">Look 01 / structured layers in graphite</div>
+              </div>
+              <span class="cc-asset-bl">IMAGE PLACEHOLDER</span>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            <div class="cc-asset-box" style="min-height: 340px; height: 450px;">
+              <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+              <div class="cc-asset-center-pill">
+                <div class="cc-asset-icon"></div>
+                <div class="cc-asset-label">Look 02 / chalk jersey and tailored charcoal</div>
+              </div>
+              <span class="cc-asset-bl">IMAGE PLACEHOLDER</span>
+            </div>
+            <p class="cc-xs-text mb-0">
+              A study in proportion. A dialogue between softness and structure.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. THE THREE-PIECE EDIT -->
+    <section class="cc-section-px cc-section-py bg-cc-surface">
+      <div class="container-fluid px-0">
+        <div class="row g-4 g-lg-5 align-items-center">
+          <!-- Left Intro Column -->
+          <div class="col-12 col-lg-3 d-flex flex-column align-items-start gap-4">
+            <span class="cc-eyebrow">THE THREE-PIECE EDIT</span>
+            <h2 class="cc-sec-title mb-0">One less decision.</h2>
+            <p class="cc-body-text mb-0">
+              Heavyweight jersey, a considered outer layer, an easy tailored trouser. A simple system that moves from day into evening.
+            </p>
+            <a href="/shop-all.html" class="cc-underline-link">Discover the everyday edit &#8599;</a>
+          </div>
+
+          <!-- Right 3-Col Product Grid -->
+          <div class="col-12 col-lg-9">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+              <!-- Edit Item 1 -->
+              <div class="col">
+                <div class="cc-product-card d-flex flex-column gap-3">
+                  <div class="position-relative">
+                    <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                    <a href="/product-detail.html" class="text-decoration-none">
+                      <div class="cc-asset-box" style="height: 370px;">
+                        <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                        <div class="cc-asset-center-pill">
+                          <div class="cc-asset-icon"></div>
+                          <div class="cc-asset-label">Essential Heavyweight Tee / Obsidian</div>
+                        </div>
+                        <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="d-flex flex-column gap-2">
+                    <span class="cc-eyebrow">CORE / 240 GSM</span>
+                    <a href="/product-detail.html" class="cc-product-title">Essential Heavyweight Tee</a>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-xs-text">Obsidian</span>
+                      <span class="text-light-cc" style="font-size: 13px;">&#8369;1,890.00</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 pt-1">
+                      <span class="cc-swatch" style="background: #101112;"></span>
+                      <span class="cc-swatch" style="background: #8B8980;"></span>
+                      <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Item 2 -->
+              <div class="col">
+                <div class="cc-product-card d-flex flex-column gap-3">
+                  <div class="position-relative">
+                    <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                    <a href="/product-detail.html" class="text-decoration-none">
+                      <div class="cc-asset-box" style="height: 370px;">
+                        <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                        <div class="cc-asset-center-pill">
+                          <div class="cc-asset-icon"></div>
+                          <div class="cc-asset-label">Structured Overshirt / Graphite</div>
+                        </div>
+                        <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="d-flex flex-column gap-2">
+                    <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                    <a href="/product-detail.html" class="cc-product-title">Structured Overshirt</a>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-xs-text">Graphite</span>
+                      <span class="text-light-cc" style="font-size: 13px;">&#8369;4,890.00</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 pt-1">
+                      <span class="cc-swatch" style="background: #101112;"></span>
+                      <span class="cc-swatch" style="background: #8B8980;"></span>
+                      <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Item 3 -->
+              <div class="col">
+                <div class="cc-product-card d-flex flex-column gap-3">
+                  <div class="position-relative">
+                    <a href="/wishlist.html" class="cc-wishlist-btn" aria-label="Save to wishlist">&hearts;</a>
+                    <a href="/product-detail.html" class="text-decoration-none">
+                      <div class="cc-asset-box" style="height: 370px;">
+                        <span class="cc-asset-tl">REPLACE WITH ASSET &#8599;</span>
+                        <div class="cc-asset-center-pill">
+                          <div class="cc-asset-icon"></div>
+                          <div class="cc-asset-label">Relaxed Tailored Trouser / Charcoal</div>
+                        </div>
+                        <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="d-flex flex-column gap-2">
+                    <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                    <a href="/product-detail.html" class="cc-product-title">Relaxed Tailored Trouser</a>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-xs-text">Charcoal</span>
+                      <span class="text-light-cc" style="font-size: 13px;">&#8369;3,690.00</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 pt-1">
+                      <span class="cc-swatch" style="background: #101112;"></span>
+                      <span class="cc-swatch" style="background: #8B8980;"></span>
+                      <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. AT YOUR SERVICE (3 PILLAR CARDS) -->
+    <section class="cc-section-px cc-section-py bg-cc-dark">
+      <div class="container-fluid px-0">
+        <span class="cc-eyebrow mb-4 pb-1">AT YOUR SERVICE</span>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          <div class="col">
+            <div class="h-100 p-4 border border-cc d-flex flex-column gap-3">
+              <span class="cc-eyebrow">01 / FIT</span>
+              <h3 class="cc-service-title mb-0">Find your balance.</h3>
+              <p class="cc-small-text mb-0">
+                Garment measurements and fit notes help you choose with confidence. Start with our size &amp; fit guide.
+              </p>
+            </div>
+          </div>
+          <div class="col">
+            <div class="h-100 p-4 border border-cc d-flex flex-column gap-3">
+              <span class="cc-eyebrow">02 / CARE</span>
+              <h3 class="cc-service-title mb-0">Keep it in rotation.</h3>
+              <p class="cc-small-text mb-0">
+                Simple care goes a long way. Follow the garment label and wash with intention to protect its shape.
+              </p>
+            </div>
+          </div>
+          <div class="col">
+            <div class="h-100 p-4 border border-cc d-flex flex-column gap-3">
+              <span class="cc-eyebrow">03 / SUPPORT</span>
+              <h3 class="cc-service-title mb-0">A human, not a queue.</h3>
+              <p class="cc-small-text mb-0">
+                Questions on fit, an order or delivery? Our client services team is here Monday to Friday, 10am–6pm PHT.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. PRE-FOOTER CTA -->
+    <section class="cc-section-px cc-section-py bg-cc-surface text-center">
+      <div class="container-fluid px-0 d-flex flex-column align-items-center gap-4">
+        <span class="cc-eyebrow">CLASSIC CLUB PH</span>
+        <h2 class="cc-cta-title mb-0" style="max-width: 800px;">Make room for what matters.</h2>
+        <a href="/shop-all.html" class="btn-cc-teal">
+          <span>Find your next essential</span>
+          <span>&rarr;</span>
+        </a>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Reusable Footer Partial -->
+  <!-- Reusable Footer Partial (Injected via partials.js) -->
   <div id="footer-partial"></div>
 
   <!-- Bootstrap JS & Partial Loader -->

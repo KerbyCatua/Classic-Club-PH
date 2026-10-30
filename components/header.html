@@ -1,31 +1,80 @@
-<nav class="navbar navbar-expand-lg sticky-top border-bottom" style="background-color: #101112; border-color: #26292B !important;">
-  <div class="container py-2">
-    <a class="navbar-brand font-lora fs-4 text-light" href="/index.html">Classic Club PH</a>
-    
-    <button class="navbar-toggler border-0 text-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
-      <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-    </button>
+<!-- Open-Source Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <div class="offcanvas offcanvas-end text-bg-dark" id="mobileMenu" style="background-color: #101112 !important;">
-      <div class="offcanvas-header border-bottom border-secondary">
-        <h5 class="offcanvas-title font-lora">Classic Club PH</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
-          <li class="nav-item"><a class="nav-link text-light" href="/index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="/shop-all.html">Shop All</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="/new-arrivals.html">New Arrivals</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="/lookbook.html">Lookbook</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="/about.html">About</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="/contact.html">Contact</a></li>
-        </ul>
-        <div class="d-flex align-items-center gap-3">
-          <a href="/wishlist.html" class="text-light text-decoration-none small">Wishlist</a>
-          <a href="/account-dashboard.html" class="text-light text-decoration-none small">Account</a>
-          <a href="/cart.html" class="btn btn-accent btn-sm">Bag (0)</a>
-        </div>
-      </div>
-    </div>
+<header class="sticky-top bg-cc-dark" style="z-index: 1030;">
+  <!-- Top Announcement Bar (30px height, #181A1B) -->
+  <div class="bg-cc-surface d-flex justify-content-center align-items-center text-center px-3" style="min-height: 30px;">
+    <span class="text-muted-cc text-uppercase" style="font-size: 10px; font-weight: 400; letter-spacing: 0.04em;">
+      CONSIDERED ESSENTIALS. DELIVERED ACROSS THE PHILIPPINES.
+    </span>
   </div>
-</nav>
+
+  <!-- Main Navigation Bar (100px desktop height, #34393A bottom border) -->
+  <nav class="navbar navbar-expand-lg bg-cc-dark border-bottom border-cc cc-section-px py-3 py-lg-0" style="min-height: 100px;">
+    <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
+
+      <!-- 1. Left: Brand Identity -->
+      <a class="navbar-brand d-inline-flex flex-column align-items-start p-0 m-0 text-decoration-none" href="/index.html" style="gap: 4px;">
+        <span class="text-light-cc font-sans lh-1" style="font-size: 23px; font-weight: 500; letter-spacing: -0.01em;">
+          CLASSIC CLUB PH
+        </span>
+        <span class="text-muted-cc font-sans lh-1 text-uppercase" style="font-size: 9px; font-weight: 400; letter-spacing: 0.04em;">
+          PHILIPPINES &middot; EVERYDAY, REFINED
+        </span>
+      </a>
+
+      <!-- 2. Center: Navigation Links -->
+      <div class="collapse navbar-collapse justify-content-center order-3 order-lg-2 mt-3 mt-lg-0" id="ccNavbarMenu">
+        <ul class="navbar-nav align-items-lg-center mb-0" style="gap: 28px;">
+          <li class="nav-item">
+            <a class="nav-link p-0 text-light-cc font-sans" href="/shop-all.html" style="font-size: 12px; font-weight: 400;">Shop all</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link p-0 text-light-cc font-sans" href="/new-arrivals.html" style="font-size: 12px; font-weight: 400;">New arrivals</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link p-0 text-light-cc font-sans" href="/tops-tees.html" style="font-size: 12px; font-weight: 400;">Collections</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link p-0 text-light-cc font-sans" href="/lookbook.html" style="font-size: 12px; font-weight: 400;">Lookbook</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link p-0 text-light-cc font-sans" href="/about.html" style="font-size: 12px; font-weight: 400;">About</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 3. Right: Open-Source Icons (Search, Account, Wishlist, Bag + Count) -->
+      <div class="d-flex align-items-center order-2 order-lg-3 pe-1" style="gap: 22px;">
+        
+        <!-- Search -->
+        <a href="/shop-all.html" class="text-light-cc text-decoration-none d-inline-flex align-items-center" aria-label="Search">
+          <i class="bi bi-search" style="font-size: 17px; line-height: 1;"></i>
+        </a>
+
+        <!-- Account -->
+        <a href="/account-dashboard.html" class="text-light-cc text-decoration-none d-inline-flex align-items-center" aria-label="Account">
+          <i class="bi bi-person" style="font-size: 20px; line-height: 1;"></i>
+        </a>
+
+        <!-- Wishlist -->
+        <a href="/wishlist.html" class="text-light-cc text-decoration-none d-inline-flex align-items-center" aria-label="Wishlist">
+          <i class="bi bi-heart" style="font-size: 17px; line-height: 1;"></i>
+        </a>
+
+        <!-- Shopping Bag + Counter -->
+        <a href="/cart.html" class="text-light-cc text-decoration-none d-inline-flex align-items-center" style="gap: 7px;" aria-label="Shopping Bag">
+          <i class="bi bi-bag" style="font-size: 17px; line-height: 1;"></i>
+          <span class="text-light-cc font-sans" style="font-size: 11px; font-weight: 400; line-height: 1;">2</span>
+        </a>
+
+        <!-- Mobile Menu Toggler -->
+        <button class="navbar-toggler border-0 p-0 shadow-none d-lg-none text-light-cc" type="button" data-bs-toggle="collapse" data-bs-target="#ccNavbarMenu" aria-controls="ccNavbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="bi bi-list" style="font-size: 24px; line-height: 1;"></i>
+        </button>
+
+      </div>
+
+    </div>
+  </nav>
+</header>
