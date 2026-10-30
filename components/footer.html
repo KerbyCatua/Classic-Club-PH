@@ -1,63 +1,144 @@
-<footer class="border-top border-cc pt-5 pb-4 mt-auto" style="background-color: #101112;">
-  <div class="container py-4">
-    <div class="row g-5">
-      <!-- Left Newsletter Column -->
-      <div class="col-12 col-lg-5">
-        <span class="eyebrow">CLASSIC CLUB PH</span>
-        <h3 class="font-lora fs-2 mb-3">A quieter kind of store.</h3>
-        <p class="text-muted-cc small mb-4" style="max-width: 380px;">
-          Receive early access to small-batch drops, archival restocks, and seasonal editorial lookbooks. No noise.
-        </p>
-        <form class="d-flex gap-2" style="max-width: 380px;">
-          <input type="email" class="form-control bg-transparent border-cc text-light rounded-0 small" placeholder="Enter your email address">
-          <button type="button" class="btn btn-accent flex-shrink-0">Subscribe</button>
-        </form>
-      </div>
+<head>
+    <style>
+        #footer-email::placeholder {
+        color: var(--cc-muted);
+        opacity: 1;
+        }
+        .footer-link,
+        .footer-meta-link {
+        color: var(--cc-subtle);
+        font-size: 12px;
+        line-height: 1.4;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        }
 
-      <!-- Right Links Columns -->
-      <div class="col-12 col-lg-7">
-        <div class="row row-cols-2 row-cols-md-3 g-4 small">
-          <div class="col">
-            <p class="text-uppercase text-muted-cc mb-3" style="font-size: 0.7rem; letter-spacing: 0.12em;">Collections</p>
-            <ul class="list-unstyled d-flex flex-column gap-2">
-              <li><a href="/shop-all.html" class="text-light text-decoration-none">Shop All</a></li>
-              <li><a href="/tops-tees.html" class="text-muted-cc text-decoration-none">Tops &amp; Tees</a></li>
-              <li><a href="/outerwear-hoodies.html" class="text-muted-cc text-decoration-none">Outerwear &amp; Hoodies</a></li>
-              <li><a href="/bottoms-accessories.html" class="text-muted-cc text-decoration-none">Bottoms &amp; Accessories</a></li>
-              <li><a href="/new-arrivals.html" class="text-muted-cc text-decoration-none">New Arrivals</a></li>
-            </ul>
-          </div>
-          <div class="col">
-            <p class="text-uppercase text-muted-cc mb-3" style="font-size: 0.7rem; letter-spacing: 0.12em;">Client Services</p>
-            <ul class="list-unstyled d-flex flex-column gap-2">
-              <li><a href="/size-guide.html" class="text-muted-cc text-decoration-none">Size &amp; Fit Guide</a></li>
-              <li><a href="/faq-shipping.html" class="text-muted-cc text-decoration-none">Shipping &amp; Returns</a></li>
-              <li><a href="/account-dashboard.html" class="text-muted-cc text-decoration-none">Order Tracking</a></li>
-              <li><a href="/contact.html" class="text-muted-cc text-decoration-none">Contact Us</a></li>
-              <li><a href="/faq-shipping.html" class="text-muted-cc text-decoration-none">FAQ</a></li>
-            </ul>
-          </div>
-          <div class="col">
-            <p class="text-uppercase text-muted-cc mb-3" style="font-size: 0.7rem; letter-spacing: 0.12em;">Brand</p>
-            <ul class="list-unstyled d-flex flex-column gap-2">
-              <li><a href="/about.html" class="text-muted-cc text-decoration-none">About Classic Club PH</a></li>
-              <li><a href="/lookbook.html" class="text-muted-cc text-decoration-none">Lookbook — Quiet Form</a></li>
-              <li><a href="/auth.html" class="text-muted-cc text-decoration-none">Member Sign In</a></li>
-              <li><a href="/wishlist.html" class="text-muted-cc text-decoration-none">Saved Wishlist</a></li>
-            </ul>
-          </div>
+        .footer-link:hover,
+        .footer-meta-link:hover {
+        color: var(--cc-text);
+        }
+
+        .footer-meta-link {
+        color: var(--cc-muted);
+        }
+
+        @media (max-width: 575.98px) {
+        .input-group {
+            flex-direction: column;
+        }
+
+        .input-group .form-control,
+        .input-group .btn {
+            width: 100%;
+            min-height: 50px;
+        }
+        }
+    </style>
+</head>
+<footer class="bg-surface text-light-cc mt-auto">
+  <div class="container-fluid px-4 px-lg-5 pt-5 pb-4">
+
+    <div class="row g-5">
+
+      <!-- Newsletter -->
+      <div class="col-12 col-lg-5">
+        <div class="d-flex flex-column gap-3" style="max-width: 480px;">
+          <span class="eyebrow">THE CLUB LETTER</span>
+
+          <h2 class="font-lora mb-0" style="font-size: 32px; line-height: 1.18;">
+            A quieter kind of inbox.
+          </h2>
+
+          <p class="text-muted-cc mb-1" style="font-size: 13px; line-height: 1.65;">
+            New collections, considered stories and first access to the next drop.
+            Only when there is something worth sharing.
+          </p>
+
+          <form class="input-group">
+            <label for="footer-email" class="visually-hidden">
+              Your email address
+            </label>
+
+            <input
+              id="footer-email"
+              type="email"
+              class="form-control bg-transparent text-light-cc border-cc rounded-0 shadow-none"
+              placeholder="Your email address"
+              required
+            >
+
+            <button type="submit" class="btn btn-accent rounded-0">
+              SUBSCRIBE &rarr;
+            </button>
+          </form>
+
+          <small class="text-muted-cc" style="font-size: 11px; line-height: 1.65;">
+            By subscribing, you agree to receive brand emails. Unsubscribe anytime.
+          </small>
         </div>
       </div>
+
+      <!-- Footer Links -->
+      <div class="col-12 col-lg-7">
+        <div class="row row-cols-1 row-cols-sm-3 g-4 g-lg-5">
+
+          <div class="col">
+            <h3 class="eyebrow mb-3">EXPLORE</h3>
+
+            <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+              <li><a href="/shop-all.html" class="footer-link">Shop all</a></li>
+              <li><a href="/tops-tees.html" class="footer-link">Tops &amp; tees</a></li>
+              <li><a href="/outerwear-hoodies.html" class="footer-link">Outerwear &amp; hoodies</a></li>
+              <li><a href="/bottoms-accessories.html" class="footer-link">Bottoms &amp; accessories</a></li>
+              <li><a href="/new-arrivals.html" class="footer-link">New arrivals</a></li>
+              <li><a href="/lookbook.html" class="footer-link">Lookbook</a></li>
+            </ul>
+          </div>
+
+          <div class="col">
+            <h3 class="eyebrow mb-3">CLIENT SERVICES</h3>
+
+            <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+              <li><a href="/contact.html" class="footer-link">Contact us</a></li>
+              <li><a href="/size-guide.html" class="footer-link">Size &amp; fit guide</a></li>
+              <li><a href="/faq-shipping.html" class="footer-link">Shipping &amp; returns</a></li>
+              <li><a href="/faq-shipping.html" class="footer-link">Frequently asked questions</a></li>
+              <li><a href="/account-dashboard.html" class="footer-link">My account</a></li>
+              <li><a href="/wishlist.html" class="footer-link">Saved wishlist</a></li>
+            </ul>
+          </div>
+
+          <div class="col">
+            <h3 class="eyebrow mb-3">THE BRAND</h3>
+
+            <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+              <li><a href="/about.html" class="footer-link">About Classic Club PH</a></li>
+              <li><a href="/about.html" class="footer-link">Our philosophy</a></li>
+              <li><a href="#" class="footer-link">Instagram &rarr;</a></li>
+              <li><a href="#" class="footer-link">Facebook &rarr;</a></li>
+              <li><a href="#" class="footer-link">TikTok &rarr;</a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
-    <div class="border-top border-cc mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center small text-muted-cc" style="font-size: 0.75rem;">
+    <hr class="border-cc opacity-100 my-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 text-muted-cc"
+         style="font-size: 11px; line-height: 1.65;">
       <span>&copy; 2026 Classic Club PH. All rights reserved.</span>
-      <div class="d-flex gap-4 mt-2 mt-md-0">
-        <span>Instagram</span>
-        <span>TikTok</span>
-        <span>Privacy</span>
-        <span>Terms</span>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="#" class="footer-meta-link">Privacy notice</a>
+        <span>/</span>
+        <a href="#" class="footer-meta-link">Terms of use</a>
+        <span>/</span>
+        <span>Philippines &middot; PHP &#8369;</span>
       </div>
     </div>
+
   </div>
 </footer>
