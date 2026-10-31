@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wishlist — Classic Club PH</title>
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Global Project Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body id="top" class="bg-cc-dark">
+
+  <!-- Reusable Header Partial (Injected via partials.js) -->
+  <div id="header-partial"></div>
+
+  <main>
+    <!-- Page Header Section -->
+    <section class="cc-section-px pt-4 pb-5">
+      <div class="d-flex flex-column gap-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="cc-eyebrow text-transform-none" style="text-transform: none;">
+          <a href="index.html" class="text-muted-cc text-decoration-none">Home</a>
+          <span class="mx-1">/</span>
+          <a href="wishlist.html" class="text-muted-cc text-decoration-none">Wishlist</a>
+          <span class="mx-1">/</span>
+          <span class="text-muted-cc">Worth coming back to.</span>
+        </nav>
+
+        <!-- Title & Description -->
+        <div class="row align-items-end gy-4 justify-content-between">
+          <div class="col-12 col-lg-7">
+            <div class="d-flex flex-column gap-3">
+              <span class="cc-eyebrow">15 / YOUR SHORTLIST / CLASSIC CLUB PH</span>
+              <h1 class="font-lora text-light-cc mb-0" style="font-size: clamp(2.25rem, 4.5vw, 56px); line-height: 1.18;">
+                Worth coming back to.
+              </h1>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5 d-lg-flex justify-content-lg-end">
+            <p class="cc-body-text mb-0" id="wishlist-hero-desc" style="max-width: 440px;">
+              Pieces you are keeping in mind. A quiet shortlist for the wardrobe you are building, one considered choice at a time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Wishlist Grid Section -->
+    <section class="cc-section-px cc-section-py bg-cc-dark">
+      <div class="d-flex flex-column gap-4">
+
+        <!-- Controls Bar -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+          <span class="cc-eyebrow-teal" id="wishlist-count-label">0 SAVED PIECES / ALL AVAILABLE</span>
+          <div class="d-flex align-items-center gap-4">
+            <a href="shop-all.html" class="cc-underline-link m-0">Continue shopping ↗</a>
+            <span class="cc-xs-text text-muted-cc m-0 d-none d-sm-block">Sort: Recently saved ⌄</span>
+          </div>
+        </div>
+
+        <hr class="border-cc m-0 opacity-100">
+
+        <!-- Dynamic Product Grid -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 pt-2" id="wishlist-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <p class="cc-xs-text text-muted-cc m-0 pt-2" id="wishlist-bottom-note">
+          Select your preferred size before moving a piece to your bag. Wishlist items are not reserved, and availability may change.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- Context & Next Steps Banner -->
+    <section class="cc-section-px cc-section-py bg-cc-surface">
+      <div class="row g-5 align-items-center">
+        <!-- Left Text & Actions -->
+        <div class="col-12 col-lg-7">
+          <div class="d-flex flex-column gap-4 pe-lg-4">
+            <div class="d-flex flex-column gap-3">
+              <span class="cc-eyebrow m-0">A MORE CONSIDERED CHOICE</span>
+              <h2 class="cc-phil-title m-0">Take your time. Find your fit.</h2>
+              <p class="cc-body-text m-0">
+                Your saved pieces are a starting point. Compare garment measurements and think about how each piece will work with what you already own.
+              </p>
+            </div>
+            <div class="d-flex flex-wrap gap-3">
+              <a href="size-guide.html" class="btn-cc-outline">
+                <span>View size &amp; fit guide</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+              <a href="lookbook.html" class="btn-cc-outline">
+                <span>Explore the lookbook</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- Right Callout -->
+        <div class="col-12 col-lg-5">
+          <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-3 h-100">
+            <span class="cc-eyebrow m-0">SAVED TO YOUR ACCOUNT</span>
+            <h3 class="cc-service-title m-0">Here when you return.</h3>
+            <p class="cc-small-text m-0">
+              Your wishlist is associated with your account. Sign in on your next visit to find your pieces in one place.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Reusable Footer Partial (Injected via partials.js) -->
+  <div id="footer-partial"></div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/partials.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Wishlist Hydration & Interactive Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof CCStore === 'undefined') return;
+
+      const wishlistGrid = document.getElementById('wishlist-grid');
+      const countLabel = document.getElementById('wishlist-count-label');
+      const descLabel = document.getElementById('wishlist-hero-desc');
+      const bottomNote = document.getElementById('wishlist-bottom-note');
+
+      // Strict targeted removal function that slices out the exact string matching the array
+      function removeIdFromWishlist(idToRemove) {
+        const current = CCStore.getWishlist();
+        const updated = current.filter(item => item !== idToRemove);
+        localStorage.setItem('cc_wishlist_data', JSON.stringify(updated));
+        
+        // Dispatch event so Header Bag/Wishlist numbers update instantly
+        window.dispatchEvent(new CustomEvent('cc:wishlistUpdated', { detail: updated }));
+      }
+
+      function renderWishlist() {
+        const rawIds = CCStore.getWishlist();
+        const wishlistIds = [...new Set(rawIds)]; // Deduplicate just in case
+        const count = wishlistIds.length;
+
+        // Update Labels
+        countLabel.textContent = `${count} SAVED PIECE${count === 1 ? '' : 'S'} / ALL AVAILABLE`;
+        
+        const numberWords = { 1: 'One piece', 2: 'Two pieces', 3: 'Three pieces', 4: 'Four pieces' };
+        const word = numberWords[count] || `${count} pieces`;
+
+        if (count > 0) {
+          descLabel.textContent = `${word} you are keeping in mind. A quiet shortlist for the wardrobe you are building, one considered choice at a time.`;
+          bottomNote.classList.remove('d-none');
+        } else {
+          descLabel.textContent = `Your wishlist is currently empty. Explore the collection to begin your considered shortlist.`;
+          bottomNote.classList.add('d-none');
+        }
+
+        // Handle Empty State Visually
+        if (count === 0) {
+          wishlistGrid.innerHTML = `
+            <div class="col-12 w-100">
+              <div class="py-5 text-center border border-cc bg-cc-surface p-4 w-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 350px;">
+                <p class="cc-body-text mb-4">You haven't saved any pieces to your shortlist yet.</p>
+                <a href="shop-all.html" class="btn-cc-teal" style="width: auto;">
+                  <span>Explore the collection</span>
+                  <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        // Render Product Cards using the Original saved ID
+        wishlistGrid.innerHTML = wishlistIds.map(savedId => {
+          const p = CCStore.getProductById(savedId);
+          if (!p) return '';
+
+          // Determine appropriate size scale based on product category
+          const defaultSize = p.id.includes('trouser') || p.id.includes('short') || p.id.includes('pant') ? '32' : 'M';
+          const sizeOptions = defaultSize === '32'
+            ? ['28', '30', '32', '34', '36', '38']
+            : ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+          return `
+            <div class="col product-item">
+              <article class="cc-product-card d-flex flex-column gap-3 h-100">
+                
+                <div class="position-relative">
+                  <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="text-decoration-none">
+                    <div class="cc-asset-box" style="height: 370px;">
+                      <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
+                      <div class="cc-asset-center-pill">
+                        <div class="cc-asset-icon"></div>
+                        <span class="cc-asset-label">${p.name} / ${p.color}</span>
+                      </div>
+                      <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                    </div>
+                  </a>
+                  
+                  <!-- Remove Heart Button (Bounded with exact savedId) -->
+                  <button
+                    type="button"
+                    class="cc-wishlist-btn text-accent js-remove-wishlist"
+                    data-id="${savedId}"
+                    style="border-color: var(--cc-accent);"
+                    aria-label="Remove from wishlist"
+                  >
+                    <i class="bi bi-heart-fill"></i>
+                  </button>
+                </div>
+
+                <!-- Product Meta -->
+                <div class="d-flex flex-column gap-2">
+                  <span class="${p.isNew ? 'cc-eyebrow-teal' : 'cc-eyebrow'}">${p.badge}</span>
+                  <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="cc-product-title">${p.name}</a>
+                  <div class="d-flex justify-content-between align-items-start">
+                    <span class="cc-xs-text">${p.color}</span>
+                    <span class="cc-small-text text-light-cc">${CCStore.formatPHP(p.price)}</span>
+                  </div>
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <span class="cc-swatch" style="background: #101112;"></span>
+                    <span class="cc-swatch" style="background: #8B8980;"></span>
+                    <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                  </div>
+                </div>
+                
+                <div class="mt-auto d-flex flex-column gap-3 pt-1">
+                  <!-- Confined Position-Relative Size Selector -->
+                  <div class="position-relative overflow-hidden d-flex justify-content-between align-items-center px-3 border border-cc cc-size-select-wrap" style="height: 38px; cursor: pointer;">
+                    <span class="text-light-cc cc-xs-text m-0 selected-size-display">Size: ${defaultSize}</span>
+                    <i class="bi bi-chevron-down text-light-cc" style="font-size: 11px;"></i>
+                    <select
+                      class="position-absolute opacity-0 w-100 h-100 top-0 start-0 border-0 bg-cc-dark text-light-cc cc-size-select"
+                      style="cursor: pointer; z-index: 2;"
+                      data-id="${savedId}"
+                      aria-label="Select size"
+                    >
+                      ${sizeOptions.map(sz => `<option value="${sz}" ${sz === defaultSize ? 'selected' : ''}>Size: ${sz}</option>`).join('')}
+                    </select>
+                  </div>
+                  
+                  <!-- Move to Bag Button -->
+                  <button type="button" class="btn-cc-teal w-100 js-move-to-bag" data-id="${savedId}" style="position: relative; z-index: 3;">
+                    <span>Move to bag</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+
+              </article>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Initial Render & Re-render on updates
+      renderWishlist();
+      window.addEventListener('cc:wishlistUpdated', renderWishlist);
+
+      // Update Size Display Note when dropdown changes
+      wishlistGrid.addEventListener('change', (e) => {
+        if (e.target.classList.contains('cc-size-select')) {
+          const wrap = e.target.closest('.cc-size-select-wrap');
+          const display = wrap ? wrap.querySelector('.selected-size-display') : null;
+          if (display) {
+            display.textContent = `Size: ${e.target.value}`;
+          }
+        }
+      });
+
+      // Handle Clicks for Remove & Move to Bag
+      wishlistGrid.addEventListener('click', (e) => {
+        
+        // Remove Action
+        const removeBtn = e.target.closest('.js-remove-wishlist');
+        if (removeBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const savedId = removeBtn.getAttribute('data-id');
+          removeIdFromWishlist(savedId);
+          return;
+        }
+
+        // Move to Bag Action
+        const moveBtn = e.target.closest('.js-move-to-bag');
+        if (moveBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const savedId = moveBtn.getAttribute('data-id');
+          const card = moveBtn.closest('article');
+          const sizeSelect = card ? card.querySelector('.cc-size-select') : null;
+          const selectedSize = sizeSelect ? sizeSelect.value : 'M';
+
+          const p = CCStore.getProductById(savedId);
+          if (p) {
+            // Add to Bag using the resolved Product ID
+            CCStore.addToCart({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              color: p.color,
+              size: selectedSize,
+              quantity: 1,
+              image: p.image
+            });
+            // Instantly slice the original ID out of the wishlist
+            removeIdFromWishlist(savedId);
+          }
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
