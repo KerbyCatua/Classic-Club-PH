@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Club PH | Cart</title>
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Global Project Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body id="top" class="bg-cc-dark">
+
+  <!-- Reusable Header Partial (Injected via partials.js) -->
+  <div id="header-partial"></div>
+
+  <main>
+    <!-- Page Header Section -->
+    <section class="cc-section-px pt-4 pb-5">
+      <div class="d-flex flex-column gap-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="cc-eyebrow text-transform-none" style="text-transform: none;">
+          <a href="index.html" class="text-muted-cc text-decoration-none">Home</a>
+          <span class="mx-1">/</span>
+          <a href="cart.html" class="text-muted-cc text-decoration-none">Shopping bag</a>
+          <span class="mx-1">/</span>
+          <span class="text-muted-cc">A considered bag.</span>
+        </nav>
+
+        <!-- Title & Description -->
+        <div class="row align-items-end gy-4 justify-content-between">
+          <div class="col-12 col-lg-7">
+            <div class="d-flex flex-column gap-3">
+              <span class="cc-eyebrow">10 / YOUR SELECTION / CLASSIC CLUB PH</span>
+              <h1 class="font-lora text-light-cc mb-0" style="font-size: clamp(2.25rem, 4.5vw, 56px); line-height: 1.18;">
+                A considered bag.
+              </h1>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5 d-lg-flex justify-content-lg-end">
+            <p class="cc-body-text mb-0" id="bag-header-desc" style="max-width: 440px;">
+              Two pieces, one effortless rotation. Review your selection before making it yours.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Shopping Bag & Order Summary Section -->
+    <section class="cc-section-px pb-5">
+      <div class="row g-5 align-items-start">
+
+        <!-- Left Column: Bag Items List -->
+        <div class="col-12 col-lg-7 col-xl-8">
+          <div class="d-flex flex-column gap-4">
+
+            <!-- Table Header -->
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="cc-eyebrow" id="cart-items-heading">PRODUCT / 2 ITEMS</span>
+              <span class="cc-eyebrow">TOTAL</span>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- Dynamic Cart Items Container -->
+            <div id="cart-items-container" class="d-flex flex-column gap-4">
+              <!-- Populated dynamically via JS from CCStore -->
+            </div>
+
+            <!-- Continue Shopping & Sizing Advice Links -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pt-1">
+              <a href="shop-all.html" class="cc-underline-link">← Continue shopping</a>
+              <a href="size-guide.html" class="cc-xs-text text-decoration-none">Need sizing advice? We can help ↗</a>
+            </div>
+
+            <!-- Delivery Notice Box -->
+            <div class="bg-cc-surface p-4 d-flex flex-column gap-3 mt-1">
+              <span class="cc-eyebrow">DELIVERY TO METRO MANILA</span>
+              <p class="cc-small-text m-0">
+                Standard shipping: ₱180.00. For this example order placed 30 October, estimated delivery is 3–5 November 2026. Dispatch and tracking updates arrive by email.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Column: Order Summary & Promo Code -->
+        <div class="col-12 col-lg-5 col-xl-4">
+          <div class="d-flex flex-column gap-4">
+
+            <!-- Order Summary Card -->
+            <div class="bg-cc-surface border border-cc p-4 d-flex flex-column gap-4">
+              <h2 class="font-lora text-light-cc m-0" style="font-size: 28px; line-height: 33.04px;">
+                Order summary
+              </h2>
+
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="cc-small-text" id="summary-subtotal-label">Subtotal · 2 pieces</span>
+                <span class="cc-small-text text-light-cc" id="summary-subtotal-value">₱6,780.00</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="cc-small-text">Standard shipping</span>
+                <span class="cc-small-text text-light-cc" id="summary-shipping-value">₱180.00</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="cc-small-text">Discount</span>
+                <span class="cc-small-text text-light-cc" id="summary-discount-value">₱0.00</span>
+              </div>
+
+              <hr class="border-cc m-0 opacity-100">
+
+              <div class="d-flex justify-content-between align-items-baseline">
+                <span class="text-light-cc" style="font-size: 18px;">Total</span>
+                <span class="text-light-cc" id="summary-total-value" style="font-size: 22px;">₱6,960.00</span>
+              </div>
+
+              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                PHP · Prices include applicable taxes. No additional tax is added at checkout.
+              </p>
+
+              <a href="checkout.html" class="btn-cc-teal w-100" id="checkout-btn">
+                <span>Continue to checkout</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+
+              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                Delivery to Metro Manila: 3–5 November 2026. Illustrative order; no payment is processed.
+              </p>
+            </div>
+
+            <!-- Promotion Code Form -->
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex flex-column gap-2">
+                <label for="promo-code-input" class="cc-xs-text text-light-cc">Have a promotion code?</label>
+                <input
+                  type="text"
+                  id="promo-code-input"
+                  class="form-control cc-input bg-cc-surface"
+                  style="height: 50px;"
+                  placeholder="Enter your code"
+                >
+              </div>
+              <button type="button" class="btn-cc-outline w-100" id="apply-promo-btn">
+                <span>Apply code</span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
+              <p class="cc-eyebrow text-transform-none m-0" id="promo-status-msg" style="text-transform: none; line-height: 18.15px;">
+                No promotion applied to this order.
+              </p>
+            </div>
+
+            <p class="cc-xs-text m-0">
+              Items in your bag are not reserved. Returns are available on eligible unworn pieces within 14 calendar days of delivery.
+            </p>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Cross-Sell Recommendations Section -->
+    <section class="cc-section-px cc-section-py bg-cc-surface">
+      <div class="d-flex flex-column gap-4">
+        <div class="d-flex flex-column gap-2">
+          <span class="cc-eyebrow">ONE MORE CONSIDERED DETAIL</span>
+          <h2 class="cc-sec-title m-0">Works well with your selection.</h2>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 pt-2" id="product-grid">
+
+          <!-- Product 1: Relaxed Tailored Trouser / Charcoal -->
+          <div class="col product-item">
+            <article class="cc-product-card d-flex flex-column gap-3 h-100">
+              <div class="position-relative">
+                <a href="product-detail.html?id=relaxed-trouser-charcoal" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <span class="cc-asset-label">Relaxed Tailored Trouser / Charcoal</span>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+                <button type="button" class="cc-wishlist-btn" data-product-id="relaxed-trouser-charcoal" aria-label="Add to wishlist">
+                  <i class="bi bi-heart"></i>
+                </button>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                <a href="product-detail.html?id=relaxed-trouser-charcoal" class="cc-product-title">Relaxed Tailored Trouser</a>
+                <div class="d-flex justify-content-between align-items-start">
+                  <span class="cc-xs-text">Charcoal</span>
+                  <span class="cc-small-text text-light-cc">₱3,690.00</span>
+                </div>
+                <div class="d-inline-flex align-items-center gap-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Product 2: Textured Knit Polo / Oat -->
+          <div class="col product-item">
+            <article class="cc-product-card d-flex flex-column gap-3 h-100">
+              <div class="position-relative">
+                <a href="product-detail.html?id=textured-knit-polo-oat" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <span class="cc-asset-label">Textured Knit Polo / Oat</span>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+                <button type="button" class="cc-wishlist-btn" data-product-id="textured-knit-polo-oat" aria-label="Add to wishlist">
+                  <i class="bi bi-heart"></i>
+                </button>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow-teal">NEW / DROP 03</span>
+                <a href="product-detail.html?id=textured-knit-polo-oat" class="cc-product-title">Textured Knit Polo</a>
+                <div class="d-flex justify-content-between align-items-start">
+                  <span class="cc-xs-text">Oat</span>
+                  <span class="cc-small-text text-light-cc">₱2,890.00</span>
+                </div>
+                <div class="d-inline-flex align-items-center gap-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Product 3: Understated Club Cap / Obsidian -->
+          <div class="col product-item">
+            <article class="cc-product-card d-flex flex-column gap-3 h-100">
+              <div class="position-relative">
+                <a href="product-detail.html?id=understated-cap-obsidian" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <span class="cc-asset-label">Understated Club Cap / Obsidian</span>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+                <button type="button" class="cc-wishlist-btn" data-product-id="understated-cap-obsidian" aria-label="Add to wishlist">
+                  <i class="bi bi-heart"></i>
+                </button>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow">CORE / ADJUSTABLE</span>
+                <a href="product-detail.html?id=understated-cap-obsidian" class="cc-product-title">Understated Club Cap</a>
+                <div class="d-flex justify-content-between align-items-start">
+                  <span class="cc-xs-text">Obsidian</span>
+                  <span class="cc-small-text text-light-cc">₱1,190.00</span>
+                </div>
+                <div class="d-inline-flex align-items-center gap-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Product 4: Daily Canvas Tote / Natural -->
+          <div class="col product-item">
+            <article class="cc-product-card d-flex flex-column gap-3 h-100">
+              <div class="position-relative">
+                <a href="product-detail.html?id=daily-canvas-tote-natural" class="text-decoration-none">
+                  <div class="cc-asset-box" style="height: 370px;">
+                    <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
+                    <div class="cc-asset-center-pill">
+                      <div class="cc-asset-icon"></div>
+                      <span class="cc-asset-label">Daily Canvas Tote / Natural</span>
+                    </div>
+                    <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
+                  </div>
+                </a>
+                <button type="button" class="cc-wishlist-btn" data-product-id="daily-canvas-tote-natural" aria-label="Add to wishlist">
+                  <i class="bi bi-heart"></i>
+                </button>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <span class="cc-eyebrow">CORE / HEAVY CANVAS</span>
+                <a href="product-detail.html?id=daily-canvas-tote-natural" class="cc-product-title">Daily Canvas Tote</a>
+                <div class="d-flex justify-content-between align-items-start">
+                  <span class="cc-xs-text">Natural</span>
+                  <span class="cc-small-text text-light-cc">₱1,490.00</span>
+                </div>
+                <div class="d-inline-flex align-items-center gap-1">
+                  <span class="cc-swatch" style="background: #101112;"></span>
+                  <span class="cc-swatch" style="background: #8B8980;"></span>
+                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Reusable Footer Partial (Injected via partials.js) -->
+  <div id="footer-partial"></div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/partials.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Shopping Bag Interactive Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cartContainer = document.getElementById('cart-items-container');
+      const itemsHeading = document.getElementById('cart-items-heading');
+      const subtotalLabel = document.getElementById('summary-subtotal-label');
+      const subtotalValue = document.getElementById('summary-subtotal-value');
+      const shippingValue = document.getElementById('summary-shipping-value');
+      const discountValue = document.getElementById('summary-discount-value');
+      const totalValue = document.getElementById('summary-total-value');
+      const promoInput = document.getElementById('promo-code-input');
+      const applyPromoBtn = document.getElementById('apply-promo-btn');
+      const promoStatusMsg = document.getElementById('promo-status-msg');
+      const wishlistBtns = document.querySelectorAll('.cc-wishlist-btn');
+
+      function renderCart() {
+        if (typeof CCStore === 'undefined') return;
+        const cart = CCStore.getCart();
+        const totals = CCStore.getCartTotals();
+
+        // Update headings and summary numbers
+        const itemWord = totals.totalItems === 1 ? 'ITEM' : 'ITEMS';
+        const pieceWord = totals.totalItems === 1 ? 'piece' : 'pieces';
+        itemsHeading.textContent = `PRODUCT / ${totals.totalItems} ${itemWord}`;
+        subtotalLabel.textContent = `Subtotal · ${totals.totalItems} ${pieceWord}`;
+        subtotalValue.textContent = CCStore.formatPHP(totals.subtotal);
+        shippingValue.textContent = CCStore.formatPHP(totals.shipping);
+        discountValue.textContent = totals.discount > 0 ? `−${CCStore.formatPHP(totals.discount)}` : '₱0.00';
+        totalValue.textContent = CCStore.formatPHP(totals.total);
+
+        if (cart.length === 0) {
+          cartContainer.innerHTML = `
+            <div class="py-5 text-center border border-cc bg-cc-surface p-4">
+              <p class="cc-body-text mb-3">Your shopping bag is currently empty.</p>
+              <a href="shop-all.html" class="btn-cc-teal">
+                <span>Explore the collection</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
+          `;
+          return;
+        }
+
+        cartContainer.innerHTML = cart.map(item => {
+          const lineTotal = Number(item.price) * Number(item.quantity || 1);
+          return `
+            <div class="d-flex flex-column gap-4 cart-item-row" data-id="${item.id}" data-color="${item.color}" data-size="${item.size}">
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start gap-4">
+                <div class="d-flex flex-column flex-sm-row align-items-start gap-4 flex-grow-1">
+                  <!-- Thumbnail Asset Box -->
+                  <a href="product-detail.html?id=${encodeURIComponent(item.id)}" class="text-decoration-none flex-shrink-0">
+                    <div class="cc-asset-box" style="width: 168px; height: 205px; padding: 12px;">
+                      <div class="cc-asset-center-pill p-2">
+                        <div class="cc-asset-icon"></div>
+                        <span class="cc-asset-label" style="font-size: 8px; line-height: 12px;">
+                          ${item.name} / ${item.color}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+
+                  <!-- Item Details & Controls -->
+                  <div class="d-flex flex-column gap-3 flex-grow-1">
+                    <a href="product-detail.html?id=${encodeURIComponent(item.id)}" class="text-light-cc text-decoration-none" style="font-size: 17px;">
+                      ${item.name}
+                    </a>
+                    <div class="cc-small-text">${item.color} / Size ${item.size}</div>
+                    <div class="cc-small-text text-light-cc">${CCStore.formatPHP(item.price)}</div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-4 pt-1">
+                      <!-- Quantity Selector -->
+                      <div class="d-flex justify-content-between align-items-center border border-cc" style="width: 116px; height: 40px; padding: 0 16px;">
+                        <button type="button" class="btn p-0 border-0 text-light-cc qty-minus-btn" style="font-size: 15px;">−</button>
+                        <span class="cc-small-text text-light-cc">${item.quantity}</span>
+                        <button type="button" class="btn p-0 border-0 text-light-cc qty-plus-btn" style="font-size: 15px;">+</button>
+                      </div>
+
+                      <button type="button" class="btn p-0 border-0 cc-underline-link move-wishlist-btn">
+                        Move to wishlist
+                      </button>
+                      <button type="button" class="btn p-0 border-0 cc-underline-link remove-item-btn">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Line Item Total -->
+                <div class="text-light-cc" style="font-size: 14px;">
+                  ${CCStore.formatPHP(lineTotal)}
+                </div>
+              </div>
+              <hr class="border-cc m-0 opacity-100">
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Event Delegation for Cart Actions (−, +, Move to wishlist, Remove)
+      cartContainer.addEventListener('click', (e) => {
+        const row = e.target.closest('.cart-item-row');
+        if (!row) return;
+
+        const id = row.getAttribute('data-id');
+        const color = row.getAttribute('data-color');
+        const size = row.getAttribute('data-size');
+        const cart = CCStore.getCart();
+        const item = cart.find(c => c.id === id && c.color === color && c.size === size);
+        if (!item) return;
+
+        if (e.target.closest('.qty-minus-btn')) {
+          CCStore.updateCartQty(id, color, size, item.quantity - 1);
+          renderCart();
+        } else if (e.target.closest('.qty-plus-btn')) {
+          CCStore.updateCartQty(id, color, size, item.quantity + 1);
+          renderCart();
+        } else if (e.target.closest('.remove-item-btn')) {
+          CCStore.removeFromCart(id, color, size);
+          renderCart();
+        } else if (e.target.closest('.move-wishlist-btn')) {
+          CCStore.moveToWishlist(id, color, size);
+          renderCart();
+          syncRelatedWishlistIcons();
+        }
+      });
+
+      // Promo Code Application
+      applyPromoBtn.addEventListener('click', () => {
+        const result = CCStore.applyPromoCode(promoInput.value);
+        promoStatusMsg.textContent = result.message;
+        promoStatusMsg.classList.toggle('text-accent', result.valid);
+        renderCart();
+      });
+
+      // Sync Related Product Grid Wishlist Buttons
+      function syncRelatedWishlistIcons() {
+        wishlistBtns.forEach(btn => {
+          const productId = btn.getAttribute('data-product-id');
+          const icon = btn.querySelector('i');
+          if (typeof CCStore !== 'undefined' && CCStore.isInWishlist(productId)) {
+            icon.classList.replace('bi-heart', 'bi-heart-fill');
+            btn.classList.add('text-accent');
+          } else {
+            icon.classList.replace('bi-heart-fill', 'bi-heart');
+            btn.classList.remove('text-accent');
+          }
+        });
+      }
+
+      wishlistBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const productId = btn.getAttribute('data-product-id');
+          CCStore.toggleWishlist(productId);
+          syncRelatedWishlistIcons();
+        });
+      });
+
+      renderCart();
+      syncRelatedWishlistIcons();
+    });
+  </script>
+</body>
+</html>

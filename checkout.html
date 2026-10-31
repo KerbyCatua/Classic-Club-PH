@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Club PH | Checkout</title>
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Global Project Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body id="top" class="bg-cc-dark">
+
+  <!-- Reusable Header Partial (Injected via partials.js) -->
+  <div id="header-partial"></div>
+
+  <main>
+    <!-- Page Header Section -->
+    <section class="cc-section-px pt-4 pb-5">
+      <div class="d-flex flex-column gap-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="cc-eyebrow text-transform-none" style="text-transform: none;">
+          <a href="index.html" class="text-muted-cc text-decoration-none">Home</a>
+          <span class="mx-1">/</span>
+          <a href="cart.html" class="text-muted-cc text-decoration-none">Bag</a>
+          <span class="mx-1">/</span>
+          <span class="text-muted-cc">The final details.</span>
+        </nav>
+
+        <!-- Title & Description -->
+        <div class="row align-items-end gy-4 justify-content-between">
+          <div class="col-12 col-lg-7">
+            <div class="d-flex flex-column gap-3">
+              <span class="cc-eyebrow">11 / CHECKOUT / CLASSIC CLUB PH</span>
+              <h1 class="font-lora text-light-cc mb-0" style="font-size: clamp(2.25rem, 4.5vw, 56px); line-height: 1.18;">
+                The final details.
+              </h1>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5 d-lg-flex justify-content-lg-end">
+            <p class="cc-body-text mb-0" style="max-width: 440px;">
+              A clear, considered checkout. This is an illustrative order and payment interface; no financial processing takes place.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Checkout Progress Steps -->
+    <section class="cc-section-px pb-4">
+      <div class="d-flex flex-wrap align-items-center gap-4">
+        <a href="cart.html" class="cc-xs-text text-decoration-none">01 &nbsp;Bag ✓</a>
+        <span class="cc-xs-text text-light-cc text-decoration-underline">02 &nbsp;Details &amp; payment</span>
+        <span class="cc-xs-text">03 &nbsp;Confirmation</span>
+      </div>
+    </section>
+
+    <!-- Main Checkout Form & Order Summary Section -->
+    <section class="cc-section-px pb-5 mb-4">
+      <form id="checkout-form" class="row g-5 align-items-start">
+
+        <!-- Left Column: 5-Step Checkout Form -->
+        <div class="col-12 col-lg-7">
+          <div class="d-flex flex-column gap-5">
+
+            <!-- 01. Contact -->
+            <div class="d-flex flex-column gap-4">
+              <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2">
+                <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">01. Contact</h2>
+                <a href="auth.html" class="cc-underline-link">Already a member? Sign in</a>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-email" class="cc-xs-text text-light-cc">Email address *</label>
+                <input type="email" id="checkout-email" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="alex.reyes@example.com" required>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
+                  <input type="checkbox" class="d-none cc-custom-check" checked>
+                  <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
+                  <span class="cc-xs-text">Email me order and shipping updates.</span>
+                </label>
+
+                <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
+                  <input type="checkbox" class="d-none cc-custom-check">
+                  <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px;"></span>
+                  <span class="cc-xs-text">Keep me informed about new collections (optional).</span>
+                </label>
+              </div>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- 02. Shipping Address -->
+            <div class="d-flex flex-column gap-4">
+              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">02. Shipping address</h2>
+              <p class="cc-xs-text m-0">Illustrative customer and delivery details. Replace with your own information.</p>
+
+              <div class="row g-3">
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label for="checkout-fname" class="cc-xs-text text-light-cc">First name *</label>
+                  <input type="text" id="checkout-fname" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Alex" required>
+                </div>
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label for="checkout-lname" class="cc-xs-text text-light-cc">Last name *</label>
+                  <input type="text" id="checkout-lname" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Reyes" required>
+                </div>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-mobile" class="cc-xs-text text-light-cc">Mobile number *</label>
+                <input type="tel" id="checkout-mobile" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="+63 917 000 0184" required>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-country" class="cc-xs-text text-light-cc">Country / region *</label>
+                <select id="checkout-country" class="form-select cc-input bg-cc-surface" style="height: 50px;">
+                  <option value="Philippines" selected>Philippines</option>
+                </select>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-street" class="cc-xs-text text-light-cc">Street address *</label>
+                <input type="text" id="checkout-street" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="18 Sample Street" required>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-apt" class="cc-xs-text text-light-cc">Apartment, suite or landmark (optional)</label>
+                <input type="text" id="checkout-apt" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Unit 4B · Example Residences">
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label for="checkout-brgy" class="cc-xs-text text-light-cc">Barangay *</label>
+                  <input type="text" id="checkout-brgy" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Poblacion" required>
+                </div>
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label for="checkout-city" class="cc-xs-text text-light-cc">City / municipality *</label>
+                  <input type="text" id="checkout-city" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Makati City" required>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label for="checkout-province" class="cc-xs-text text-light-cc">Province / region *</label>
+                  <select id="checkout-province" class="form-select cc-input bg-cc-surface" style="height: 50px;">
+                    <option value="Metro Manila" selected>Metro Manila</option>
+                    <option value="Pampanga">Pampanga</option>
+                    <option value="Cebu">Cebu</option>
+                    <option value="Davao del Sur">Davao del Sur</option>
+                  </select>
+                </div>
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label for="checkout-postal" class="cc-xs-text text-light-cc">Postal code *</label>
+                  <input type="text" id="checkout-postal" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="1210" required>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- 03. Delivery -->
+            <div class="d-flex flex-column gap-3">
+              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">03. Delivery</h2>
+
+              <div class="p-4 d-flex align-items-center justify-content-between gap-3" style="background: #112B2E; border: 1px solid var(--cc-accent);">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="text-accent" style="font-size: 20px;">◉</span>
+                  <div class="d-flex flex-column gap-1">
+                    <span class="text-light-cc" style="font-size: 14px;">Standard delivery · Metro Manila</span>
+                    <span class="cc-xs-text">Estimated arrival: 3–5 November 2026</span>
+                  </div>
+                </div>
+                <span class="text-light-cc" style="font-size: 14px;">₱180.00</span>
+              </div>
+
+              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                Business-day estimates begin after dispatch. Tracking is emailed when your parcel is handed to the courier.
+              </p>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- 04. Billing -->
+            <div class="d-flex flex-column gap-3">
+              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">04. Billing</h2>
+
+              <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
+                <input type="checkbox" class="d-none cc-custom-check" checked>
+                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
+                <span class="cc-xs-text">Billing address is the same as my shipping address.</span>
+              </label>
+
+              <p class="cc-xs-text m-0" id="billing-preview-line">
+                Alex Reyes · 18 Sample Street, Unit 4B, Poblacion, Makati City, Metro Manila 1210.
+              </p>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- 05. Payment -->
+            <div class="d-flex flex-column gap-4">
+              <div class="d-flex justify-content-between align-items-baseline">
+                <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">05. Payment</h2>
+                <span class="cc-eyebrow-teal">ILLUSTRATIVE ONLY</span>
+              </div>
+
+              <p class="cc-small-text m-0">
+                These are non-functional sample controls. Do not enter real financial information. No charge will be made.
+              </p>
+
+              <!-- Payment Method Selector -->
+              <div class="row g-2" id="payment-method-group">
+                <div class="col-12 col-sm-4">
+                  <button type="button" class="btn w-100 rounded-0 text-start text-light-cc d-flex align-items-center px-3 payment-method-btn active" data-method="Illustrative card ending 4242." style="height: 48px; background: #112B2E; border: 1px solid var(--cc-accent); font-size: 12px;">
+                    <span class="method-radio me-2">◉</span> Credit / debit card
+                  </button>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <button type="button" class="btn w-100 rounded-0 text-start text-light-cc d-flex align-items-center px-3 payment-method-btn" data-method="GCash (Illustrative)" style="height: 48px; background: var(--cc-surface); border: 1px solid var(--cc-border); font-size: 12px;">
+                    <span class="method-radio me-2">○</span> GCash
+                  </button>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <button type="button" class="btn w-100 rounded-0 text-start text-light-cc d-flex align-items-center px-3 payment-method-btn" data-method="Maya (Illustrative)" style="height: 48px; background: var(--cc-surface); border: 1px solid var(--cc-border); font-size: 12px;">
+                    <span class="method-radio me-2">○</span> Maya
+                  </button>
+                </div>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label class="cc-xs-text text-light-cc">Name on card · example</label>
+                <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="ALEX REYES">
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <label class="cc-xs-text text-light-cc">Card number · illustrative</label>
+                <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="••••  ••••  ••••  4242" readonly>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label class="cc-xs-text text-light-cc">Expiry · illustrative</label>
+                  <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="12 / 28" readonly>
+                </div>
+                <div class="col-12 col-sm-6 d-flex flex-column gap-2">
+                  <label class="cc-xs-text text-light-cc">Security code · illustrative</label>
+                  <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="•••" readonly>
+                </div>
+              </div>
+
+              <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
+                <input type="checkbox" class="d-none cc-custom-check" checked required>
+                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
+                <span class="cc-xs-text">I have read the terms and shipping &amp; returns policy.</span>
+              </label>
+
+              <button type="submit" class="btn-cc-teal w-100" id="place-order-btn">
+                <span id="place-order-btn-text">Place example order — ₱6,960.00</span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
+
+              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                Static design example. The order confirmation shown in this design set uses order CC-261030-0184.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Column: Order Summary & Client Services -->
+        <div class="col-12 col-lg-5">
+          <div class="d-flex flex-column gap-4">
+
+            <!-- Order Summary Card -->
+            <div class="bg-cc-surface border border-cc p-4 d-flex flex-column gap-4">
+              <h2 class="font-lora text-light-cc m-0" style="font-size: 28px; line-height: 33.04px;">
+                Order summary
+              </h2>
+
+              <!-- Dynamic Mini Items List -->
+              <div id="checkout-items-list" class="d-flex flex-column gap-3">
+                <!-- Populated via JS -->
+              </div>
+
+              <hr class="border-cc m-0 opacity-100">
+
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="cc-small-text" id="checkout-subtotal-label">Subtotal · 2 pieces</span>
+                <span class="cc-small-text text-light-cc" id="checkout-subtotal-value">₱6,780.00</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="cc-small-text">Standard shipping</span>
+                <span class="cc-small-text text-light-cc" id="checkout-shipping-value">₱180.00</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="cc-small-text">Discount</span>
+                <span class="cc-small-text text-light-cc" id="checkout-discount-value">₱0.00</span>
+              </div>
+
+              <hr class="border-cc m-0 opacity-100">
+
+              <div class="d-flex justify-content-between align-items-baseline">
+                <span class="text-light-cc" style="font-size: 18px;">Total</span>
+                <span class="text-light-cc" id="checkout-total-value" style="font-size: 22px;">₱6,960.00</span>
+              </div>
+
+              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                PHP · Prices include applicable taxes. No additional tax is added at checkout.
+              </p>
+
+              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                Delivery to Metro Manila: 3–5 November 2026. Illustrative order; no payment is processed.
+              </p>
+            </div>
+
+            <!-- Need a Hand Card -->
+            <div class="border border-cc p-4 d-flex flex-column gap-3">
+              <span class="cc-eyebrow">NEED A HAND?</span>
+              <p class="cc-small-text m-0">
+                Client services can help with sizing, delivery and order questions. Monday–Friday, 10am–6pm PHT.
+              </p>
+              <div>
+                <a href="contact.html" class="cc-underline-link">Contact client services ↗</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </form>
+    </section>
+  </main>
+
+  <!-- Reusable Footer Partial (Injected via partials.js) -->
+  <div id="footer-partial"></div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/partials.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Checkout Interactive Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof CCStore === 'undefined') return;
+
+      const itemsListEl = document.getElementById('checkout-items-list');
+      const subtotalLabel = document.getElementById('checkout-subtotal-label');
+      const subtotalValue = document.getElementById('checkout-subtotal-value');
+      const shippingValue = document.getElementById('checkout-shipping-value');
+      const discountValue = document.getElementById('checkout-discount-value');
+      const totalValue = document.getElementById('checkout-total-value');
+      const placeOrderBtnText = document.getElementById('place-order-btn-text');
+      const checkoutForm = document.getElementById('checkout-form');
+
+      let selectedPaymentMethod = 'Illustrative card ending 4242.';
+
+      // Render Summary from CCStore
+      function renderCheckoutSummary() {
+        const cart = CCStore.getCart();
+        const totals = CCStore.getCartTotals();
+        const pieceWord = totals.totalItems === 1 ? 'piece' : 'pieces';
+
+        subtotalLabel.textContent = `Subtotal · ${totals.totalItems} ${pieceWord}`;
+        subtotalValue.textContent = CCStore.formatPHP(totals.subtotal);
+        shippingValue.textContent = CCStore.formatPHP(totals.shipping);
+        discountValue.textContent = totals.discount > 0 ? `−${CCStore.formatPHP(totals.discount)}` : '₱0.00';
+        totalValue.textContent = CCStore.formatPHP(totals.total);
+        placeOrderBtnText.textContent = `Place example order — ${CCStore.formatPHP(totals.total)}`;
+
+        itemsListEl.innerHTML = cart.map(item => `
+          <div class="d-flex align-items-center gap-3">
+            <div class="cc-asset-box flex-shrink-0" style="width: 88px; height: 106px; padding: 10px;">
+              <div class="cc-asset-center-pill p-1">
+                <div class="cc-asset-icon"></div>
+                <span class="cc-asset-label" style="font-size: 8px; line-height: 12px;">IMAGE</span>
+              </div>
+            </div>
+            <div class="d-flex flex-column gap-1 flex-grow-1">
+              <span class="cc-xs-text text-light-cc">${item.name}</span>
+              <span class="cc-eyebrow text-transform-none" style="text-transform: none;">
+                ${item.color} / ${item.size} / Qty ${item.quantity}
+              </span>
+              <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Custom Checkbox Toggle Visuals
+      document.querySelectorAll('.cc-custom-check').forEach(input => {
+        input.addEventListener('change', () => {
+          const box = input.nextElementSibling;
+          if (input.checked) {
+            box.style.background = 'var(--cc-accent)';
+            box.style.borderColor = 'var(--cc-accent)';
+            box.textContent = '✓';
+          } else {
+            box.style.background = 'var(--cc-bg)';
+            box.style.borderColor = 'var(--cc-border)';
+            box.textContent = '';
+          }
+        });
+      });
+
+      // Payment Method Selector Toggle
+      const methodBtns = document.querySelectorAll('.payment-method-btn');
+      methodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          methodBtns.forEach(b => {
+            b.classList.remove('active');
+            b.style.background = 'var(--cc-surface)';
+            b.style.borderColor = 'var(--cc-border)';
+            b.querySelector('.method-radio').textContent = '○';
+          });
+          btn.classList.add('active');
+          btn.style.background = '#112B2E';
+          btn.style.borderColor = 'var(--cc-accent)';
+          btn.querySelector('.method-radio').textContent = '◉';
+          selectedPaymentMethod = btn.getAttribute('data-method');
+        });
+      });
+
+      // Live Billing Address Preview Sync
+      const addrInputs = ['checkout-fname', 'checkout-lname', 'checkout-street', 'checkout-apt', 'checkout-brgy', 'checkout-city', 'checkout-province', 'checkout-postal'];
+      const billingPreview = document.getElementById('billing-preview-line');
+      function updateBillingPreview() {
+        const fname = document.getElementById('checkout-fname').value;
+        const lname = document.getElementById('checkout-lname').value;
+        const street = document.getElementById('checkout-street').value;
+        const apt = document.getElementById('checkout-apt').value;
+        const brgy = document.getElementById('checkout-brgy').value;
+        const city = document.getElementById('checkout-city').value;
+        const prov = document.getElementById('checkout-province').value;
+        const postal = document.getElementById('checkout-postal').value;
+        billingPreview.textContent = `${fname} ${lname} · ${street}${apt ? ', ' + apt : ''}, ${brgy}, ${city}, ${prov} ${postal}.`;
+      }
+      addrInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateBillingPreview);
+      });
+
+      // Place Order Submission -> Saves to CCStore and Redirects to order-confirmation.html
+      checkoutForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        CCStore.placeOrder({
+          email: document.getElementById('checkout-email').value,
+          firstName: document.getElementById('checkout-fname').value,
+          lastName: document.getElementById('checkout-lname').value,
+          mobile: document.getElementById('checkout-mobile').value,
+          country: document.getElementById('checkout-country').value,
+          street: document.getElementById('checkout-street').value,
+          apartment: document.getElementById('checkout-apt').value,
+          barangay: document.getElementById('checkout-brgy').value,
+          city: document.getElementById('checkout-city').value,
+          province: document.getElementById('checkout-province').value,
+          postalCode: document.getElementById('checkout-postal').value,
+          paymentMethod: selectedPaymentMethod
+        });
+        window.location.href = 'order-confirmation.html';
+      });
+
+      renderCheckoutSummary();
+    });
+  </script>
+</body>
+</html>

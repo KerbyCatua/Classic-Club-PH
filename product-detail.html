@@ -454,14 +454,15 @@
       });
 
       // Product Setup
+      const urlProductId = new URLSearchParams(window.location.search).get('id') || 'essential-hw-tee-obsidian';
+      const loadedProduct = (typeof CCStore !== 'undefined') ? CCStore.getProductById(urlProductId) : null;
       let currentProduct = {
-        id: 'essential-hw-tee',
-        name: 'Essential Heavyweight Tee',
-        price: 1890,
-        color: 'Obsidian',
+        id: loadedProduct ? loadedProduct.id : 'essential-hw-tee-obsidian',
+        name: loadedProduct ? loadedProduct.name : 'Essential Heavyweight Tee',
+        price: loadedProduct ? loadedProduct.price : 1890,
+        color: loadedProduct ? loadedProduct.color : 'Obsidian',
         size: 'M',
-        quantity: 1,
-        image: 'assets/img/placeholder.png' // Replace with actual asset logic if available
+        quantity: 1
       };
 
       // Handle Color Selection
