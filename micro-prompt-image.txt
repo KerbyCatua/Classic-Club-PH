@@ -1,0 +1,16 @@
+Create a micro-prompt that I can send to my 
+image generator with the following instruction:
+
+"Generate an image for the placeholder shown in 
+the reference image. Make sure the generated image
+ matches the website's color theme.
+
+Here is my website's color palette:
+
+Accent Color: #028090
+Background Color: #101112
+Font Color: #F4F1EA"
+
+NOTE TO GEMINI: This task is NOT about generating an image. 
+It is about generating a micro-prompt based on the instructions above. 
+Provide only the micro-prompt that I can copy and send to my image generator.
