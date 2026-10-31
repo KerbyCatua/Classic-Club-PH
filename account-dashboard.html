@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Club PH | Account</title>
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Global Project Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body id="top" class="bg-cc-dark">
+
+  <!-- Reusable Header Partial (Injected via partials.js) -->
+  <div id="header-partial"></div>
+
+  <main>
+    <!-- Page Header Section -->
+    <section class="cc-section-px pt-4 pb-5">
+      <div class="d-flex flex-column gap-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="cc-eyebrow text-transform-none" style="text-transform: none;">
+          <a href="index.html" class="text-muted-cc text-decoration-none">Home</a>
+          <span class="mx-1">/</span>
+          <a href="auth.html" class="text-muted-cc text-decoration-none">My account</a>
+          <span class="mx-1">/</span>
+          <span class="text-muted-cc">Good to see you, <span class="customer-fname">Alex</span>.</span>
+        </nav>
+
+        <!-- Title & Description -->
+        <div class="row align-items-end gy-4 justify-content-between">
+          <div class="col-12 col-lg-7">
+            <div class="d-flex flex-column gap-3">
+              <span class="cc-eyebrow">14 / YOUR ACCOUNT / CLASSIC CLUB PH</span>
+              <h1 class="font-lora text-light-cc mb-0" style="font-size: clamp(2.25rem, 4.5vw, 56px); line-height: 1.18;">
+                Good to see you, <span class="customer-fname">Alex</span>.
+              </h1>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5 d-lg-flex justify-content-lg-end">
+            <p class="cc-body-text mb-0" style="max-width: 440px;">
+              Your orders, your details, your rotation. A considered overview of everything you have made yours.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Account Dashboard Main Layout -->
+    <section class="cc-section-px pb-5 mb-5">
+      <div class="row g-5 align-items-start">
+        
+        <!-- Left Sidebar Navigation -->
+        <div class="col-12 col-lg-3 col-xl-2">
+          <div class="d-flex flex-column gap-4 sticky-top" style="top: 100px;">
+            
+            <!-- User Profile Snapshot -->
+            <div class="d-flex flex-column gap-3">
+              <div class="d-inline-flex align-items-center justify-content-center bg-cc-surface border border-cc" style="width: 56px; height: 56px;">
+                <span class="text-light-cc fw-medium customer-initials" style="font-size: 18px;">AR</span>
+              </div>
+              <div class="d-flex flex-column gap-1">
+                <span class="text-light-cc" style="font-size: 14px;">
+                  <span class="customer-fname">Alex</span> <span class="customer-lname">Reyes</span>
+                </span>
+                <span class="cc-xs-text customer-email">alex.reyes@example.com</span>
+              </div>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- Sidebar Links -->
+            <div class="d-flex flex-column">
+              <a href="account-dashboard.html" class="p-3 text-light-cc text-decoration-none" style="background: #112B2E; border-left: 2px solid var(--cc-accent); font-size: 12px;">Overview &amp; orders</a>
+              <a href="shop-all.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Saved wishlist (<span id="wishlist-sidebar-count">0</span>)</a>
+              <a href="#" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Addresses</a>
+              <a href="#" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Profile &amp; preferences</a>
+              <a href="auth.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Sign out</a>
+            </div>
+
+            <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+              Illustrative account data.<br>No live customer records are shown.
+            </p>
+
+          </div>
+        </div>
+
+        <!-- Right Main Content Area -->
+        <div class="col-12 col-lg-9 col-xl-10">
+          <div class="d-flex flex-column gap-5 px-lg-4">
+            
+            <!-- Top Summary Cards -->
+            <div class="row g-4">
+              <div class="col-12 col-md-6">
+                <div class="bg-cc-surface p-4 d-flex flex-column gap-3 h-100">
+                  <span class="cc-eyebrow m-0">YOUR PROFILE</span>
+                  <h2 class="font-lora text-light-cc m-0" style="font-size: 26px; line-height: 30.68px;">
+                    <span class="customer-fname">Alex</span> <span class="customer-lname">Reyes</span>
+                  </h2>
+                  <p class="cc-small-text m-0">
+                    <span class="customer-email">alex.reyes@example.com</span><br>
+                    <span class="customer-mobile">+63 917 000 0184</span>
+                  </p>
+                  <div>
+                    <a href="#" class="cc-underline-link m-0">Edit profile ↗</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="bg-cc-surface p-4 d-flex flex-column gap-3 h-100">
+                  <span class="cc-eyebrow m-0">DEFAULT SHIPPING / EXAMPLE</span>
+                  <p class="cc-small-text text-light-cc m-0" id="dashboard-shipping-address">
+                    18 Sample Street, Unit 4B<br>
+                    Example Residences, Poblacion<br>
+                    Makati City, Metro Manila 1210
+                  </p>
+                  <div>
+                    <a href="#" class="cc-underline-link m-0">Manage addresses ↗</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active / Recent Orders Section -->
+            <div class="d-flex flex-column gap-4 mt-2">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <h2 class="font-lora text-light-cc m-0" style="font-size: 36px; line-height: 42.48px;">Your order history</h2>
+                <span class="cc-eyebrow">2 ORDERS</span>
+              </div>
+
+              <!-- Primary Dynamic Order Card -->
+              <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
+                
+                <!-- Meta Head -->
+                <div class="row align-items-center gy-3">
+                  <div class="col-12 col-md-4 d-flex flex-column gap-1">
+                    <span class="text-light-cc" id="dashboard-order-number" style="font-size: 16px; line-height: 26.4px;">CC-261030-0184</span>
+                    <span class="cc-xs-text" id="dashboard-order-date">30 October 2026 · 2 pieces</span>
+                  </div>
+                  <div class="col-6 col-md-4 text-start text-md-center">
+                    <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">CONFIRMED / PREPARING</span>
+                  </div>
+                  <div class="col-6 col-md-4 text-end">
+                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">₱6,960.00</span>
+                  </div>
+                </div>
+
+                <hr class="border-cc m-0 opacity-100">
+
+                <!-- Dynamic Item List for Primary Order -->
+                <div class="row g-4" id="dashboard-order-items">
+                  <!-- Populated via JS -->
+                </div>
+
+                <hr class="border-cc m-0 opacity-100">
+
+                <!-- Totals & Payment Summary -->
+                <div class="row gy-4">
+                  <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                    <span class="cc-eyebrow m-0">STANDARD DELIVERY</span>
+                    <span class="text-light-cc m-0" style="font-size: 13px;">Estimated 3–5 November 2026</span>
+                    <span class="cc-xs-text m-0" style="max-width: 330px;">Tracking will be available after dispatch. An email update will be sent to your account address.</span>
+                  </div>
+                  <div class="col-12 col-md-6 d-flex flex-column gap-2" style="max-width: 330px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Subtotal</span>
+                      <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">₱6,780.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Shipping</span>
+                      <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">₱180.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Total · tax included</span>
+                      <span class="cc-small-text text-light-cc" id="dashboard-final-val">₱6,960.00</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="cc-eyebrow text-transform-none m-0 pt-2" id="dashboard-payment-method-text" style="text-transform: none; line-height: 18.15px;">
+                  Illustrative card ending 4242 · No actual payment processed. Shipping to your default example address.
+                </p>
+
+                <!-- Order Action CTAs -->
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <a href="#" class="btn-cc-outline">
+                    <span>View order details</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                  <a href="contact.html" class="cc-underline-link">Get help with this order ↗</a>
+                </div>
+
+              </div>
+
+              <!-- Static Historic Order (Figma fallback representation) -->
+              <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
+                <div class="row align-items-center gy-3">
+                  <div class="col-12 col-md-4 d-flex flex-column gap-1">
+                    <span class="text-light-cc" style="font-size: 15px; line-height: 24.75px;">CC-260925-0068</span>
+                    <span class="cc-xs-text">25 September 2026 · 2 pieces</span>
+                  </div>
+                  <div class="col-6 col-md-4 text-start text-md-center">
+                    <span class="cc-eyebrow m-0">DELIVERED / 29 SEP 2026</span>
+                  </div>
+                  <div class="col-6 col-md-4 text-end">
+                    <span class="text-light-cc" style="font-size: 16px; line-height: 26.4px;">₱3,260.00</span>
+                  </div>
+                </div>
+                
+                <p class="cc-small-text m-0">
+                  Essential Heavyweight Tee · Chalk · M · ₱1,890.00<br>
+                  Understated Club Cap · Obsidian · One size · ₱1,190.00<br>
+                  Subtotal ₱3,080.00 + standard shipping ₱180.00
+                </p>
+
+                <div>
+                  <a href="#" class="cc-underline-link">View previous order ↗</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferences Section -->
+            <div class="d-flex flex-column gap-4 mt-3">
+              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">Your preferences</h2>
+              
+              <label class="d-flex align-items-center gap-3 m-0" style="cursor: pointer;">
+                <input type="checkbox" class="d-none cc-custom-check" checked>
+                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
+                <span class="cc-xs-text">Receive the Club Letter for new collections and editorial stories.</span>
+              </label>
+
+              <p class="cc-xs-text m-0" style="max-width: 600px;">
+                Order and shipping emails are sent separately from marketing preferences. You can update your details or request account assistance through client services.
+              </p>
+
+              <div>
+                <button type="button" class="btn-cc-outline" id="save-preferences-btn">
+                  <span>Save preferences</span>
+                  <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Reusable Footer Partial (Injected via partials.js) -->
+  <div id="footer-partial"></div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/partials.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Dashboard Initialization Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      // Setup Custom Checkbox
+      const checkInputs = document.querySelectorAll('.cc-custom-check');
+      checkInputs.forEach(input => {
+        const box = input.nextElementSibling;
+        input.addEventListener('change', () => {
+          if (input.checked) {
+            box.style.background = 'var(--cc-accent)';
+            box.style.borderColor = 'var(--cc-accent)';
+            box.textContent = '✓';
+          } else {
+            box.style.background = 'var(--cc-bg)';
+            box.style.borderColor = 'var(--cc-border)';
+            box.textContent = '';
+          }
+        });
+      });
+
+      // Hydrate Dashboard Data from CCStore
+      if (typeof CCStore !== 'undefined') {
+        
+        // Update Sidebar Wishlist Count
+        const wishlistSidebar = document.getElementById('wishlist-sidebar-count');
+        if (wishlistSidebar) {
+          wishlistSidebar.textContent = CCStore.getWishlist().length;
+        }
+
+        // Fetch Last Placed Order
+        const order = CCStore.getLastOrder();
+        if (order) {
+          const c = order.customer || {};
+          const t = order.totals || {};
+
+          // Populate Customer Profile Strings
+          document.querySelectorAll('.customer-fname').forEach(el => el.textContent = c.firstName || 'Alex');
+          document.querySelectorAll('.customer-lname').forEach(el => el.textContent = c.lastName || 'Reyes');
+          document.querySelectorAll('.customer-email').forEach(el => el.textContent = c.email || 'alex.reyes@example.com');
+          document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = c.mobile || '+63 917 000 0184');
+          
+          const fInit = (c.firstName || 'A').charAt(0).toUpperCase();
+          const lInit = (c.lastName || 'R').charAt(0).toUpperCase();
+          document.querySelectorAll('.customer-initials').forEach(el => el.textContent = fInit + lInit);
+
+          // Populate Default Address
+          const addressEl = document.getElementById('dashboard-shipping-address');
+          if (addressEl) {
+            addressEl.innerHTML = `
+              ${c.street || '18 Sample Street'}${c.apartment ? ', ' + c.apartment : ''}<br>
+              ${c.barangay || 'Poblacion'}, ${c.city || 'Makati City'}<br>
+              ${c.province || 'Metro Manila'} ${c.postalCode || '1210'}
+            `;
+          }
+
+          // Populate Active Order Summary Box
+          const pieceWord = t.totalItems === 1 ? 'piece' : 'pieces';
+          document.getElementById('dashboard-order-number').textContent = order.orderNumber || 'CC-261030-0184';
+          document.getElementById('dashboard-order-date').textContent = `${order.placedOn || '30 October 2026'} · ${t.totalItems || 2} ${pieceWord}`;
+          document.getElementById('dashboard-order-status').textContent = (order.status || 'Preparing for dispatch').toUpperCase();
+          document.getElementById('dashboard-order-total').textContent = CCStore.formatPHP(t.total);
+          
+          document.getElementById('dashboard-subtotal-val').textContent = CCStore.formatPHP(t.subtotal);
+          document.getElementById('dashboard-shipping-val').textContent = CCStore.formatPHP(t.shipping);
+          document.getElementById('dashboard-final-val').textContent = CCStore.formatPHP(t.total);
+          
+          document.getElementById('dashboard-payment-method-text').textContent = 
+            `${c.paymentMethod || 'Illustrative card ending 4242.'} · No actual payment processed. Shipping to your default address.`;
+
+          // Populate Order Items Image Grid Layout (2 cols on md+)
+          const itemsContainer = document.getElementById('dashboard-order-items');
+          if (itemsContainer) {
+            itemsContainer.innerHTML = (order.items || []).map(item => `
+              <div class="col-12 col-md-6 d-flex align-items-center gap-3">
+                <div class="cc-asset-box flex-shrink-0" style="width: 88px; height: 106px; padding: 10px;">
+                  <div class="cc-asset-center-pill p-1">
+                    <div class="cc-asset-icon"></div>
+                    <span class="cc-asset-label" style="font-size: 8px; line-height: 12px;">IMAGE</span>
+                  </div>
+                </div>
+                <div class="d-flex flex-column gap-1 flex-grow-1">
+                  <span class="cc-xs-text text-light-cc">${item.name}</span>
+                  <span class="cc-eyebrow text-transform-none" style="text-transform: none;">
+                    ${item.color} / ${item.size} / Qty ${item.quantity}
+                  </span>
+                  <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      }
+      
+      // Save Preferences Button Feedback
+      const saveBtn = document.getElementById('save-preferences-btn');
+      if(saveBtn) {
+        saveBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const originalHTML = saveBtn.innerHTML;
+          saveBtn.innerHTML = `<span>Preferences saved</span> <i class="bi bi-check-lg"></i>`;
+          setTimeout(() => { saveBtn.innerHTML = originalHTML; }, 2000);
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>
