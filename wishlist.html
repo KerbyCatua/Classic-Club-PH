@@ -196,14 +196,14 @@
                 
                 <div class="position-relative">
                   <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="text-decoration-none">
-                    <div class="cc-asset-box" style="height: 370px;">
-                      <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
-                      <div class="cc-asset-center-pill">
-                        <div class="cc-asset-icon"></div>
-                        <span class="cc-asset-label">${p.name} / ${p.color}</span>
-                      </div>
-                      <span class="cc-asset-bl">PRODUCT / FRONT VIEW</span>
-                    </div>
+
+                    <img
+                    src="${p.srcImage}"
+                    alt="${p.name} / ${p.color}"
+                    class="img-fluid w-100 object-fit-cover border border-cc"
+                    style="height: 370px;"
+                    >
+
                   </a>
                   
                   <!-- Remove Heart Button (Bounded with exact savedId) -->

@@ -18,6 +18,7 @@ const CCStore = (function () {
     'essential-hw-tee-obsidian': {
       id: 'essential-hw-tee-obsidian',
       sku: 'CC-TEE-001',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp',
       badge: 'CORE / 240 GSM',
       isNew: false,
       name: 'Essential Heavyweight Tee',
@@ -30,6 +31,7 @@ const CCStore = (function () {
     'structured-overshirt-graphite': {
       id: 'structured-overshirt-graphite',
       sku: 'CC-OVR-002',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/02_STRUCTURED_OVERSHIRT_jxr8nm.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Structured Overshirt',
@@ -42,6 +44,7 @@ const CCStore = (function () {
     'relaxed-trouser-charcoal': {
       id: 'relaxed-trouser-charcoal',
       sku: 'CC-BTM-003',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/03_RELAXED_TAILORED_TROUSER_oi09yl.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Relaxed Tailored Trouser',
@@ -54,6 +57,7 @@ const CCStore = (function () {
     'textured-knit-polo-oat': {
       id: 'textured-knit-polo-oat',
       sku: 'CC-TOP-004',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/04_TEXTURED_KNIT_POLO_lpd9rr.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Textured Knit Polo',
@@ -66,6 +70,7 @@ const CCStore = (function () {
     'essential-hw-tee-chalk': {
       id: 'essential-hw-tee-chalk',
       sku: 'CC-TEE-005',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/05_ESSENTIAL_HEAVYWEIGHT_TEE_g1xl7f.webp',
       badge: 'CORE / 240 GSM',
       isNew: false,
       name: 'Essential Heavyweight Tee',
@@ -78,6 +83,7 @@ const CCStore = (function () {
     'loopback-hoodie-obsidian': {
       id: 'loopback-hoodie-obsidian',
       sku: 'CC-HOD-006',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/06_LOOPBACK_CLUB_HOODIE_pywyby.webp',
       badge: 'CORE / 380 GSM',
       isNew: false,
       name: 'Loopback Club Hoodie',
@@ -90,6 +96,7 @@ const CCStore = (function () {
     'everyday-poplin-shirt-ivory': {
       id: 'everyday-poplin-shirt-ivory',
       sku: 'CC-SHRT-007',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513902/07_EVERYDAY_POPLIN_SHIRT_niuho7.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Everyday Poplin Shirt',
@@ -102,6 +109,7 @@ const CCStore = (function () {
     'pleated-city-short-stone': {
       id: 'pleated-city-short-stone',
       sku: 'CC-BTM-008',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/08_PLEATED_CITY_SHORT_iuukkm.webp',
       badge: 'CORE / COTTON TWILL',
       isNew: false,
       name: 'Pleated City Short',
@@ -114,6 +122,7 @@ const CCStore = (function () {
     'ls-jersey-tee-graphite': {
       id: 'ls-jersey-tee-graphite',
       sku: 'CC-TEE-009',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513902/09_LONG-SLEEVE_JERSEY_TEE_rdexnf.webp',
       badge: 'CORE / 220 GSM',
       isNew: false,
       name: 'Long-sleeve Jersey Tee',
@@ -126,6 +135,7 @@ const CCStore = (function () {
     'ribbed-tank-chalk': {
       id: 'ribbed-tank-chalk',
       sku: 'CC-TOP-010',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513902/10_RIBBED_LAYERING_TANK_jivwsn.webp',
       badge: 'CORE / COTTON RIB',
       isNew: false,
       name: 'Ribbed Layering Tank',
@@ -138,6 +148,7 @@ const CCStore = (function () {
     'collarless-jacket-obsidian': {
       id: 'collarless-jacket-obsidian',
       sku: 'CC-JKT-011',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513906/11_COLLARLESS_STUDIO_JACKET_a5aupw.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Collarless Studio Jacket',
@@ -150,6 +161,7 @@ const CCStore = (function () {
     'double-zip-hoodie-ash': {
       id: 'double-zip-hoodie-ash',
       sku: 'CC-HOD-012',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513906/12_DOUBLE-ZIP_CLUB_HOODIE_fqbd9r.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Double-zip Club Hoodie',
@@ -162,6 +174,7 @@ const CCStore = (function () {
     'understated-cap-obsidian': {
       id: 'understated-cap-obsidian',
       sku: 'CC-ACC-013',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513905/13_UNDERSTATED_CLUB_CAP_fopwz5.webp',
       badge: 'CORE / ADJUSTABLE',
       isNew: false,
       name: 'Understated Club Cap',
@@ -174,6 +187,7 @@ const CCStore = (function () {
     'daily-canvas-tote-natural': {
       id: 'daily-canvas-tote-natural',
       sku: 'CC-ACC-014',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513905/14_DAILY_CANVAS_TOTE_zqzhqh.webp',
       badge: 'CORE / HEAVY CANVAS',
       isNew: false,
       name: 'Daily Canvas Tote',
@@ -186,6 +200,7 @@ const CCStore = (function () {
     'slim-leather-belt-black': {
       id: 'slim-leather-belt-black',
       sku: 'CC-ACC-015',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/15_SLIM_LEATHER_BELT_lylsjo.webp',
       badge: 'CORE / LEATHER',
       isNew: false,
       name: 'Slim Leather Belt',
@@ -198,6 +213,7 @@ const CCStore = (function () {
     'drawstring-pant-stone': {
       id: 'drawstring-pant-stone',
       sku: 'CC-BTM-016',
+      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/16_DRAWSTRING_COTTON_PANT_x3ulk3.webp',
       badge: 'NEW / DROP 03',
       isNew: true,
       name: 'Drawstring Cotton Pant',
@@ -295,6 +311,10 @@ const CCStore = (function () {
       if (PRODUCTS[id]) return PRODUCTS[id];
       if (id === 'essential-hw-tee') return PRODUCTS['essential-hw-tee-obsidian'];
       return PRODUCTS['essential-hw-tee-obsidian'];
+    },
+    getProductImage: function (productId) {
+      const product = this.getProductById(productId);
+      return product ? product.srcImage || '' : '';
     },
 
     // Cart Methods

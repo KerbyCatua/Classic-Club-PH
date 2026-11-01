@@ -254,12 +254,15 @@
       const itemsContainer = document.getElementById('confirm-items-container');
       itemsContainer.innerHTML = (order.items || []).map(item => `
         <div class="d-flex align-items-center gap-3">
-          <div class="cc-asset-box flex-shrink-0" style="width: 88px; height: 106px; padding: 10px;">
-            <div class="cc-asset-center-pill p-1">
-              <div class="cc-asset-icon"></div>
-              <span class="cc-asset-label" style="font-size: 8px; line-height: 12px;">IMAGE</span>
-            </div>
+
+          <div class="flex-shrink-0" style="width: 88px; height: 106px;">
+            <img
+            src="${CCStore.getProductImage(item.id)}"
+            alt="${item.name} / ${item.color}"
+            class="img-fluid w-100 h-100 object-fit-cover border border-cc"
+            >
           </div>
+
           <div class="d-flex flex-column gap-1 flex-grow-1">
             <span class="cc-xs-text text-light-cc">${item.name}</span>
             <span class="cc-eyebrow text-transform-none" style="text-transform: none;">

@@ -102,7 +102,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainWishBtn) {
           mainWishBtn.setAttribute('data-product-id', product.id);
         }
+
+        const detailImage = document.querySelector('[data-product-detail-image]');
+
+        if (detailImage && product.srcImage) {
+          detailImage.src = product.srcImage;
+          detailImage.alt = `${product.name} / ${product.color}`;
+        }
       }
     }
   }
+
+  function hydrateProductImages() {
+    document.querySelectorAll('[data-product-image]').forEach(image => {
+      const card = image.closest('.cc-product-card');
+      const productId = card
+        ? card.querySelector('[data-product-id]')?.getAttribute('data-product-id')
+        : null;
+
+      if (!productId) return;
+
+      const src = CCStore.getProductImage(productId);
+
+      if (src) {
+        image.src = src;
+      } else {
+        image.removeAttribute('src');
+        image.classList.add('d-none');
+      }
+    });
+  }
+
+  hydrateProductImages();
 });
