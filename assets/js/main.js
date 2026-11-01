@@ -143,7 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle wishlist buttons on pages that use button elements
   document.querySelectorAll('.cc-wishlist-btn').forEach(button => {
-    if (button.tagName !== 'BUTTON') return;
+    if (
+      button.tagName !== 'BUTTON' ||
+      button.hasAttribute('data-product-id')
+    ) {
+      return;
+    }
 
     const card = button.closest('.cc-product-card');
     const productId =
@@ -154,6 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateWishlistButton() {
       const saved = CCStore.isInWishlist(productId);
+      const icon = button.querySelector('i');
+
+      if (icon) {
+        icon.classList.toggle('bi-heart-fill', saved);
+        icon.classList.toggle('bi-heart', !saved);
+      }
 
       button.classList.toggle('text-accent', saved);
       button.setAttribute('aria-pressed', String(saved));

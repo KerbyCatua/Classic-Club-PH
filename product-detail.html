@@ -581,7 +581,9 @@
       }
 
       // Handle Wishlist Buttons in Related Grid
-      const relatedWishlistBtns = document.querySelectorAll('#product-grid .cc-wishlist-btn');
+      const relatedWishlistBtns = document.querySelectorAll(
+        '.cc-wishlist-btn[data-product-id]'
+      );
       relatedWishlistBtns.forEach(btn => {
         const productId = btn.getAttribute('data-product-id');
         const icon = btn.querySelector('i');
