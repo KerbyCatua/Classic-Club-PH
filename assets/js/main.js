@@ -35,14 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Automatically Decorate Product Card Links with ?id=<product-id> across all pages
   const productCards = document.querySelectorAll('.cc-product-card');
   productCards.forEach(card => {
-    const wishBtn = card.querySelector('[data-product-id]');
-    if (!wishBtn) return;
-    const productId = wishBtn.getAttribute('data-product-id');
+    const productId =
+      card.getAttribute('data-product-id') ||
+      card.querySelector('[data-product-id]')?.getAttribute('data-product-id');
+
     if (!productId) return;
 
-    const links = card.querySelectorAll('a[href^="product-detail.html"]');
+    const links = card.querySelectorAll('a[href*="product-detail.html"]');
+
     links.forEach(link => {
-      link.setAttribute('href', `product-detail.html?id=${encodeURIComponent(productId)}`);
+      const currentHref = link.getAttribute('href') || '';
+      const path = currentHref.startsWith('/')
+        ? currentHref.slice(1)
+        : currentHref.split('?')[0];
+
+      link.setAttribute(
+        'href',
+        `${path}?id=${encodeURIComponent(productId)}`
+      );
     });
   });
 
@@ -113,25 +123,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function hydrateProductImages() {
-    document.querySelectorAll('[data-product-image]').forEach(image => {
-      const card = image.closest('.cc-product-card');
-      const productId = card
-        ? card.querySelector('[data-product-id]')?.getAttribute('data-product-id')
-        : null;
+  // Hydrate product images from CCStore
+  document.querySelectorAll('[data-product-image]').forEach(image => {
+    const card = image.closest('.cc-product-card');
 
-      if (!productId) return;
+    const productId =
+      card?.getAttribute('data-product-id') ||
+      card?.querySelector('[data-product-id]')?.getAttribute('data-product-id');
 
-      const src = CCStore.getProductImage(productId);
+    if (!productId) return;
 
-      if (src) {
-        image.src = src;
-      } else {
-        image.removeAttribute('src');
-        image.classList.add('d-none');
-      }
+    const product = CCStore.getProductById(productId);
+
+    if (product && product.srcImage) {
+      image.src = product.srcImage;
+      image.alt = `${product.name} / ${product.color}`;
+    }
+  });
+
+  // Handle wishlist buttons on pages that use button elements
+  document.querySelectorAll('.cc-wishlist-btn').forEach(button => {
+    if (button.tagName !== 'BUTTON') return;
+
+    const card = button.closest('.cc-product-card');
+    const productId =
+      button.getAttribute('data-product-id') ||
+      card?.getAttribute('data-product-id');
+
+    if (!productId) return;
+
+    function updateWishlistButton() {
+      const saved = CCStore.isInWishlist(productId);
+
+      button.classList.toggle('text-accent', saved);
+      button.setAttribute('aria-pressed', String(saved));
+      button.setAttribute(
+        'aria-label',
+        saved ? 'Remove from wishlist' : 'Save to wishlist'
+      );
+    }
+
+    updateWishlistButton();
+
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      CCStore.toggleWishlist(productId);
+      updateWishlistButton();
     });
-  }
-
-  hydrateProductImages();
+  });
 });
