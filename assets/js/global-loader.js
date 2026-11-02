@@ -35,11 +35,15 @@
     loader.setAttribute('aria-label', 'Loading page');
 
     loader.innerHTML = `
-      <div class="loader" aria-hidden="true">
+    <div class="cc-loader-content">
+        <div class="loader" aria-hidden="true">
         <div class="inner one"></div>
         <div class="inner two"></div>
         <div class="inner three"></div>
-      </div>
+        </div>
+
+        <div class="cc-loader-brand">CLASSIC</div>
+    </div>
     `;
 
     loader.style.setProperty(
