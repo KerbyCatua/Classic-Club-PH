@@ -1,0 +1,118 @@
+:root {
+  --cc-loader-overlay-color: #000000;
+  --cc-loader-overlay-opacity: 0.5;
+  --cc-loader-blur: 10px;
+  --cc-loader-z-index: 9999;
+}
+
+.cc-global-loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--cc-loader-z-index);
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(0, 0, 0, 0.5);
+  background-color: color-mix(
+    in srgb,
+    var(--cc-loader-overlay-color)
+      calc(var(--cc-loader-overlay-opacity) * 100%),
+    transparent
+  );
+
+  -webkit-backdrop-filter: blur(var(--cc-loader-blur));
+  backdrop-filter: blur(var(--cc-loader-blur));
+
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  transition:
+    opacity 300ms ease,
+    visibility 300ms ease;
+}
+
+.cc-global-loader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cc-global-loader .loader {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  perspective: 800px;
+}
+
+.cc-global-loader .inner {
+  position: absolute;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.cc-global-loader .inner.one {
+  inset: 0;
+  border-bottom: 3px solid #f4f1ea;
+  animation: cc-loader-rotate-one 1s linear infinite;
+}
+
+.cc-global-loader .inner.two {
+  top: 0;
+  right: 0;
+  border-right: 3px solid #028090;
+  animation: cc-loader-rotate-two 1s linear infinite;
+}
+
+.cc-global-loader .inner.three {
+  right: 0;
+  bottom: 0;
+  border-top: 3px solid #f4f1ea;
+  animation: cc-loader-rotate-three 1s linear infinite;
+}
+
+@keyframes cc-loader-rotate-one {
+  from {
+    transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+  }
+
+  to {
+    transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+  }
+}
+
+@keyframes cc-loader-rotate-two {
+  from {
+    transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+  }
+
+  to {
+    transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+  }
+}
+
+@keyframes cc-loader-rotate-three {
+  from {
+    transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+  }
+
+  to {
+    transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-global-loader,
+  .cc-global-loader.is-hidden {
+    transition: none;
+  }
+
+  .cc-global-loader .inner {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}
