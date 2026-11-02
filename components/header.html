@@ -55,65 +55,104 @@
     position: relative;
     min-width: 24px;
     min-height: 44px;
-    justify-content: center;
-    transition: color 0.25s ease, transform 0.25s ease;
+    justify-content: flex-start;
+    gap: 7px;
+    white-space: nowrap;
+    transition:
+      color 0.25s ease,
+      transform 0.25s ease,
+      min-width 0.25s ease;
+  }
+
+  .cc-header-action i {
+    flex: 0 0 auto;
+    font-size: 17px;
+    line-height: 1;
+    transition: transform 0.25s ease;
+  }
+
+  .cc-header-action-label {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    color: currentColor;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transform: translateX(-5px);
+    transition:
+      max-width 0.25s ease,
+      opacity 0.2s ease,
+      transform 0.25s ease;
   }
 
   .cc-header-action:hover,
   .cc-header-action:focus-visible {
+    min-width: 76px;
     color: var(--cc-accent) !important;
     transform: translateY(-2px);
   }
 
-  .cc-header-action i {
-    transition: transform 0.25s ease;
-  }
-
   .cc-header-action:hover i,
   .cc-header-action:focus-visible i {
-    transform: scale(1.08);
+    transform: translateX(-2px) scale(1.08);
   }
 
-  .cc-header-action[href="/cart.html"] span {
-    transition: color 0.25s ease, transform 0.25s ease;
+  .cc-header-action:hover .cc-header-action-label,
+  .cc-header-action:focus-visible .cc-header-action-label {
+    max-width: 52px;
+    opacity: 1;
+    transform: translateX(0);
   }
 
-  .cc-header-action[href="/cart.html"]:hover span,
-  .cc-header-action[href="/cart.html"]:focus-visible span {
-    color: var(--cc-accent) !important;
-    transform: translateX(1px);
+  .cc-cart-action:hover,
+  .cc-cart-action:focus-visible {
+    min-width: 94px;
   }
 
-  .cc-header-menu-toggle {
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.25s ease, transform 0.25s ease;
+  .cc-cart-count {
+    font-size: 11px;
+    line-height: 1;
+    transition: color 0.25s ease;
   }
 
-  .cc-header-menu-toggle:hover,
-  .cc-header-menu-toggle:focus-visible {
-    color: var(--cc-accent) !important;
-    transform: translateY(-1px);
-  }
-
-  .cc-header-brand:focus-visible,
-  .cc-nav-link:focus-visible,
-  .cc-header-action:focus-visible,
-  .cc-header-menu-toggle:focus-visible {
+  .cc-header-action:focus-visible {
     outline: 2px solid var(--cc-accent);
     outline-offset: 4px;
   }
 
-  @media (max-width: 991.98px) {
-    .cc-nav-link {
-      min-height: 40px;
+  .cc-header-nav > .container-fluid {
+      position: relative;
     }
 
-    .cc-nav-link::after {
-      bottom: 2px;
+    @media (min-width: 992px) {
+      .cc-header-nav .navbar-collapse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: max-content;
+        margin: 0 !important;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    @media (max-width: 991.98px) {
+      .cc-header-nav .navbar-collapse {
+        position: static;
+        width: auto;
+        transform: none;
+      }
+    }
+
+  @media (max-width: 991.98px) {
+    .cc-header-action:hover,
+    .cc-header-action:focus-visible {
+      min-width: 24px;
+    }
+
+    .cc-header-action-label {
+      display: none;
     }
   }
 
@@ -122,7 +161,7 @@
     .cc-nav-link,
     .cc-header-action,
     .cc-header-action i,
-    .cc-header-action[href="/cart.html"] span,
+    .cc-header-action-label,
     .cc-header-menu-toggle,
     .cc-nav-link::after {
       transition: none;
@@ -147,7 +186,7 @@
   </div>
 
   <!-- Main Navigation Bar -->
-  <nav class="navbar navbar-expand-lg bg-cc-dark border-bottom border-cc cc-section-px py-3 py-lg-0" style="min-height: 100px;">
+  <nav class="navbar navbar-expand-lg cc-header-nav bg-cc-dark border-bottom border-cc cc-section-px py-3 py-lg-0" style="min-height: 100px;">
     <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
 
       <!-- Brand -->
@@ -210,42 +249,39 @@
       </div>
 
       <!-- Header Actions -->
-      <div class="d-flex align-items-center order-2 order-lg-3 pe-1" style="gap: 22px;">
+      <div class="d-flex align-items-center order-2 order-lg-3 pe-1 cc-header-actions" style="gap: 22px;">
 
         <!-- Search -->
         <a href="/shop-all.html"
-           class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
-           aria-label="Search">
-          <i class="bi bi-search" style="font-size: 17px; line-height: 1;"></i>
+          class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          aria-label="Search">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <span class="cc-header-action-label">Search</span>
         </a>
 
         <!-- Account -->
         <a href="/account-dashboard.html"
-           class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
-           aria-label="Account">
-          <i class="bi bi-person" style="font-size: 20px; line-height: 1;"></i>
+          class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          aria-label="Account">
+          <i class="bi bi-person" aria-hidden="true"></i>
+          <span class="cc-header-action-label">Account</span>
         </a>
 
         <!-- Wishlist -->
         <a href="/wishlist.html"
-           class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
-           aria-label="Wishlist">
-          <i class="bi bi-heart" style="font-size: 17px; line-height: 1;"></i>
+          class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          aria-label="Wishlist">
+          <i class="bi bi-heart" aria-hidden="true"></i>
+          <span class="cc-header-action-label">Wishlist</span>
         </a>
 
         <!-- Shopping Bag -->
         <a href="/cart.html"
-           class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
-           style="gap: 7px;"
-           aria-label="Shopping Bag">
-          <i class="bi bi-bag" style="font-size: 17px; line-height: 1;"></i>
-
-          <!--TODO: to be replaced with dynamic cart item count -->
-          <span class="text-light-cc font-sans"
-                style="font-size: 11px; font-weight: 400; line-height: 1;">
-            
-          </span>
-
+          class="cc-header-action cc-cart-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          aria-label="Shopping Bag">
+          <i class="bi bi-bag" aria-hidden="true"></i>
+          <span class="cc-header-action-label">Bag</span>
+          <span class="cc-cart-count text-light-cc font-sans">0</span>
         </a>
 
         <!-- Mobile Menu Toggler -->
@@ -256,10 +292,11 @@
                 aria-controls="ccNavbarMenu"
                 aria-expanded="false"
                 aria-label="Toggle navigation">
-          <i class="bi bi-list" style="font-size: 24px; line-height: 1;"></i>
+          <i class="bi bi-list" aria-hidden="true"></i>
         </button>
 
       </div>
+
     </div>
   </nav>
 </header>
