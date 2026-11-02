@@ -182,4 +182,29 @@ document.addEventListener('DOMContentLoaded', () => {
       updateWishlistButton();
     });
   });
+
+
+  // 4. Apply Favicon
+  const CC_FAVICON = {
+    path: '/assets/favicon.ico',
+    type: 'image/x-icon'
+  };
+
+  function applyFavicon() {
+    let favicon = document.querySelector('link[data-cc-favicon]');
+
+    if (!favicon) {
+      favicon = document.createElement('link');
+      favicon.rel = 'icon';
+      favicon.dataset.ccFavicon = 'true';
+      document.head.appendChild(favicon);
+    }
+
+    favicon.type = CC_FAVICON.type;
+    favicon.href = CC_FAVICON.path;
+  }
+
+  applyFavicon();
+  // 4. End Apply Favicon
+
 });
