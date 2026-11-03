@@ -1,5 +1,8 @@
 
 {
+  "git.decorations.enabled": true,
+  "explorer.decorations.colors": true,
+  "explorer.decorations.badges": true,
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
       "file": ".github/prompts/commit-message.prompt.md"
