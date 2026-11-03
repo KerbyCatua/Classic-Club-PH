@@ -55,7 +55,7 @@
         
         <!-- Left Column: Sign In Form -->
         <div class="col-12 col-lg-5 col-xl-5">
-          <form class="d-flex flex-column gap-4 pe-lg-4" onsubmit="event.preventDefault(); window.location.href='account-dashboard.html';">
+          <form id="signin-form" class="d-flex flex-column gap-4 pe-lg-4">
             
             <div class="d-flex flex-column gap-3 mb-2">
               <span class="cc-eyebrow-teal">RETURNING MEMBERS</span>
@@ -120,7 +120,7 @@
         <!-- Right Column: Create Account Form -->
         <div class="col-12 col-lg-7 col-xl-6">
           <div class="bg-cc-surface p-4 p-md-5">
-            <form class="d-flex flex-column gap-4" onsubmit="event.preventDefault(); window.location.href='account-dashboard.html';">
+            <form id="register-form" class="d-flex flex-column gap-4">
               
               <div class="d-flex flex-column gap-3 mb-2">
                 <span class="cc-eyebrow-teal">NEW TO THE CLUB</span>
@@ -307,6 +307,74 @@
       });
       
     });
+  </script>
+
+  <script>
+    async function sendAuthRequest(url, payload) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        const message = result.error?.message || 'Authentication failed.';
+        throw new Error(message);
+      }
+
+      return result;
+    }
+
+    document
+      .getElementById('signin-form')
+      .addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const button = this.querySelector('button[type="submit"]');
+        button.disabled = true;
+
+        try {
+          await sendAuthRequest('public/api/auth/login.php', {
+            email: document.getElementById('signin-email').value,
+            password: document.getElementById('signin-password').value
+          });
+
+          window.location.href = 'account-dashboard.html';
+        } catch (error) {
+          alert(error.message);
+          button.disabled = false;
+        }
+      });
+
+    document
+      .getElementById('register-form')
+      .addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const button = this.querySelector('button[type="submit"]');
+        button.disabled = true;
+
+        try {
+          await sendAuthRequest('public/api/auth/register.php', {
+            first_name: document.getElementById('create-fname').value,
+            last_name: document.getElementById('create-lname').value,
+            email: document.getElementById('create-email').value,
+            password: document.getElementById('create-password').value,
+            password_confirmation: document.getElementById('confirm-password').value
+          });
+
+          window.location.href = 'account-dashboard.html';
+        } catch (error) {
+          alert(error.message);
+          button.disabled = false;
+        }
+      });
   </script>
 </body>
 </html>
