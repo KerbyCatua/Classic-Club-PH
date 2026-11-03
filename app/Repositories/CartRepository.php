@@ -179,4 +179,17 @@ final class CartRepository
 
         return $statement->fetchAll();
     }
+
+    public function clear(int $cartId): void
+    {
+        $statement = $this->pdo->prepare(
+            'DELETE FROM cart_items WHERE cart_id = :cart_id'
+        );
+        $statement->execute(['cart_id' => $cartId]);
+    }
+
+    public function checkoutItems(int $cartId): array
+    {
+        return $this->items($cartId);
+    }
 }

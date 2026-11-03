@@ -14,6 +14,7 @@ require_once __DIR__ . '/../../../app/Http/Request.php';
 require_once __DIR__ . '/../../../app/Http/Response.php';
 require_once __DIR__ . '/../../../app/Http/JsonResponse.php';
 require_once __DIR__ . '/../../../app/Auth/SessionManager.php';
+require_once __DIR__ . '/../../../app/Middleware/CsrfMiddleware.php';
 require_once __DIR__ . '/../../../app/Cart/CartIdentity.php';
 require_once __DIR__ . '/../../../app/Repositories/CartRepository.php';
 require_once __DIR__ . '/../../../app/Services/CartService.php';
@@ -23,6 +24,7 @@ try {
     if ($request->method() !== 'POST') {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
+    \ClassicClub\Middleware\CsrfMiddleware::require();
 
     $body = $request->json();
     $catalogKey = trim((string) ($body['catalog_key'] ?? ''));

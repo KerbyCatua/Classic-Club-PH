@@ -16,6 +16,7 @@ require_once __DIR__ . '/../../../app/Http/Request.php';
 require_once __DIR__ . '/../../../app/Http/Response.php';
 require_once __DIR__ . '/../../../app/Http/JsonResponse.php';
 require_once __DIR__ . '/../../../app/Auth/SessionManager.php';
+require_once __DIR__ . '/../../../app/Middleware/CsrfMiddleware.php';
 require_once __DIR__ . '/../../../app/Validation/ValidationException.php';
 require_once __DIR__ . '/../../../app/Validation/AuthValidator.php';
 require_once __DIR__ . '/../../../app/Repositories/UserRepository.php';
@@ -28,6 +29,7 @@ try {
     if ($request->method() !== 'POST') {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
+    \ClassicClub\Middleware\CsrfMiddleware::require();
 
     $data = (new AuthValidator())->login($request->json());
 

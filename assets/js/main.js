@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+
   }
 
   // Run badge sync on load, after partials.js injects header, and when cart updates
@@ -211,3 +212,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. End Apply Favicon
 
 });
+
+function initializeNewsletterForm() {
+  const form = document.querySelector('#footer-partial form');
+  const input = document.getElementById('footer-email');
+  if (!form || !input || form.dataset.initialized === 'true') return;
+
+  form.dataset.initialized = 'true';
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      const csrf = await fetch('public/api/auth/csrf.php', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' }
+      }).then(response => response.json());
+      const response = await fetch('public/api/newsletter/subscribe.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-CSRF-Token': csrf.data.token
+        },
+        body: JSON.stringify({ email: input.value })
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'Unable to subscribe.');
+      }
+      input.value = '';
+      input.setAttribute('placeholder', 'You are on the list');
+    } catch (error) {
+      window.alert(error.message);
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+document.addEventListener('cc:partialsLoaded', initializeNewsletterForm);
+document.addEventListener('DOMContentLoaded', () => window.setTimeout(initializeNewsletterForm, 250));

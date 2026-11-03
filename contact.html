@@ -52,7 +52,7 @@
         
         <!-- Left Column: Contact Form -->
         <div class="col-12 col-lg-7 col-xl-7">
-          <form class="d-flex flex-column gap-4 pe-lg-4" onsubmit="event.preventDefault(); window.location.href='index.html';">
+          <form class="d-flex flex-column gap-4 pe-lg-4" id="contact-form" enctype="multipart/form-data">
             
             <div class="d-flex flex-column gap-3 mb-2">
               <span class="cc-eyebrow-teal">SEND AN INQUIRY</span>
@@ -68,19 +68,19 @@
               <!-- Full Name -->
               <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                 <label for="contact-name" class="cc-xs-text text-light-cc">Full name *</label>
-                <input type="text" id="contact-name" class="form-control cc-input bg-cc-surface" style="height: 50px;" placeholder="Your name" required>
+                <input type="text" id="contact-name" name="full_name" class="form-control cc-input bg-cc-surface" style="height: 50px;" placeholder="Your name" required>
               </div>
               <!-- Email -->
               <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                 <label for="contact-email" class="cc-xs-text text-light-cc">Email address *</label>
-                <input type="email" id="contact-email" class="form-control cc-input bg-cc-surface" style="height: 50px;" placeholder="you@example.com" required>
+                <input type="email" id="contact-email" name="email" class="form-control cc-input bg-cc-surface" style="height: 50px;" placeholder="you@example.com" required>
               </div>
             </div>
 
             <!-- Inquiry Topic -->
             <div class="d-flex flex-column gap-2">
               <label for="contact-topic" class="cc-xs-text text-light-cc">Inquiry topic *</label>
-              <select id="contact-topic" class="form-select cc-input bg-cc-surface" style="height: 50px;" required>
+              <select id="contact-topic" name="topic" class="form-select cc-input bg-cc-surface" style="height: 50px;" required>
                 <option value="sizing">Sizing &amp; fit</option>
                 <option value="order">Order status</option>
                 <option value="return">Returns &amp; exchanges</option>
@@ -91,20 +91,20 @@
             <!-- Order Number -->
             <div class="d-flex flex-column gap-2">
               <label for="contact-order" class="cc-xs-text text-light-cc">Order number (if applicable)</label>
-              <input type="text" id="contact-order" class="form-control cc-input bg-cc-surface" style="height: 50px;" placeholder="e.g. CC-261030-0184">
+              <input type="text" id="contact-order" name="order_number" class="form-control cc-input bg-cc-surface" style="height: 50px;" placeholder="Optional order number">
             </div>
 
             <!-- Message -->
             <div class="d-flex flex-column gap-2">
               <label for="contact-msg" class="cc-xs-text text-light-cc">Your message *</label>
-              <textarea id="contact-msg" class="form-control cc-input bg-cc-surface pt-3" style="min-height: 130px; resize: vertical;" placeholder="Tell us which piece you are considering, your preferred fit, or how we can assist with your order…" required></textarea>
+              <textarea id="contact-msg" name="message" class="form-control cc-input bg-cc-surface pt-3" style="min-height: 130px; resize: vertical;" placeholder="Tell us which piece you are considering, your preferred fit, or how we can assist with your order…" required></textarea>
             </div>
 
-            <!-- File Upload (Simulated UI) -->
+            <!-- Optional file upload -->
             <div class="d-flex justify-content-between align-items-center p-3 border border-cc" style="cursor: pointer;" onclick="document.getElementById('contact-file').click();">
               <span class="cc-xs-text m-0">Add a photo or document (optional)</span>
               <span class="text-light-cc cc-xs-text">Choose file +</span>
-              <input type="file" id="contact-file" class="d-none" accept=".jpg,.png,.pdf">
+              <input type="file" id="contact-file" name="attachment" class="d-none" accept=".jpg,.png,.pdf">
             </div>
             <p class="cc-eyebrow text-transform-none m-0 mt-n2" style="text-transform: none; line-height: 18.15px;">
               JPG, PNG or PDF · Maximum 5 MB. Do not include card numbers, passwords or sensitive identification.
@@ -124,7 +124,7 @@
             </button>
 
             <p class="cc-xs-text m-0">
-              We aim to reply within 1–2 business days, Monday–Friday. This static example form does not send messages.
+              We aim to reply within 1–2 business days, Monday–Friday.
             </p>
 
           </form>
@@ -284,20 +284,41 @@
         });
       });
 
-      // Submit Button UI Feedback
+      const form = document.getElementById('contact-form');
       const submitBtn = document.getElementById('contact-submit-btn');
-      if (submitBtn) {
-        submitBtn.addEventListener('click', function(e) {
-          const form = this.closest('form');
-          if (form && form.checkValidity()) {
-            const originalHTML = this.innerHTML;
-            this.innerHTML = `<span>Inquiry sent</span> <i class="bi bi-check-lg"></i>`;
-            setTimeout(() => {
-              this.innerHTML = originalHTML;
-            }, 2000);
+      form?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        submitBtn.disabled = true;
+        try {
+          const csrf = await fetch('public/api/auth/csrf.php', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' }
+          }).then(response => response.json());
+          const response = await fetch('public/api/contact/submit.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: new FormData(form),
+            headers: {
+              Accept: 'application/json',
+              'X-CSRF-Token': csrf.data.token
+            }
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.error?.message || 'Unable to send inquiry.');
           }
-        });
-      }
+          submitBtn.innerHTML = '<span>Inquiry sent</span> <i class="bi bi-check-lg"></i>';
+          form.reset();
+          window.setTimeout(() => window.location.reload(), 1600);
+        } catch (error) {
+          window.alert(error.message);
+          submitBtn.disabled = false;
+        }
+      });
     });
   </script>
 </body>

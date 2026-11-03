@@ -63,4 +63,33 @@ final class SessionManager
 
         session_destroy();
     }
+
+    public static function csrfToken(): string
+    {
+        self::start();
+
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        setcookie('cc_csrf_token', $_SESSION['csrf_token'], [
+            'expires' => 0,
+            'path' => '/',
+            'secure' => false,
+            'httponly' => false,
+            'samesite' => 'Lax',
+        ]);
+
+        return $_SESSION['csrf_token'];
+    }
+
+    public static function requireCsrf(): void
+    {
+        $sessionToken = self::csrfToken();
+        $requestToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+
+        if (!is_string($requestToken) || !hash_equals($sessionToken, $requestToken)) {
+            throw new \RuntimeException('Invalid CSRF token.');
+        }
+    }
 }

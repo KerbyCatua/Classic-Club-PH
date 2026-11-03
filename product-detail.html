@@ -476,11 +476,14 @@
         `;
         return;
       }
+      if (!loadedProduct) {
+        return;
+      }
       let currentProduct = {
-        id: loadedProduct ? loadedProduct.id : 'essential-hw-tee-obsidian',
-        name: loadedProduct ? loadedProduct.name : 'Essential Heavyweight Tee',
-        price: loadedProduct ? loadedProduct.price : 1890,
-        color: loadedProduct ? loadedProduct.color : 'Obsidian',
+        id: loadedProduct.id,
+        name: loadedProduct.name,
+        price: loadedProduct.price,
+        color: loadedProduct.color,
         size: 'M',
         quantity: 1
       };

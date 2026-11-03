@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../../app/Http/Request.php';
 require_once __DIR__ . '/../../../app/Http/Response.php';
 require_once __DIR__ . '/../../../app/Http/JsonResponse.php';
 require_once __DIR__ . '/../../../app/Auth/SessionManager.php';
+require_once __DIR__ . '/../../../app/Middleware/CsrfMiddleware.php';
 require_once __DIR__ . '/../../../app/Middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../app/Database/Connection.php';
 require_once __DIR__ . '/../../../app/Repositories/WishlistRepository.php';
@@ -23,6 +24,7 @@ try {
     if ($request->method() !== 'POST') {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
+    \ClassicClub\Middleware\CsrfMiddleware::require();
 
     $catalogKey = trim((string) ($request->json()['catalog_key'] ?? ''));
     if ($catalogKey === '') {

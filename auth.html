@@ -311,11 +311,16 @@
 
   <script>
     async function sendAuthRequest(url, payload) {
+      const csrf = await fetch('public/api/auth/csrf.php', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' }
+      }).then(response => response.json());
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
+          ,'X-CSRF-Token': csrf.data.token
         },
         credentials: 'same-origin',
         body: JSON.stringify(payload)

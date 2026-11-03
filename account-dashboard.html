@@ -63,9 +63,9 @@
               </div>
               <div class="d-flex flex-column gap-1">
                 <span class="text-light-cc" style="font-size: 14px;">
-                  <span class="customer-fname">Alex</span> <span class="customer-lname">Reyes</span>
+                  <span class="customer-fname">—</span> <span class="customer-lname">—</span>
                 </span>
-                <span class="cc-xs-text customer-email">alex.reyes@example.com</span>
+                <span class="cc-xs-text customer-email">—</span>
               </div>
             </div>
 
@@ -81,7 +81,7 @@
             </div>
 
             <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
-              Illustrative account data.<br>No live customer records are shown.
+              Account details and orders are loaded securely from your account.
             </p>
 
           </div>
@@ -97,11 +97,11 @@
                 <div class="bg-cc-surface p-4 d-flex flex-column gap-3 h-100">
                   <span class="cc-eyebrow m-0">YOUR PROFILE</span>
                   <h2 class="font-lora text-light-cc m-0" style="font-size: 26px; line-height: 30.68px;">
-                    <span class="customer-fname">Alex</span> <span class="customer-lname">Reyes</span>
+                    <span class="customer-fname">—</span> <span class="customer-lname">—</span>
                   </h2>
                   <p class="cc-small-text m-0">
-                    <span class="customer-email">alex.reyes@example.com</span><br>
-                    <span class="customer-mobile">+63 917 000 0184</span>
+                    <span class="customer-email">—</span><br>
+                    <span class="customer-mobile">—</span>
                   </p>
                   <div>
                     <a href="#" class="cc-underline-link m-0">Edit profile ↗</a>
@@ -110,11 +110,9 @@
               </div>
               <div class="col-12 col-md-6">
                 <div class="bg-cc-surface p-4 d-flex flex-column gap-3 h-100">
-                  <span class="cc-eyebrow m-0">DEFAULT SHIPPING / EXAMPLE</span>
+                  <span class="cc-eyebrow m-0">DEFAULT SHIPPING</span>
                   <p class="cc-small-text text-light-cc m-0" id="dashboard-shipping-address">
-                    18 Sample Street, Unit 4B<br>
-                    Example Residences, Poblacion<br>
-                    Makati City, Metro Manila 1210
+                    No saved address.
                   </p>
                   <div>
                     <a href="#" class="cc-underline-link m-0">Manage addresses ↗</a>
@@ -136,14 +134,14 @@
                 <!-- Meta Head -->
                 <div class="row align-items-center gy-3">
                   <div class="col-12 col-md-4 d-flex flex-column gap-1">
-                    <span class="text-light-cc" id="dashboard-order-number" style="font-size: 16px; line-height: 26.4px;">CC-261030-0184</span>
-                    <span class="cc-xs-text" id="dashboard-order-date">30 October 2026 · 2 pieces</span>
+                    <span class="text-light-cc" id="dashboard-order-number" style="font-size: 16px; line-height: 26.4px;">No orders yet</span>
+                    <span class="cc-xs-text" id="dashboard-order-date">Place your first order when you are ready.</span>
                   </div>
                   <div class="col-6 col-md-4 text-start text-md-center">
-                    <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">CONFIRMED / PREPARING</span>
+                    <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">NO ORDER YET</span>
                   </div>
                   <div class="col-6 col-md-4 text-end">
-                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">₱6,960.00</span>
+                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">—</span>
                   </div>
                 </div>
 
@@ -160,27 +158,27 @@
                 <div class="row gy-4">
                   <div class="col-12 col-md-6 d-flex flex-column gap-2">
                     <span class="cc-eyebrow m-0">STANDARD DELIVERY</span>
-                    <span class="text-light-cc m-0" style="font-size: 13px;">Estimated 3–5 November 2026</span>
+                    <span class="text-light-cc m-0" style="font-size: 13px;">Estimated after dispatch</span>
                     <span class="cc-xs-text m-0" style="max-width: 330px;">Tracking will be available after dispatch. An email update will be sent to your account address.</span>
                   </div>
                   <div class="col-12 col-md-6 d-flex flex-column gap-2" style="max-width: 330px;">
                     <div class="d-flex justify-content-between align-items-center">
                       <span class="cc-small-text">Subtotal</span>
-                      <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">₱6,780.00</span>
+                      <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">—</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                       <span class="cc-small-text">Shipping</span>
-                      <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">₱180.00</span>
+                      <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">—</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                       <span class="cc-small-text">Total · tax included</span>
-                      <span class="cc-small-text text-light-cc" id="dashboard-final-val">₱6,960.00</span>
+                      <span class="cc-small-text text-light-cc" id="dashboard-final-val">—</span>
                     </div>
                   </div>
                 </div>
 
                 <p class="cc-eyebrow text-transform-none m-0 pt-2" id="dashboard-payment-method-text" style="text-transform: none; line-height: 18.15px;">
-                  Illustrative card ending 4242 · No actual payment processed. Shipping to your default example address.
+                  Payment and shipping details appear with a confirmed order.
                 </p>
 
                 <!-- Order Action CTAs -->
@@ -194,30 +192,9 @@
 
               </div>
 
-              <!-- Static Historic Order (Figma fallback representation) -->
               <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
-                <div class="row align-items-center gy-3">
-                  <div class="col-12 col-md-4 d-flex flex-column gap-1">
-                    <span class="text-light-cc" style="font-size: 15px; line-height: 24.75px;">CC-260925-0068</span>
-                    <span class="cc-xs-text">25 September 2026 · 2 pieces</span>
-                  </div>
-                  <div class="col-6 col-md-4 text-start text-md-center">
-                    <span class="cc-eyebrow m-0">DELIVERED / 29 SEP 2026</span>
-                  </div>
-                  <div class="col-6 col-md-4 text-end">
-                    <span class="text-light-cc" style="font-size: 16px; line-height: 26.4px;">₱3,260.00</span>
-                  </div>
-                </div>
-                
-                <p class="cc-small-text m-0">
-                  Essential Heavyweight Tee · Chalk · M · ₱1,890.00<br>
-                  Understated Club Cap · Obsidian · One size · ₱1,190.00<br>
-                  Subtotal ₱3,080.00 + standard shipping ₱180.00
-                </p>
-
-                <div>
-                  <a href="#" class="cc-underline-link">View previous order ↗</a>
-                </div>
+                <span class="cc-eyebrow m-0">ORDER HISTORY</span>
+                <p class="cc-small-text m-0">Previous orders will appear here after they are placed.</p>
               </div>
             </div>
 
@@ -265,7 +242,7 @@
 
   <!-- Dashboard Initialization Script -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       
       // Setup Custom Checkbox
       const checkInputs = document.querySelectorAll('.cc-custom-check');
@@ -294,16 +271,57 @@
         }
 
         // Fetch Last Placed Order
-        const order = CCStore.getLastOrder();
-        if (order) {
-          const c = order.customer || {};
-          const t = order.totals || {};
+        let order = null;
+        let profile = null;
+        try {
+          const profileResponse = await fetch('public/api/auth/me.php', {
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json' }
+          });
+          const profileResult = await profileResponse.json();
+          if (profileResponse.ok && profileResult.success) {
+            const user = profileResult.data.user;
+            profile = {
+              firstName: user.first_name,
+              lastName: user.last_name,
+              email: user.email,
+              mobile: user.mobile
+            };
+          }
+        } catch (error) {
+          console.error('Unable to load account profile:', error);
+        }
+        try {
+          const response = await fetch('public/api/orders/latest.php', {
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json' }
+          });
+          const result = await response.json();
+          if (response.ok && result.success && result.data) {
+            const serverOrder = result.data;
+            order = {
+              orderNumber: serverOrder.order_number,
+              placedOn: serverOrder.placed_at,
+              status: serverOrder.status,
+              items: serverOrder.items,
+              totals: {
+                totalItems: serverOrder.items.reduce((sum, item) => sum + Number(item.quantity), 0),
+                total: serverOrder.total_amount
+              }
+            };
+          }
+        } catch (error) {
+          console.error('Unable to load order history:', error);
+        }
+        const c = order?.customer || profile || {};
+        if (profile || order) {
+          const t = order?.totals || {};
 
           // Populate Customer Profile Strings
-          document.querySelectorAll('.customer-fname').forEach(el => el.textContent = c.firstName || 'Alex');
-          document.querySelectorAll('.customer-lname').forEach(el => el.textContent = c.lastName || 'Reyes');
-          document.querySelectorAll('.customer-email').forEach(el => el.textContent = c.email || 'alex.reyes@example.com');
-          document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = c.mobile || '+63 917 000 0184');
+          document.querySelectorAll('.customer-fname').forEach(el => el.textContent = c.firstName || '—');
+          document.querySelectorAll('.customer-lname').forEach(el => el.textContent = c.lastName || '—');
+          document.querySelectorAll('.customer-email').forEach(el => el.textContent = c.email || '—');
+          document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = c.mobile || '—');
           
           const fInit = (c.firstName || 'A').charAt(0).toUpperCase();
           const lInit = (c.lastName || 'R').charAt(0).toUpperCase();
@@ -313,17 +331,20 @@
           const addressEl = document.getElementById('dashboard-shipping-address');
           if (addressEl) {
             addressEl.innerHTML = `
-              ${c.street || '18 Sample Street'}${c.apartment ? ', ' + c.apartment : ''}<br>
-              ${c.barangay || 'Poblacion'}, ${c.city || 'Makati City'}<br>
-              ${c.province || 'Metro Manila'} ${c.postalCode || '1210'}
+              ${c.street || '—'}${c.apartment ? ', ' + c.apartment : ''}<br>
+              ${c.barangay || '—'}, ${c.city || '—'}<br>
+              ${c.province || '—'} ${c.postalCode || '—'}
             `;
           }
 
           // Populate Active Order Summary Box
           const pieceWord = t.totalItems === 1 ? 'piece' : 'pieces';
-          document.getElementById('dashboard-order-number').textContent = order.orderNumber || 'CC-261030-0184';
-          document.getElementById('dashboard-order-date').textContent = `${order.placedOn || '30 October 2026'} · ${t.totalItems || 2} ${pieceWord}`;
-          document.getElementById('dashboard-order-status').textContent = (order.status || 'Preparing for dispatch').toUpperCase();
+          if (!order) {
+            return;
+          }
+          document.getElementById('dashboard-order-number').textContent = order.orderNumber;
+          document.getElementById('dashboard-order-date').textContent = `${order.placedOn} · ${t.totalItems} ${pieceWord}`;
+          document.getElementById('dashboard-order-status').textContent = order.status.toUpperCase();
           document.getElementById('dashboard-order-total').textContent = CCStore.formatPHP(t.total);
           
           document.getElementById('dashboard-subtotal-val').textContent = CCStore.formatPHP(t.subtotal);
@@ -331,7 +352,7 @@
           document.getElementById('dashboard-final-val').textContent = CCStore.formatPHP(t.total);
           
           document.getElementById('dashboard-payment-method-text').textContent = 
-            `${c.paymentMethod || 'Illustrative card ending 4242.'} · No actual payment processed. Shipping to your default address.`;
+            `${c.paymentMethod || 'Payment method on file'} · Shipping to your default address.`;
 
           // Populate Order Items Image Grid Layout (2 cols on md+)
           const itemsContainer = document.getElementById('dashboard-order-items');

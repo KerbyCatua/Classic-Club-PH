@@ -12,6 +12,8 @@ async function loadPartials() {
   if (footerEl) {
     await loadPartial(new URL('footer.html', componentBaseUrl), footerEl);
   }
+
+  document.dispatchEvent(new CustomEvent('cc:partialsLoaded'));
 }
 
 async function loadPartial(url, element) {

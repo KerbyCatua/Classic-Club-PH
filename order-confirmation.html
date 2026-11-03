@@ -23,17 +23,17 @@
             <span class="text-accent" style="font-size: 30px;">✓</span>
           </div>
           <div class="d-flex flex-column gap-3">
-            <span class="cc-eyebrow-teal">EXAMPLE ORDER / SUCCESSFULLY PLACED</span>
+            <span class="cc-eyebrow-teal">ORDER CONFIRMATION</span>
             <h1 class="font-lora text-light-cc mb-0" id="confirm-greeting" style="font-size: clamp(2.25rem, 4.5vw, 56px); line-height: 1.18;">
-              Thank you, Alex.
+              Your order details
             </h1>
             <p class="cc-body-text mb-0" id="confirm-email-note">
-              Your next everyday favourites are on their way to becoming part of your rotation. A confirmation would be sent to alex.reyes@example.com.
+              Your confirmed order details will appear here.
             </p>
           </div>
         </div>
         <p class="cc-xs-text mb-0">
-          This is a successful illustrative order. No payment has been processed and no parcel will be shipped.
+          Payment processing and delivery updates are handled through your order record.
         </p>
       </div>
     </section>
@@ -50,11 +50,11 @@
             <div class="bg-cc-surface p-4 d-flex flex-wrap justify-content-between align-items-start gap-4">
               <div class="d-flex flex-column gap-2">
                 <span class="cc-eyebrow">ORDER NUMBER</span>
-                <span class="text-light-cc" id="confirm-order-number" style="font-size: 18px; line-height: 29.7px;">CC-261030-0184</span>
+                <span class="text-light-cc" id="confirm-order-number" style="font-size: 18px; line-height: 29.7px;">—</span>
               </div>
               <div class="d-flex flex-column gap-2">
                 <span class="cc-eyebrow">PLACED ON</span>
-                <span class="text-light-cc" id="confirm-placed-date" style="font-size: 14px; line-height: 23.1px;">30 October 2026</span>
+                <span class="text-light-cc" id="confirm-placed-date" style="font-size: 14px; line-height: 23.1px;">—</span>
               </div>
               <div class="d-flex flex-column gap-2">
                 <span class="cc-eyebrow-teal">CONFIRMED</span>
@@ -74,26 +74,20 @@
             <!-- Delivering To & Delivery Method Grid -->
             <div class="row g-4 pt-2">
               <div class="col-12 col-sm-6 d-flex flex-column gap-3">
-                <span class="cc-eyebrow">DELIVERING TO / EXAMPLE</span>
+                <span class="cc-eyebrow">DELIVERING TO</span>
                 <div class="text-light-cc" id="confirm-shipping-address" style="font-size: 14px; line-height: 23.1px;">
-                  Alex Reyes<br>
-                  18 Sample Street, Unit 4B<br>
-                  Example Residences, Poblacion<br>
-                  Makati City, Metro Manila 1210<br>
-                  Philippines<br>
-                  +63 917 000 0184
+                  Order address loads from the server.
                 </div>
               </div>
               <div class="col-12 col-sm-6 d-flex flex-column gap-3">
                 <span class="cc-eyebrow">DELIVERY METHOD</span>
                 <div class="text-light-cc" style="font-size: 14px; line-height: 23.1px;">
-                  Standard · ₱180.00<br>
-                  Estimated 3–5 November 2026
+                  Standard delivery<br>
+                  Delivery estimate appears after dispatch
                 </div>
                 <span class="cc-eyebrow mt-1">PAYMENT &amp; BILLING</span>
                 <div class="cc-small-text" id="confirm-payment-info">
-                  Illustrative card ending 4242.<br>
-                  No payment processed.<br>
+                  Payment details are recorded with the order.<br>
                   Billing address same as shipping.
                 </div>
               </div>
@@ -112,8 +106,8 @@
               </h2>
 
               <div class="d-flex justify-content-between align-items-start">
-                <span class="cc-small-text" id="confirm-subtotal-label">Subtotal · 2 pieces</span>
-                <span class="cc-small-text text-light-cc" id="confirm-subtotal-value">₱6,780.00</span>
+                <span class="cc-small-text" id="confirm-subtotal-label">Subtotal</span>
+                <span class="cc-small-text text-light-cc" id="confirm-subtotal-value">—</span>
               </div>
 
               <div class="d-flex justify-content-between align-items-start">
@@ -130,7 +124,7 @@
 
               <div class="d-flex justify-content-between align-items-baseline">
                 <span class="text-light-cc" style="font-size: 18px;">Total</span>
-                <span class="text-light-cc" id="confirm-total-value" style="font-size: 22px;">₱6,960.00</span>
+                <span class="text-light-cc" id="confirm-total-value" style="font-size: 22px;">—</span>
               </div>
 
               <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
@@ -208,7 +202,7 @@
             A question about your order?
           </h2>
           <p class="cc-body-text m-0">
-            Quote CC-261030-0184 when contacting client services. For address changes, get in touch before dispatch; changes cannot be guaranteed.
+            Quote your generated order number when contacting client services. For address changes, get in touch before dispatch; changes cannot be guaranteed.
           </p>
         </div>
         <a href="contact.html" class="btn-cc-outline">
@@ -233,23 +227,70 @@
 
   <!-- Order Confirmation Hydration Script -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       if (typeof CCStore === 'undefined') return;
-      const order = CCStore.getLastOrder();
-      if (!order) return;
+      const orderNumber = new URLSearchParams(window.location.search).get('order_number');
+      let order = null;
+      if (orderNumber) {
+        try {
+          const response = await fetch(
+            `public/api/orders/view.php?order_number=${encodeURIComponent(orderNumber)}`,
+            { credentials: 'same-origin', headers: { 'Accept': 'application/json' } }
+          );
+          const result = await response.json();
+          if (response.ok && result.success) {
+            const serverOrder = result.data;
+            order = {
+              orderNumber: serverOrder.order_number,
+              placedOn: serverOrder.placed_at,
+              status: serverOrder.status,
+              items: serverOrder.items,
+              totals: {
+                totalItems: serverOrder.items.reduce((sum, item) => sum + Number(item.quantity), 0),
+                subtotal: serverOrder.subtotal,
+                shipping: serverOrder.shipping_amount,
+                discount: serverOrder.discount_amount,
+                total: serverOrder.total_amount
+              },
+              customer: {
+                firstName: serverOrder.recipient_first_name,
+                lastName: serverOrder.recipient_last_name,
+                email: serverOrder.guest_email,
+                mobile: serverOrder.mobile,
+                country: serverOrder.country,
+                street: serverOrder.street_address,
+                apartment: serverOrder.apartment,
+                barangay: serverOrder.barangay,
+                city: serverOrder.city,
+                province: serverOrder.province,
+                postalCode: serverOrder.postal_code,
+                paymentMethod: 'Illustrative payment'
+              }
+            };
+          }
+        } catch (error) {
+          console.error('Unable to load server order:', error);
+        }
+      }
+      if (!order) {
+        document.getElementById('confirm-greeting').textContent = 'Order not found';
+        document.getElementById('confirm-email-note').textContent =
+          'Use the order link from checkout or contact client services with your order number.';
+        return;
+      }
 
       const c = order.customer || {};
       const t = order.totals || {};
 
       // Populate Customer Greeting & Email
-      document.getElementById('confirm-greeting').textContent = `Thank you, ${c.firstName || 'Alex'}.`;
+      document.getElementById('confirm-greeting').textContent = `Thank you, ${c.firstName || 'there'}.`;
       document.getElementById('confirm-email-note').textContent =
-        `Your next everyday favourites are on their way to becoming part of your rotation. A confirmation would be sent to ${c.email || 'alex.reyes@example.com'}.`;
+        `Your order confirmation was created for ${c.email || 'your account email'}.`;
 
       // Populate Order Meta
-      document.getElementById('confirm-order-number').textContent = order.orderNumber || 'CC-261030-0184';
-      document.getElementById('confirm-placed-date').textContent = order.placedOn || '30 October 2026';
-      document.getElementById('confirm-status').textContent = order.status || 'Preparing for dispatch';
+      document.getElementById('confirm-order-number').textContent = order.orderNumber;
+      document.getElementById('confirm-placed-date').textContent = order.placedOn;
+      document.getElementById('confirm-status').textContent = order.status;
 
       // Populate Order Items
       const itemsContainer = document.getElementById('confirm-items-container');
@@ -277,26 +318,26 @@
 
       // Populate Address & Payment Info
       document.getElementById('confirm-shipping-address').innerHTML = `
-        ${c.firstName || 'Alex'} ${c.lastName || 'Reyes'}<br>
-        ${c.street || '18 Sample Street'}${c.apartment ? ', ' + c.apartment : ''}<br>
-        ${c.barangay || 'Poblacion'}<br>
-        ${c.city || 'Makati City'}, ${c.province || 'Metro Manila'} ${c.postalCode || '1210'}<br>
-        ${c.country || 'Philippines'}<br>
-        ${c.mobile || '+63 917 000 0184'}
+        ${c.firstName || ''} ${c.lastName || ''}<br>
+        ${c.street || '—'}${c.apartment ? ', ' + c.apartment : ''}<br>
+        ${c.barangay || '—'}<br>
+        ${c.city || '—'}, ${c.province || '—'} ${c.postalCode || '—'}<br>
+        ${c.country || '—'}<br>
+        ${c.mobile || '—'}
       `;
 
       document.getElementById('confirm-payment-info').innerHTML = `
-        ${c.paymentMethod || 'Illustrative card ending 4242.'}<br>
-        No payment processed.<br>
+        ${c.paymentMethod || 'Payment method recorded with order.'}<br>
+        Payment status is shown in your order record.<br>
         Billing address same as shipping.
       `;
 
       // Populate Order Summary Totals
       const pieceWord = t.totalItems === 1 ? 'piece' : 'pieces';
-      document.getElementById('confirm-subtotal-label').textContent = `Subtotal · ${t.totalItems || 2} ${pieceWord}`;
+      document.getElementById('confirm-subtotal-label').textContent = `Subtotal · ${t.totalItems} ${pieceWord}`;
       document.getElementById('confirm-subtotal-value').textContent = CCStore.formatPHP(t.subtotal);
       document.getElementById('confirm-shipping-value').textContent = CCStore.formatPHP(t.shipping);
-      document.getElementById('confirm-discount-value').textContent = t.discount > 0 ? `−${CCStore.formatPHP(t.discount)}` : '₱0.00';
+      document.getElementById('confirm-discount-value').textContent = t.discount > 0 ? `−${CCStore.formatPHP(t.discount)}` : CCStore.formatPHP(0);
       document.getElementById('confirm-total-value').textContent = CCStore.formatPHP(t.total);
     });
   </script>

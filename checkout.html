@@ -72,7 +72,7 @@
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-email" class="cc-xs-text text-light-cc">Email address *</label>
-                <input type="email" id="checkout-email" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="alex.reyes@example.com" required>
+                <input type="email" id="checkout-email" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
               </div>
 
               <div class="d-flex flex-column gap-2">
@@ -122,7 +122,7 @@
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-street" class="cc-xs-text text-light-cc">Street address *</label>
-                <input type="text" id="checkout-street" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="18 Sample Street" required>
+                <input type="text" id="checkout-street" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
               </div>
 
               <div class="d-flex flex-column gap-2">
@@ -193,7 +193,7 @@
               </label>
 
               <p class="cc-xs-text m-0" id="billing-preview-line">
-                Alex Reyes · 18 Sample Street, Unit 4B, Poblacion, Makati City, Metro Manila 1210.
+                Your shipping address will appear here.
               </p>
             </div>
 
@@ -257,12 +257,12 @@
               </label>
 
               <button type="submit" class="btn-cc-teal w-100" id="place-order-btn">
-                <span id="place-order-btn-text">Place example order — ₱6,960.00</span>
+                <span id="place-order-btn-text">Place order</span>
                 <i class="bi bi-arrow-right"></i>
               </button>
 
               <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
-                Static design example. The order confirmation shown in this design set uses order CC-261030-0184.
+                Your order reference will be generated after the server validates your cart and address.
               </p>
             </div>
 
@@ -287,8 +287,8 @@
               <hr class="border-cc m-0 opacity-100">
 
               <div class="d-flex justify-content-between align-items-start">
-                <span class="cc-small-text" id="checkout-subtotal-label">Subtotal · 2 pieces</span>
-                <span class="cc-small-text text-light-cc" id="checkout-subtotal-value">₱6,780.00</span>
+                <span class="cc-small-text" id="checkout-subtotal-label">Subtotal</span>
+                <span class="cc-small-text text-light-cc" id="checkout-subtotal-value">—</span>
               </div>
 
               <div class="d-flex justify-content-between align-items-start">
@@ -305,7 +305,7 @@
 
               <div class="d-flex justify-content-between align-items-baseline">
                 <span class="text-light-cc" style="font-size: 18px;">Total</span>
-                <span class="text-light-cc" id="checkout-total-value" style="font-size: 22px;">₱6,960.00</span>
+                <span class="text-light-cc" id="checkout-total-value" style="font-size: 22px;">—</span>
               </div>
 
               <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
@@ -374,7 +374,7 @@
         shippingValue.textContent = CCStore.formatPHP(totals.shipping);
         discountValue.textContent = totals.discount > 0 ? `−${CCStore.formatPHP(totals.discount)}` : '₱0.00';
         totalValue.textContent = CCStore.formatPHP(totals.total);
-        placeOrderBtnText.textContent = `Place example order — ${CCStore.formatPHP(totals.total)}`;
+        placeOrderBtnText.textContent = `Place order — ${CCStore.formatPHP(totals.total)}`;
 
         itemsListEl.innerHTML = cart.map(item => `
           <div class="d-flex align-items-center gap-3">
@@ -450,24 +450,51 @@
         if (el) el.addEventListener('input', updateBillingPreview);
       });
 
-      // Place Order Submission -> Saves to CCStore and Redirects to order-confirmation.html
-      checkoutForm.addEventListener('submit', (e) => {
+      // Place order on the server and redirect with the generated order number.
+      checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        CCStore.placeOrder({
-          email: document.getElementById('checkout-email').value,
-          firstName: document.getElementById('checkout-fname').value,
-          lastName: document.getElementById('checkout-lname').value,
-          mobile: document.getElementById('checkout-mobile').value,
-          country: document.getElementById('checkout-country').value,
-          street: document.getElementById('checkout-street').value,
-          apartment: document.getElementById('checkout-apt').value,
-          barangay: document.getElementById('checkout-brgy').value,
-          city: document.getElementById('checkout-city').value,
-          province: document.getElementById('checkout-province').value,
-          postalCode: document.getElementById('checkout-postal').value,
-          paymentMethod: selectedPaymentMethod
-        });
-        window.location.href = 'order-confirmation.html';
+        const button = checkoutForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+
+        try {
+          const csrf = await fetch('public/api/auth/csrf.php', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' }
+          }).then(response => response.json());
+          const response = await fetch('public/api/checkout/create-order.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+              ,'X-CSRF-Token': csrf.data.token
+            },
+            body: JSON.stringify({
+              email: document.getElementById('checkout-email').value,
+              first_name: document.getElementById('checkout-fname').value,
+              last_name: document.getElementById('checkout-lname').value,
+              mobile: document.getElementById('checkout-mobile').value,
+              country: document.getElementById('checkout-country').value,
+              street_address: document.getElementById('checkout-street').value,
+              apartment: document.getElementById('checkout-apt').value,
+              barangay: document.getElementById('checkout-brgy').value,
+              city: document.getElementById('checkout-city').value,
+              province: document.getElementById('checkout-province').value,
+              postal_code: document.getElementById('checkout-postal').value,
+              promotion_code: CCStore.getPromo().code || ''
+            })
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.error?.message || 'Unable to create the order.');
+          }
+
+          window.location.href =
+            `order-confirmation.html?order_number=${encodeURIComponent(result.data.order_number)}`;
+        } catch (error) {
+          alert(error.message);
+          button.disabled = false;
+        }
       });
 
       renderCheckoutSummary();

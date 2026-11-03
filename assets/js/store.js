@@ -8,7 +8,6 @@ const CCStore = (function () {
     CART_INIT: 'cc_cart_initialized',
     WISHLIST: 'cc_wishlist_data',
     PROMO: 'cc_promo_data',
-    LAST_ORDER: 'cc_last_order'
   };
 
   const SHIPPING_FEE = 180;
@@ -225,29 +224,9 @@ const CCStore = (function () {
     }
   };
 
-  // Default Figma Cart Items (seeded once if user has never interacted with cart)
-  const DEFAULT_CART = [
-    {
-      id: 'essential-hw-tee-obsidian',
-      name: 'Essential Heavyweight Tee',
-      color: 'Obsidian',
-      size: 'M',
-      price: 1890,
-      quantity: 1
-    },
-    {
-      id: 'structured-overshirt-graphite',
-      name: 'Structured Overshirt',
-      color: 'Graphite',
-      size: 'M',
-      price: 4890,
-      quantity: 1
-    }
-  ];
-
   function ensureInitialized() {
     if (!localStorage.getItem(STORAGE_KEYS.CART_INIT)) {
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(DEFAULT_CART));
+      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.CART_INIT, 'true');
     }
   }
@@ -301,6 +280,16 @@ const CCStore = (function () {
   }
 
   async function apiRequest(url, options = {}) {
+    if ((options.method || 'GET').toUpperCase() !== 'GET') {
+      const csrf = await fetch('public/api/auth/csrf.php', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' }
+      }).then(response => response.json());
+      options.headers = {
+        ...(options.headers || {}),
+        'X-CSRF-Token': csrf.data.token
+      };
+    }
     const response = await fetch(url, {
       credentials: 'same-origin',
       headers: {
@@ -336,6 +325,7 @@ const CCStore = (function () {
 
     // Cart Methods
     getCart,
+    getPromo,
     addToCart: function (item) {
       const cart = getCart();
       const color = item.color || 'Obsidian';
@@ -475,79 +465,6 @@ const CCStore = (function () {
       }
       savePromo({ code: '', discount: 0 });
       return { valid: false, message: `Code "${code}" is not valid. Try CLASSIC10.` };
-    },
-
-    // Checkout & Order Confirmation Methods
-    placeOrder: function (customerData) {
-      const cart = getCart();
-      const totals = this.getCartTotals();
-      const orderData = {
-        orderNumber: 'CC-261030-0184',
-        placedOn: '30 October 2026',
-        status: 'Preparing for dispatch',
-        items: cart.length > 0 ? cart : DEFAULT_CART,
-        totals: cart.length > 0 ? totals : {
-          totalItems: 2,
-          subtotal: 6780,
-          shipping: 180,
-          discount: 0,
-          total: 6960
-        },
-        customer: Object.assign({
-          email: 'alex.reyes@example.com',
-          firstName: 'Alex',
-          lastName: 'Reyes',
-          mobile: '+63 917 000 0184',
-          country: 'Philippines',
-          street: '18 Sample Street',
-          apartment: 'Unit 4B · Example Residences',
-          barangay: 'Poblacion',
-          city: 'Makati City',
-          province: 'Metro Manila',
-          postalCode: '1210',
-          paymentMethod: 'Illustrative card ending 4242.'
-        }, customerData || {})
-      };
-
-      localStorage.setItem(STORAGE_KEYS.LAST_ORDER, JSON.stringify(orderData));
-      this.clearCart();
-      return orderData;
-    },
-
-    getLastOrder: function () {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.LAST_ORDER));
-        if (saved && saved.items && saved.items.length > 0) return saved;
-      } catch (e) {}
-
-      // Fallback to Figma illustrative order
-      return {
-        orderNumber: 'CC-261030-0184',
-        placedOn: '30 October 2026',
-        status: 'Preparing for dispatch',
-        items: DEFAULT_CART,
-        totals: {
-          totalItems: 2,
-          subtotal: 6780,
-          shipping: 180,
-          discount: 0,
-          total: 6960
-        },
-        customer: {
-          email: 'alex.reyes@example.com',
-          firstName: 'Alex',
-          lastName: 'Reyes',
-          mobile: '+63 917 000 0184',
-          country: 'Philippines',
-          street: '18 Sample Street',
-          apartment: 'Unit 4B · Example Residences',
-          barangay: 'Poblacion',
-          city: 'Makati City',
-          province: 'Metro Manila',
-          postalCode: '1210',
-          paymentMethod: 'Illustrative card ending 4242.'
-        }
-      };
     },
 
     // Wishlist Methods
