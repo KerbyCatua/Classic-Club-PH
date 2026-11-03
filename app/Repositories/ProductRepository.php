@@ -47,6 +47,7 @@ final class ProductRepository
                 c.name AS category_name,
                 c.slug AS category_slug,
                 v.id AS variant_id,
+                v.catalog_key,
                 v.sku,
                 v.color_name,
                 v.price,
@@ -92,6 +93,7 @@ final class ProductRepository
                     c.name AS category_name,
                     c.slug AS category_slug,
                     v.id AS variant_id,
+                    v.catalog_key,
                     v.sku,
                     v.color_name,
                     v.price,
@@ -126,6 +128,7 @@ final class ProductRepository
             'variants' => array_map(
                 static fn (array $row): array => [
                     'id' => $row['variant_id'],
+                    'catalog_key' => $row['catalog_key'],
                     'sku' => $row['sku'],
                     'color' => $row['color_name'],
                     'price' => $row['price'],

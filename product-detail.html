@@ -98,7 +98,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <span class="cc-eyebrow-teal">THE CORE COLLECTION / CC-TEE-001</span>
                 <!-- Corrected Wishlist Header Link based on image -->
-                <button type="button" class="btn p-0 border-0 d-flex align-items-center gap-2 cc-main-wishlist-toggle text-light-cc" data-product-id="essential-hw-tee">
+                <button type="button" class="btn p-0 border-0 d-flex align-items-center gap-2 cc-main-wishlist-toggle text-light-cc" data-product-id="essential-hw-tee-obsidian">
                   <span class="wishlist-btn-text cc-xs-text fw-medium">Save to wishlist</span>
                   <i class="bi bi-heart"></i>
                 </button>
@@ -160,7 +160,7 @@
             
             <!-- CTAs -->
             <div class="d-flex flex-column gap-2 mt-2">
-              <button type="button" class="btn-cc-teal w-100" id="add-to-cart-btn" data-product-id="essential-hw-tee">
+              <button type="button" class="btn-cc-teal w-100" id="add-to-cart-btn" data-product-id="essential-hw-tee-obsidian">
                 <span>Add to bag — ₱1,890.00</span>
                 <i class="bi bi-arrow-right"></i>
               </button>
@@ -458,8 +458,24 @@
       });
 
       // Product Setup
-      const urlProductId = new URLSearchParams(window.location.search).get('id') || 'essential-hw-tee-obsidian';
+      const requestedProductId = new URLSearchParams(window.location.search).get('id');
+      const urlProductId = requestedProductId || 'essential-hw-tee-obsidian';
       const loadedProduct = (typeof CCStore !== 'undefined') ? CCStore.getProductById(urlProductId) : null;
+      if (requestedProductId && !loadedProduct) {
+        document.querySelector('main').innerHTML = `
+          <section class="cc-section-px cc-section-py">
+            <div class="border border-cc bg-cc-surface p-5 text-center">
+              <h1 class="font-lora text-light-cc mb-3">Piece not found.</h1>
+              <p class="cc-body-text mb-4">The product you requested is no longer available.</p>
+              <a href="shop-all.html" class="btn-cc-teal">
+                <span>Explore the collection</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
+          </section>
+        `;
+        return;
+      }
       let currentProduct = {
         id: loadedProduct ? loadedProduct.id : 'essential-hw-tee-obsidian',
         name: loadedProduct ? loadedProduct.name : 'Essential Heavyweight Tee',

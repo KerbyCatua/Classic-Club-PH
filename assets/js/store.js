@@ -300,6 +300,25 @@ const CCStore = (function () {
     window.dispatchEvent(new CustomEvent('cc:cartUpdated', { detail: getCart() }));
   }
 
+  async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...(options.headers || {})
+      },
+      ...options
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.error?.message || 'Request failed.');
+    }
+
+    return result.data;
+  }
+
   return {
     formatPHP,
 
@@ -308,9 +327,7 @@ const CCStore = (function () {
       return PRODUCTS;
     },
     getProductById: function (id) {
-      if (PRODUCTS[id]) return PRODUCTS[id];
-      if (id === 'essential-hw-tee') return PRODUCTS['essential-hw-tee-obsidian'];
-      return PRODUCTS['essential-hw-tee-obsidian'];
+      return PRODUCTS[id] || null;
     },
     getProductImage: function (productId) {
       const product = this.getProductById(productId);
@@ -340,6 +357,18 @@ const CCStore = (function () {
         });
       }
       saveCart(cart);
+      apiRequest('public/api/cart/add.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          catalog_key: item.id,
+          size,
+          quantity: Number(item.quantity || 1)
+        })
+      }).then(data => {
+        saveCart(data.items || []);
+      }).catch(error => {
+        console.error('Server cart add failed:', error);
+      });
     },
 
     updateCartQty: function (id, color, size, newQty) {
@@ -353,6 +382,18 @@ const CCStore = (function () {
         target.quantity = newQty;
       }
       saveCart(cart);
+      apiRequest('public/api/cart/update.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          catalog_key: id,
+          size,
+          quantity: Number(newQty)
+        })
+      }).then(data => {
+        saveCart(data.items || []);
+      }).catch(error => {
+        console.error('Server cart update failed:', error);
+      });
     },
 
     removeFromCart: function (id, color, size) {
@@ -360,6 +401,17 @@ const CCStore = (function () {
         c => !(c.id === id && c.color === color && c.size === size)
       );
       saveCart(cart);
+      apiRequest('public/api/cart/remove.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          catalog_key: id,
+          size
+        })
+      }).then(data => {
+        saveCart(data.items || []);
+      }).catch(error => {
+        console.error('Server cart remove failed:', error);
+      });
     },
 
     moveToWishlist: function (id, color, size) {
@@ -509,10 +561,37 @@ const CCStore = (function () {
         wishlist.push(productId);
       }
       saveWishlist(wishlist);
+      apiRequest('public/api/wishlist/toggle.php', {
+        method: 'POST',
+        body: JSON.stringify({ catalog_key: productId })
+      }).then(data => {
+        const remoteIds = (data.items || []).map(item => item.id);
+        saveWishlist(remoteIds);
+      }).catch(error => {
+        console.error('Server wishlist update failed:', error);
+      });
       return index === -1;
     },
     isInWishlist: function (productId) {
       return getWishlist().includes(productId);
+    },
+
+    syncServerState: async function () {
+      try {
+        const cartData = await apiRequest('public/api/cart/view.php');
+        saveCart(cartData.items || []);
+      } catch (error) {
+        console.error('Server cart sync failed:', error);
+      }
+
+      try {
+        const wishlistData = await apiRequest('public/api/wishlist/view.php');
+        saveWishlist((wishlistData.items || []).map(item => item.id));
+      } catch (error) {
+        if (!String(error.message).toLowerCase().includes('authentication')) {
+          console.error('Server wishlist sync failed:', error);
+        }
+      }
     }
   };
 })();

@@ -6,7 +6,6 @@ use ClassicClub\Http\JsonResponse;
 use ClassicClub\Repositories\UserRepository;
 use ClassicClub\Services\AuthService;
 use ClassicClub\Support\AuditLogger;
-use RuntimeException;
 
 require_once __DIR__ . '/../../../app/Database/Connection.php';
 require_once __DIR__ . '/../../../app/Http/Response.php';

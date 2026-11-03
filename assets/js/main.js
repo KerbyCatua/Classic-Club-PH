@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
   syncHeaderBadges();
   setTimeout(syncHeaderBadges, 150);
   setTimeout(syncHeaderBadges, 500);
+  if (typeof CCStore.syncServerState === 'function') {
+    CCStore.syncServerState().then(syncHeaderBadges);
+  }
   window.addEventListener('cc:cartUpdated', syncHeaderBadges);
   window.addEventListener('cc:wishlistUpdated', syncHeaderBadges);
 

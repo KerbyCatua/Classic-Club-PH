@@ -9,7 +9,6 @@ use ClassicClub\Services\AuthService;
 use ClassicClub\Support\AuditLogger;
 use ClassicClub\Validation\AuthValidator;
 use ClassicClub\Validation\ValidationException;
-use RuntimeException;
 
 require_once __DIR__ . '/../../../app/Database/Connection.php';
 require_once __DIR__ . '/../../../app/Support/Input.php';
