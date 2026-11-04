@@ -278,7 +278,7 @@
       });
 
       // Handle Clicks for Remove & Move to Bag
-      wishlistGrid.addEventListener('click', (e) => {
+      wishlistGrid.addEventListener('click', async (e) => {
         
         // Remove Action
         const removeBtn = e.target.closest('.js-remove-wishlist');
@@ -303,7 +303,7 @@
           const p = CCStore.getProductById(savedId);
           if (p) {
             // Add to Bag using the resolved Product ID
-            CCStore.addToCart({
+            const added = await CCStore.addToCart({
               id: p.id,
               name: p.name,
               price: p.price,
@@ -312,6 +312,7 @@
               quantity: 1,
               image: p.image
             });
+            if (!added) return;
             // Instantly slice the original ID out of the wishlist
             removeIdFromWishlist(savedId);
           }

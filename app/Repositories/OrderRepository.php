@@ -94,7 +94,7 @@ final class OrderRepository
         $statement = $this->pdo->prepare(
             <<<'SQL'
                 SELECT
-                    o.id, o.order_number, o.status, o.placed_at,
+                    o.id, o.order_number, o.status, o.payment_status, o.placed_at,
                     o.subtotal, o.shipping_amount, o.discount_amount, o.total_amount,
                     o.guest_email, a.recipient_first_name, a.recipient_last_name,
                     a.mobile, a.country, a.street_address, a.apartment,
@@ -121,7 +121,27 @@ final class OrderRepository
         }
 
         $items = $this->pdo->prepare(
-            'SELECT sku_snapshot AS sku, product_name_snapshot AS name, color_snapshot AS color, size_snapshot AS size, quantity, unit_price AS price, line_total FROM order_items WHERE order_id = :order_id'
+            <<<'SQL'
+                SELECT
+                    oi.sku_snapshot AS sku,
+                    oi.product_name_snapshot AS name,
+                    oi.color_snapshot AS color,
+                    oi.size_snapshot AS size,
+                    oi.quantity,
+                    oi.unit_price AS price,
+                    oi.line_total,
+                    v.catalog_key AS id,
+                    image.image_url AS image
+                FROM order_items oi
+                LEFT JOIN variant_sizes vs ON vs.id = oi.variant_size_id
+                LEFT JOIN product_variants v ON v.id = vs.variant_id
+                LEFT JOIN product_images image
+                    ON image.variant_id = v.id
+                   AND image.image_role = 'primary'
+                   AND image.sort_order = 0
+                WHERE oi.order_id = :order_id
+                ORDER BY oi.id ASC
+            SQL
         );
         $items->execute(['order_id' => $order['id']]);
         $order['items'] = $items->fetchAll();

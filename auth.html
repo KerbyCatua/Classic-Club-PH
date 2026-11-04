@@ -17,6 +17,13 @@
   <div id="header-partial"></div>
 
   <main>
+    <div id="auth-gate-notice" class="cc-section-px pt-4" hidden>
+      <div class="d-flex align-items-center justify-content-between gap-3 px-3 py-3" role="status" style="background: #112B2E; border-left: 2px solid var(--cc-accent);">
+        <p id="auth-gate-notice-text" class="mb-0 text-light-cc" style="font-size: 14px;">Login or Signup First</p>
+        <button type="button" id="auth-gate-dismiss" class="btn p-0 border-0 text-muted-cc" aria-label="Dismiss notice" style="font-size: 20px; line-height: 1;">×</button>
+      </div>
+    </div>
+
     <!-- Page Header Section -->
     <section class="cc-section-px pt-4 pb-5">
       <div class="d-flex flex-column gap-4">
@@ -261,7 +268,18 @@
   <!-- Micro-interactions Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      
+      const notice = new URLSearchParams(window.location.search).get('notice');
+      const noticePanel = document.getElementById('auth-gate-notice');
+      if (notice === 'login' && noticePanel) {
+        noticePanel.hidden = false;
+        const url = new URL(window.location.href);
+        url.searchParams.delete('notice');
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+      }
+      document.getElementById('auth-gate-dismiss')?.addEventListener('click', () => {
+        if (noticePanel) noticePanel.hidden = true;
+      });
+
       // Custom Checkbox Toggle Logic
       const checkInputs = document.querySelectorAll('.cc-custom-check');
       checkInputs.forEach(input => {

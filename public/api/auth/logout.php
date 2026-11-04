@@ -7,12 +7,12 @@ use ClassicClub\Http\JsonResponse;
 use ClassicClub\Http\Request;
 use ClassicClub\Support\AuditLogger;
 
+require_once __DIR__ . '/../../../app/Database/Connection.php';
 require_once __DIR__ . '/../../../app/Http/Response.php';
 require_once __DIR__ . '/../../../app/Http/JsonResponse.php';
 require_once __DIR__ . '/../../../app/Http/Request.php';
 require_once __DIR__ . '/../../../app/Auth/SessionManager.php';
 require_once __DIR__ . '/../../../app/Middleware/CsrfMiddleware.php';
-require_once __DIR__ . '/../../../app/Database/Connection.php';
 require_once __DIR__ . '/../../../app/Support/AuditLogger.php';
 
 $request = new Request();

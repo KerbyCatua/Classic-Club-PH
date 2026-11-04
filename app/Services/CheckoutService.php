@@ -54,46 +54,6 @@ final class CheckoutService
             ]);
 
             foreach ($items as $item) {
-                $stock = $this->pdo->prepare(
-                    <<<'SQL'
-                        UPDATE variant_sizes
-                        SET quantity_reserved = quantity_reserved + :quantity
-                        WHERE id = :variant_size_id
-                          AND quantity_on_hand - quantity_reserved >= :available_quantity
-                    SQL
-                );
-                $stock->execute([
-                    'quantity' => $item['quantity'],
-                    'variant_size_id' => $item['variant_size_id'],
-                    'available_quantity' => $item['quantity'],
-                ]);
-
-                if ($stock->rowCount() !== 1) {
-                    throw new RuntimeException(
-                        $item['name'] . ' in size ' . $item['size'] . ' is out of stock.'
-                    );
-                }
-
-                $movement = $this->pdo->prepare(
-                    <<<'SQL'
-                        INSERT INTO inventory_movements
-                            (variant_size_id, quantity_delta, movement_type,
-                             reference_type, reference_id, notes, created_by)
-                        VALUES
-                            (:variant_size_id, :quantity_delta, 'reservation',
-                             'order', :reference_id, :notes, :created_by)
-                    SQL
-                );
-                $movement->execute([
-                    'variant_size_id' => $item['variant_size_id'],
-                    'quantity_delta' => (int) $item['quantity'],
-                    'reference_id' => $orderId,
-                    'notes' => 'Reserved for checkout order',
-                    'created_by' => $userId,
-                ]);
-            }
-
-            foreach ($items as $item) {
                 $this->orders->addItem($orderId, $item);
             }
             $this->orders->addAddress($orderId, $data);

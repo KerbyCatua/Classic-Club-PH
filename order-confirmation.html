@@ -58,7 +58,7 @@
               </div>
               <div class="d-flex flex-column gap-2">
                 <span class="cc-eyebrow-teal">CONFIRMED</span>
-                <span class="cc-xs-text text-light-cc" id="confirm-status">Preparing for dispatch</span>
+                <span class="cc-xs-text text-light-cc" id="confirm-status">—</span>
               </div>
             </div>
 
@@ -81,9 +81,8 @@
               </div>
               <div class="col-12 col-sm-6 d-flex flex-column gap-3">
                 <span class="cc-eyebrow">DELIVERY METHOD</span>
-                <div class="text-light-cc" style="font-size: 14px; line-height: 23.1px;">
-                  Standard delivery<br>
-                  Delivery estimate appears after dispatch
+                <div class="text-light-cc" id="confirm-delivery-method" style="font-size: 14px; line-height: 23.1px;">
+                  Delivery method loads with the order.
                 </div>
                 <span class="cc-eyebrow mt-1">PAYMENT &amp; BILLING</span>
                 <div class="cc-small-text" id="confirm-payment-info">
@@ -112,12 +111,12 @@
 
               <div class="d-flex justify-content-between align-items-start">
                 <span class="cc-small-text">Standard shipping</span>
-                <span class="cc-small-text text-light-cc" id="confirm-shipping-value">₱180.00</span>
+                <span class="cc-small-text text-light-cc" id="confirm-shipping-value">—</span>
               </div>
 
               <div class="d-flex justify-content-between align-items-start">
                 <span class="cc-small-text">Discount</span>
-                <span class="cc-small-text text-light-cc" id="confirm-discount-value">₱0.00</span>
+                <span class="cc-small-text text-light-cc" id="confirm-discount-value">—</span>
               </div>
 
               <hr class="border-cc m-0 opacity-100">
@@ -131,8 +130,8 @@
                 PHP · Prices include applicable taxes. No additional tax is added at checkout.
               </p>
 
-              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
-                Delivery to Metro Manila: 3–5 November 2026. Illustrative order; no payment is processed.
+              <p class="cc-eyebrow text-transform-none m-0" id="confirm-delivery-note" style="text-transform: none; line-height: 18.15px;">
+                Delivery details load with the order.
               </p>
             </div>
 
@@ -252,6 +251,7 @@
                 discount: serverOrder.discount_amount,
                 total: serverOrder.total_amount
               },
+              paymentStatus: serverOrder.payment_status,
               customer: {
                 firstName: serverOrder.recipient_first_name,
                 lastName: serverOrder.recipient_last_name,
@@ -263,8 +263,7 @@
                 barangay: serverOrder.barangay,
                 city: serverOrder.city,
                 province: serverOrder.province,
-                postalCode: serverOrder.postal_code,
-                paymentMethod: 'Illustrative payment'
+                postalCode: serverOrder.postal_code
               }
             };
           }
@@ -282,55 +281,97 @@
       const c = order.customer || {};
       const t = order.totals || {};
 
-      // Populate Customer Greeting & Email
-      document.getElementById('confirm-greeting').textContent = `Thank you, ${c.firstName || 'there'}.`;
-      document.getElementById('confirm-email-note').textContent =
-        `Your order confirmation was created for ${c.email || 'your account email'}.`;
+      let account = null;
+      try {
+        const profileResponse = await fetch('public/api/auth/me.php', {
+          credentials: 'same-origin',
+          headers: { 'Accept': 'application/json' }
+        });
+        const profileResult = await profileResponse.json();
+        if (profileResponse.ok && profileResult.success && profileResult.data?.user) {
+          account = profileResult.data.user;
+        }
+      } catch (error) {
+        console.error('Unable to load the signed-in account:', error);
+      }
+
+      const greetName = account?.first_name || c.firstName || 'there';
+      const confirmEmail = account?.email || c.email;
+
+      document.getElementById('confirm-greeting').textContent = `Thank you, ${greetName}.`;
+      document.getElementById('confirm-email-note').textContent = confirmEmail
+        ? `Your order confirmation was created for ${confirmEmail}.`
+        : 'Your order confirmation is saved with this order.';
 
       // Populate Order Meta
       document.getElementById('confirm-order-number').textContent = order.orderNumber;
       document.getElementById('confirm-placed-date').textContent = order.placedOn;
       document.getElementById('confirm-status').textContent = order.status;
 
-      // Populate Order Items
+      const escapeHtml = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+      const itemImage = (item) => {
+        if (item.image) return item.image;
+        const byId = item.id ? CCStore.getProductImage(item.id) : '';
+        if (byId) return byId;
+        const catalog = Object.values(CCStore.getProducts());
+        const match = catalog.find(product => product.name === item.name && product.color === item.color);
+        return match ? match.srcImage : '';
+      };
+
       const itemsContainer = document.getElementById('confirm-items-container');
-      itemsContainer.innerHTML = (order.items || []).map(item => `
+      itemsContainer.innerHTML = (order.items || []).map(item => {
+        const image = itemImage(item);
+        const imageMarkup = image
+          ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(item.name)} / ${escapeHtml(item.color)}" class="img-fluid w-100 h-100 object-fit-cover">`
+          : '';
+        return `
         <div class="d-flex align-items-center gap-3">
-
-          <div class="flex-shrink-0" style="width: 88px; height: 106px;">
-            <img
-            src="${CCStore.getProductImage(item.id)}"
-            alt="${item.name} / ${item.color}"
-            class="img-fluid w-100 h-100 object-fit-cover border border-cc"
-            >
+          <div class="flex-shrink-0 border border-cc" style="width: 88px; height: 106px;">
+            ${imageMarkup}
           </div>
-
           <div class="d-flex flex-column gap-1 flex-grow-1">
-            <span class="cc-xs-text text-light-cc">${item.name}</span>
+            <span class="cc-xs-text text-light-cc">${escapeHtml(item.name)}</span>
             <span class="cc-eyebrow text-transform-none" style="text-transform: none;">
-              ${item.color} / ${item.size} / Qty ${item.quantity}
+              ${escapeHtml(item.color)} / ${escapeHtml(item.size)} / Qty ${escapeHtml(item.quantity)}
             </span>
             <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
           </div>
         </div>
         <hr class="border-cc m-0 opacity-100">
-      `).join('');
+      `;
+      }).join('');
 
       // Populate Address & Payment Info
+      const line = (value) => escapeHtml(value || '—');
       document.getElementById('confirm-shipping-address').innerHTML = `
-        ${c.firstName || ''} ${c.lastName || ''}<br>
-        ${c.street || '—'}${c.apartment ? ', ' + c.apartment : ''}<br>
-        ${c.barangay || '—'}<br>
-        ${c.city || '—'}, ${c.province || '—'} ${c.postalCode || '—'}<br>
-        ${c.country || '—'}<br>
-        ${c.mobile || '—'}
+        ${line(`${c.firstName || ''} ${c.lastName || ''}`.trim())}<br>
+        ${line(c.street)}${c.apartment ? ', ' + escapeHtml(c.apartment) : ''}<br>
+        ${line(c.barangay)}<br>
+        ${line(c.city)}, ${line(c.province)} ${line(c.postalCode)}<br>
+        ${line(c.country)}<br>
+        ${line(c.mobile)}
       `;
 
-      document.getElementById('confirm-payment-info').innerHTML = `
-        ${c.paymentMethod || 'Payment method recorded with order.'}<br>
-        Payment status is shown in your order record.<br>
-        Billing address same as shipping.
+      const paymentLabels = {
+        unpaid: 'Payment is still due.',
+        illustrative: 'No payment has been processed for this order.',
+        paid: 'Payment received.',
+        failed: 'Payment failed.',
+        refunded: 'Payment was refunded.'
+      };
+      document.getElementById('confirm-delivery-method').innerHTML = `
+        Standard delivery<br>
+        ${escapeHtml([c.city, c.province].filter(Boolean).join(', ') || 'Delivery address on file')}
       `;
+      document.getElementById('confirm-payment-info').textContent =
+        paymentLabels[order.paymentStatus] || 'Payment status is recorded with this order.';
+      document.getElementById('confirm-delivery-note').textContent =
+        `Delivery to ${[c.city, c.province].filter(Boolean).join(', ') || 'the address on this order'}. A delivery estimate is sent after dispatch.`;
 
       // Populate Order Summary Totals
       const pieceWord = t.totalItems === 1 ? 'piece' : 'pieces';

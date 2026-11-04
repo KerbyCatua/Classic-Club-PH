@@ -26,6 +26,10 @@ try {
     }
     \ClassicClub\Middleware\CsrfMiddleware::require();
 
+    if (SessionManager::userId() === null) {
+        JsonResponse::error('Authentication required.', 401)->send();
+    }
+
     $body = $request->json();
     $catalogKey = trim((string) ($body['catalog_key'] ?? ''));
     $size = trim((string) ($body['size'] ?? ''));

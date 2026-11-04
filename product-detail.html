@@ -550,8 +550,8 @@
       // Handle Add to Cart
       const addToCartBtn = document.getElementById('add-to-cart-btn');
       if (addToCartBtn && typeof CCStore !== 'undefined') {
-        addToCartBtn.addEventListener('click', () => {
-          CCStore.addToCart({
+        addToCartBtn.addEventListener('click', async () => {
+          const added = await CCStore.addToCart({
             id: currentProduct.id,
             name: currentProduct.name,
             price: currentProduct.price,
@@ -560,6 +560,7 @@
             quantity: currentProduct.quantity,
             image: currentProduct.image
           });
+          if (!added) return;
 
           // Optional UI Feedback
           const originalText = addToCartBtn.innerHTML;

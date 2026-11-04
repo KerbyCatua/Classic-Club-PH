@@ -326,7 +326,21 @@ const CCStore = (function () {
     // Cart Methods
     getCart,
     getPromo,
-    addToCart: function (item) {
+    addToCart: async function (item) {
+      try {
+        const session = await fetch('public/api/auth/me.php', {
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+        if (!session.ok) {
+          window.location.href = 'auth.html?notice=login';
+          return false;
+        }
+      } catch (error) {
+        window.location.href = 'auth.html?notice=login';
+        return false;
+      }
+
       const cart = getCart();
       const color = item.color || 'Obsidian';
       const size = item.size || 'M';
@@ -359,6 +373,8 @@ const CCStore = (function () {
       }).catch(error => {
         console.error('Server cart add failed:', error);
       });
+
+      return true;
     },
 
     updateCartQty: function (id, color, size, newQty) {

@@ -95,22 +95,22 @@
             <!-- 02. Shipping Address -->
             <div class="d-flex flex-column gap-4">
               <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">02. Shipping address</h2>
-              <p class="cc-xs-text m-0">Illustrative customer and delivery details. Replace with your own information.</p>
+              <p class="cc-xs-text m-0">This address is saved with the order and shown on your confirmation.</p>
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-fname" class="cc-xs-text text-light-cc">First name *</label>
-                  <input type="text" id="checkout-fname" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Alex" required>
+                  <input type="text" id="checkout-fname" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-lname" class="cc-xs-text text-light-cc">Last name *</label>
-                  <input type="text" id="checkout-lname" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Reyes" required>
+                  <input type="text" id="checkout-lname" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
                 </div>
               </div>
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-mobile" class="cc-xs-text text-light-cc">Mobile number *</label>
-                <input type="tel" id="checkout-mobile" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="+63 917 000 0184" required>
+                <input type="tel" id="checkout-mobile" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
               </div>
 
               <div class="d-flex flex-column gap-2">
@@ -127,17 +127,17 @@
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-apt" class="cc-xs-text text-light-cc">Apartment, suite or landmark (optional)</label>
-                <input type="text" id="checkout-apt" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Unit 4B · Example Residences">
+                <input type="text" id="checkout-apt" class="form-control cc-input bg-cc-surface" style="height: 50px;">
               </div>
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-brgy" class="cc-xs-text text-light-cc">Barangay *</label>
-                  <input type="text" id="checkout-brgy" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Poblacion" required>
+                  <input type="text" id="checkout-brgy" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-city" class="cc-xs-text text-light-cc">City / municipality *</label>
-                  <input type="text" id="checkout-city" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="Makati City" required>
+                  <input type="text" id="checkout-city" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
                 </div>
               </div>
 
@@ -153,7 +153,7 @@
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-postal" class="cc-xs-text text-light-cc">Postal code *</label>
-                  <input type="text" id="checkout-postal" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="1210" required>
+                  <input type="text" id="checkout-postal" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
                 </div>
               </div>
             </div>
@@ -231,7 +231,7 @@
 
               <div class="d-flex flex-column gap-2">
                 <label class="cc-xs-text text-light-cc">Name on card · example</label>
-                <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="ALEX REYES">
+                <input type="text" id="checkout-card-name" class="form-control cc-input bg-cc-surface" style="height: 50px;">
               </div>
 
               <div class="d-flex flex-column gap-2">
@@ -349,8 +349,30 @@
 
   <!-- Checkout Interactive Logic -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       if (typeof CCStore === 'undefined') return;
+
+      try {
+        const profileResponse = await fetch('public/api/auth/me.php', {
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+        const profileResult = await profileResponse.json();
+        const user = profileResponse.ok && profileResult.success ? profileResult.data?.user : null;
+        if (user) {
+          const fill = (id, value) => {
+            const field = document.getElementById(id);
+            if (field && !field.value && value) field.value = value;
+          };
+          fill('checkout-email', user.email);
+          fill('checkout-fname', user.first_name);
+          fill('checkout-lname', user.last_name);
+          fill('checkout-mobile', user.mobile);
+          fill('checkout-card-name', [user.first_name, user.last_name].filter(Boolean).join(' '));
+        }
+      } catch (error) {
+        console.error('Unable to load the signed-in account:', error);
+      }
 
       const itemsListEl = document.getElementById('checkout-items-list');
       const subtotalLabel = document.getElementById('checkout-subtotal-label');
@@ -449,6 +471,7 @@
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateBillingPreview);
       });
+      updateBillingPreview();
 
       // Place order on the server and redirect with the generated order number.
       checkoutForm.addEventListener('submit', async (e) => {

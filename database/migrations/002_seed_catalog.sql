@@ -181,7 +181,7 @@ VALUES
 
 INSERT INTO variant_sizes
     (variant_id, size_id, quantity_on_hand)
-SELECT v.id, s.id, 0
+SELECT v.id, s.id, 9999
 FROM product_variants v
 CROSS JOIN sizes s
 WHERE v.id IN (1, 2, 4, 5, 6, 7, 9, 10, 11, 12)
@@ -189,7 +189,7 @@ WHERE v.id IN (1, 2, 4, 5, 6, 7, 9, 10, 11, 12)
 
 INSERT INTO variant_sizes
     (variant_id, size_id, quantity_on_hand)
-SELECT v.id, s.id, 0
+SELECT v.id, s.id, 9999
 FROM product_variants v
 CROSS JOIN sizes s
 WHERE v.id IN (3, 8, 16)
@@ -197,7 +197,7 @@ WHERE v.id IN (3, 8, 16)
 
 INSERT INTO variant_sizes
     (variant_id, size_id, quantity_on_hand)
-SELECT v.id, s.id, 0
+SELECT v.id, s.id, 9999
 FROM product_variants v
 CROSS JOIN sizes s
 WHERE v.id IN (13, 14, 15)

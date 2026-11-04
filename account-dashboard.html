@@ -16,7 +16,7 @@
   <!-- Reusable Header Partial (Injected via partials.js) -->
   <div id="header-partial"></div>
 
-  <main>
+  <main id="account-main" hidden>
     <!-- Page Header Section -->
     <section class="cc-section-px pt-4 pb-5">
       <div class="d-flex flex-column gap-4">
@@ -77,7 +77,7 @@
               <a href="shop-all.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Saved wishlist (<span id="wishlist-sidebar-count">0</span>)</a>
               <a href="#" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Addresses</a>
               <a href="#" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Profile &amp; preferences</a>
-              <a href="auth.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Sign out</a>
+              <button type="button" id="sign-out-btn" class="p-3 text-start text-muted-cc border-0" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Sign out</button>
             </div>
 
             <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
@@ -243,7 +243,67 @@
   <!-- Dashboard Initialization Script -->
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      
+      const accountMain = document.getElementById('account-main');
+
+      let profile = null;
+      try {
+        const profileResponse = await fetch('public/api/auth/me.php', {
+          credentials: 'same-origin',
+          headers: { 'Accept': 'application/json' }
+        });
+        const profileResult = await profileResponse.json();
+        if (!profileResponse.ok || !profileResult.success || !profileResult.data?.user) {
+          window.location.replace('auth.html?notice=login');
+          return;
+        }
+        const user = profileResult.data.user;
+        profile = {
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          mobile: user.mobile
+        };
+      } catch (error) {
+        console.error('Unable to load account profile:', error);
+        window.location.replace('auth.html?notice=login');
+        return;
+      }
+
+      if (accountMain) {
+        accountMain.hidden = false;
+      }
+
+      const signOutBtn = document.getElementById('sign-out-btn');
+      if (signOutBtn) {
+        signOutBtn.addEventListener('click', async () => {
+          signOutBtn.disabled = true;
+          try {
+            const csrfResponse = await fetch('public/api/auth/csrf.php', {
+              credentials: 'same-origin',
+              headers: { Accept: 'application/json' }
+            });
+            const csrf = await csrfResponse.json();
+            const response = await fetch('public/api/auth/logout.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                Accept: 'application/json',
+                'X-CSRF-Token': csrf.data?.token || ''
+              }
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+              throw new Error(result.error?.message || 'Unable to sign out.');
+            }
+            window.location.replace('auth.html');
+          } catch (error) {
+            console.error(error);
+            signOutBtn.disabled = false;
+            window.alert(error.message || 'Unable to sign out.');
+          }
+        });
+      }
+
       // Setup Custom Checkbox
       const checkInputs = document.querySelectorAll('.cc-custom-check');
       checkInputs.forEach(input => {
@@ -272,25 +332,6 @@
 
         // Fetch Last Placed Order
         let order = null;
-        let profile = null;
-        try {
-          const profileResponse = await fetch('public/api/auth/me.php', {
-            credentials: 'same-origin',
-            headers: { 'Accept': 'application/json' }
-          });
-          const profileResult = await profileResponse.json();
-          if (profileResponse.ok && profileResult.success) {
-            const user = profileResult.data.user;
-            profile = {
-              firstName: user.first_name,
-              lastName: user.last_name,
-              email: user.email,
-              mobile: user.mobile
-            };
-          }
-        } catch (error) {
-          console.error('Unable to load account profile:', error);
-        }
         try {
           const response = await fetch('public/api/orders/latest.php', {
             credentials: 'same-origin',
