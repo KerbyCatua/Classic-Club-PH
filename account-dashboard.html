@@ -125,79 +125,62 @@
             <div class="d-flex flex-column gap-4 mt-2">
               <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <h2 class="font-lora text-light-cc m-0" style="font-size: 36px; line-height: 42.48px;">Your order history</h2>
-                <span class="cc-eyebrow">2 ORDERS</span>
+                <span class="cc-eyebrow" id="dashboard-orders-count">0 ORDERS</span>
               </div>
 
-              <!-- Primary Dynamic Order Card -->
-              <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
-                
-                <!-- Meta Head -->
-                <div class="row align-items-center gy-3">
-                  <div class="col-12 col-md-4 d-flex flex-column gap-1">
-                    <span class="text-light-cc" id="dashboard-order-number" style="font-size: 16px; line-height: 26.4px;">No orders yet</span>
-                    <span class="cc-xs-text" id="dashboard-order-date">Place your first order when you are ready.</span>
-                  </div>
-                  <div class="col-6 col-md-4 text-start text-md-center">
-                    <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">NO ORDER YET</span>
-                  </div>
-                  <div class="col-6 col-md-4 text-end">
-                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">—</span>
-                  </div>
-                </div>
-
-                <hr class="border-cc m-0 opacity-100">
-
-                <!-- Dynamic Item List for Primary Order -->
-                <div class="row g-4" id="dashboard-order-items">
-                  <!-- Populated via JS -->
-                </div>
-
-                <hr class="border-cc m-0 opacity-100">
-
-                <!-- Totals & Payment Summary -->
-                <div class="row gy-4">
-                  <div class="col-12 col-md-6 d-flex flex-column gap-2">
-                    <span class="cc-eyebrow m-0">STANDARD DELIVERY</span>
-                    <span class="text-light-cc m-0" style="font-size: 13px;">Estimated after dispatch</span>
-                    <span class="cc-xs-text m-0" style="max-width: 330px;">Tracking will be available after dispatch. An email update will be sent to your account address.</span>
-                  </div>
-                  <div class="col-12 col-md-6 d-flex flex-column gap-2" style="max-width: 330px;">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span class="cc-small-text">Subtotal</span>
-                      <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">—</span>
+              <!-- Dynamic Orders Container -->
+              <div id="dashboard-orders-container" class="d-flex flex-column gap-4">
+                <!-- Order cards rendered dynamically via renderOrderHistory() -->
+                <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
+                  <!-- Meta Head -->
+                  <div class="row align-items-center gy-3">
+                    <div class="col-12 col-md-4 d-flex flex-column gap-1">
+                      <span class="text-light-cc" id="dashboard-order-number" style="font-size: 16px; line-height: 26.4px;">No orders yet</span>
+                      <span class="cc-xs-text" id="dashboard-order-date">Place your first order when you are ready.</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span class="cc-small-text">Shipping</span>
-                      <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">—</span>
+                    <div class="col-6 col-md-4 text-start text-md-center">
+                      <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">NO ORDER YET</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span class="cc-small-text">Total · tax included</span>
-                      <span class="cc-small-text text-light-cc" id="dashboard-final-val">—</span>
+                    <div class="col-6 col-md-4 text-end">
+                      <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">—</span>
                     </div>
                   </div>
+                  <hr class="border-cc m-0 opacity-100">
+                  <div class="row g-4" id="dashboard-order-items"></div>
+                  <hr class="border-cc m-0 opacity-100">
+                  <div class="row gy-4">
+                    <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                      <span class="cc-eyebrow m-0">STANDARD DELIVERY</span>
+                      <span class="text-light-cc m-0" style="font-size: 13px;">Estimated after dispatch</span>
+                      <span class="cc-xs-text m-0" style="max-width: 330px;">Tracking will be available after dispatch. An email update will be sent to your account address.</span>
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-column gap-2" style="max-width: 330px;">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="cc-small-text">Subtotal</span>
+                        <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">—</span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="cc-small-text">Shipping</span>
+                        <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">—</span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="cc-small-text">Total · tax included</span>
+                        <span class="cc-small-text text-light-cc" id="dashboard-final-val">—</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="cc-eyebrow text-transform-none m-0 pt-2" id="dashboard-payment-method-text" style="text-transform: none; line-height: 18.15px;">
+                    Payment and shipping details appear with a confirmed order.
+                  </p>
+                  <div class="d-flex flex-wrap align-items-center gap-3">
+                    <a href="shop-all.html" class="btn-cc-outline">
+                      <span>Explore collection</span>
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </div>
                 </div>
-
-                <p class="cc-eyebrow text-transform-none m-0 pt-2" id="dashboard-payment-method-text" style="text-transform: none; line-height: 18.15px;">
-                  Payment and shipping details appear with a confirmed order.
-                </p>
-
-                <!-- Order Action CTAs -->
-                <div class="d-flex flex-wrap align-items-center gap-3">
-                  <a href="#" class="btn-cc-outline">
-                    <span>View order details</span>
-                    <i class="bi bi-arrow-right"></i>
-                  </a>
-                  <a href="contact.html" class="cc-underline-link">Get help with this order ↗</a>
-                </div>
-
-              </div>
-
-              <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
-                <span class="cc-eyebrow m-0">ORDER HISTORY</span>
-                <p class="cc-small-text m-0">Previous orders will appear here after they are placed.</p>
               </div>
             </div>
-
             <!-- Preferences Section -->
             <div class="d-flex flex-column gap-4 mt-3">
               <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">Your preferences</h2>
@@ -330,35 +313,227 @@
           wishlistSidebar.textContent = CCStore.getWishlist().length;
         }
 
-        // Fetch Last Placed Order
-        let order = null;
+        // Render multiple orders in order history
+        function renderOrderHistory(ordersList) {
+          const container = document.getElementById('dashboard-orders-container');
+          const countBadge = document.getElementById('dashboard-orders-count');
+          if (!container) return;
+
+          if (countBadge) {
+            const totalOrders = ordersList.length;
+            countBadge.textContent = `${totalOrders} ${totalOrders === 1 ? 'ORDER' : 'ORDERS'}`;
+          }
+
+          if (ordersList.length === 0) {
+            container.innerHTML = `
+              <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
+                <div class="row align-items-center gy-3">
+                  <div class="col-12 col-md-4 d-flex flex-column gap-1">
+                    <span class="text-light-cc" id="dashboard-order-number" style="font-size: 16px; line-height: 26.4px;">No orders yet</span>
+                    <span class="cc-xs-text" id="dashboard-order-date">Place your first order when you are ready.</span>
+                  </div>
+                  <div class="col-6 col-md-4 text-start text-md-center">
+                    <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">NO ORDER YET</span>
+                  </div>
+                  <div class="col-6 col-md-4 text-end">
+                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">—</span>
+                  </div>
+                </div>
+                <hr class="border-cc m-0 opacity-100">
+                <p class="cc-small-text m-0 text-muted-cc">Previous orders will appear here after they are placed.</p>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = ordersList.map((ord, index) => {
+            const orderNum = index + 1; // Order 1, Order 2, etc.
+            const t = ord.totals || {};
+            const totalItems = t.totalItems || (ord.items || []).reduce((sum, item) => sum + Number(item.quantity || 1), 0);
+            const pieceWord = totalItems === 1 ? 'piece' : 'pieces';
+            const cust = ord.customer || profile || {};
+            const isFirst = index === 0;
+
+            const itemsHTML = (ord.items || []).map(item => {
+              const imgSrc = item.image || (typeof CCStore !== 'undefined' ? CCStore.getProductImage(item.id) : '') || 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp';
+              const itemPrice = Number(item.price || 0);
+              const itemQty = Number(item.quantity || 1);
+              return `
+                <div class="col-12 col-md-6 d-flex align-items-center gap-3">
+                  <img
+                    src="${imgSrc}"
+                    alt="${item.name || 'Classic Club'} / ${item.color || ''}"
+                    class="img-fluid object-fit-cover border border-cc flex-shrink-0"
+                    style="width: 88px; height: 106px; padding: 10px;"
+                    onerror="this.onerror=null; this.src='https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp';"
+                  >
+                  <div class="d-flex flex-column gap-1 flex-grow-1">
+                    <span class="cc-xs-text text-light-cc">${item.name || 'Classic Club Piece'}</span>
+                    <span class="cc-eyebrow text-transform-none" style="text-transform: none;">
+                      ${item.color || 'Obsidian'} / ${item.size || 'M'} / Qty ${itemQty}
+                    </span>
+                    <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(itemPrice * itemQty)}</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+
+            const subtotal = Number(t.subtotal || 0);
+            const shipping = Number(t.shipping || 0);
+            const discount = Number(t.discount || 0);
+            const total = Number(t.total || 0);
+            const addressLine = [cust.street, cust.apartment, cust.barangay, cust.city, cust.province].filter(Boolean).join(', ');
+
+            return `
+              <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4 order-card" data-order-number="${ord.orderNumber}">
+                
+                <!-- Meta Head -->
+                <div class="row align-items-center gy-3">
+                  <div class="col-12 col-md-4 d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="cc-eyebrow m-0 text-white fw-bold">ORDER ${orderNum}</span>
+                      <span class="text-muted-cc">·</span>
+                      <span class="text-light-cc fw-medium" ${isFirst ? 'id="dashboard-order-number"' : ''} style="font-size: 16px; line-height: 26.4px;">
+                        Order ${orderNum}: ${ord.orderNumber}
+                      </span>
+                    </div>
+                    <span class="cc-xs-text" ${isFirst ? 'id="dashboard-order-date"' : ''}>
+                      ${ord.placedOn || 'Recently placed'} · ${totalItems} ${pieceWord}
+                    </span>
+                  </div>
+                  <div class="col-6 col-md-4 text-start text-md-center">
+                    <span class="cc-eyebrow-teal m-0" ${isFirst ? 'id="dashboard-order-status"' : ''}>
+                      ${(ord.status || 'CONFIRMED').toUpperCase()}
+                    </span>
+                  </div>
+                  <div class="col-6 col-md-4 text-end">
+                    <span class="text-light-cc" ${isFirst ? 'id="dashboard-order-total"' : ''} style="font-size: 18px; line-height: 29.7px;">
+                      ${CCStore.formatPHP(total)}
+                    </span>
+                  </div>
+                </div>
+
+                <hr class="border-cc m-0 opacity-100">
+
+                <!-- Dynamic Item List for Order -->
+                <div class="row g-4" ${isFirst ? 'id="dashboard-order-items"' : ''}>
+                  ${itemsHTML || '<p class="cc-small-text text-muted-cc m-0">No items recorded.</p>'}
+                </div>
+
+                <hr class="border-cc m-0 opacity-100">
+
+                <!-- Totals & Payment Summary -->
+                <div class="row gy-4">
+                  <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                    <span class="cc-eyebrow m-0">STANDARD DELIVERY</span>
+                    <span class="text-light-cc m-0" style="font-size: 13px;">Estimated after dispatch</span>
+                    <span class="cc-xs-text m-0" style="max-width: 330px;">
+                      Tracking will be available after dispatch. An email update will be sent to your account address.
+                    </span>
+                  </div>
+                  <div class="col-12 col-md-6 d-flex flex-column gap-2" style="max-width: 330px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Subtotal</span>
+                      <span class="cc-small-text text-light-cc" ${isFirst ? 'id="dashboard-subtotal-val"' : ''}>${CCStore.formatPHP(subtotal)}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Shipping</span>
+                      <span class="cc-small-text text-light-cc" ${isFirst ? 'id="dashboard-shipping-val"' : ''}>${CCStore.formatPHP(shipping)}</span>
+                    </div>
+                    ${discount > 0 ? `
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Discount</span>
+                      <span class="cc-small-text text-light-cc">−${CCStore.formatPHP(discount)}</span>
+                    </div>
+                    ` : ''}
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="cc-small-text">Total · tax included</span>
+                      <span class="cc-small-text text-light-cc" ${isFirst ? 'id="dashboard-final-val"' : ''}>${CCStore.formatPHP(total)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="cc-eyebrow text-transform-none m-0 pt-2" ${isFirst ? 'id="dashboard-payment-method-text"' : ''} style="text-transform: none; line-height: 18.15px;">
+                  ${cust.paymentMethod || 'Payment method on file'} · Shipping to ${addressLine || 'your default address'}.
+                </p>
+
+                <!-- Order Action CTAs -->
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <a href="order-confirmation.html?order_number=${encodeURIComponent(ord.orderNumber)}" class="btn-cc-outline">
+                    <span>View order details</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                  <a href="contact.html" class="cc-underline-link">Get help with this order ↗</a>
+                </div>
+
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Fetch Orders from Server and/or Local Store
+        let orders = [];
         try {
-          const response = await fetch('public/api/orders/latest.php', {
+          const response = await fetch('public/api/orders/history.php', {
             credentials: 'same-origin',
             headers: { 'Accept': 'application/json' }
           });
           const result = await response.json();
-          if (response.ok && result.success && result.data) {
-            const serverOrder = result.data;
-            order = {
+          if (response.ok && result.success && Array.isArray(result.data)) {
+            orders = result.data.map(serverOrder => ({
               orderNumber: serverOrder.order_number,
-              placedOn: serverOrder.placed_at,
-              status: serverOrder.status,
-              items: serverOrder.items,
+              placedOn: serverOrder.placed_at
+                ? new Date(serverOrder.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+                : 'Recently placed',
+              status: serverOrder.status || 'Confirmed',
+              items: serverOrder.items || [],
               totals: {
-                totalItems: serverOrder.items.reduce((sum, item) => sum + Number(item.quantity), 0),
-                total: serverOrder.total_amount
+                totalItems: (serverOrder.items || []).reduce((sum, item) => sum + Number(item.quantity || 1), 0),
+                subtotal: Number(serverOrder.subtotal || 0),
+                shipping: Number(serverOrder.shipping_amount || 0),
+                discount: Number(serverOrder.discount_amount || 0),
+                total: Number(serverOrder.total_amount || 0)
+              },
+              customer: {
+                firstName: serverOrder.recipient_first_name,
+                lastName: serverOrder.recipient_last_name,
+                email: serverOrder.guest_email,
+                mobile: serverOrder.mobile,
+                country: serverOrder.country,
+                street: serverOrder.street_address,
+                apartment: serverOrder.apartment,
+                barangay: serverOrder.barangay,
+                city: serverOrder.city,
+                province: serverOrder.province,
+                postalCode: serverOrder.postal_code,
+                paymentMethod: serverOrder.payment_status === 'illustrative' ? 'Illustrative payment' : serverOrder.payment_status
               }
-            };
+            }));
           }
         } catch (error) {
-          console.error('Unable to load order history:', error);
+          console.warn('Unable to load server order history:', error);
         }
-        const c = order?.customer || profile || {};
-        if (profile || order) {
-          const t = order?.totals || {};
 
-          // Populate Customer Profile Strings
+        // Merge with CCStore order history array
+        if (typeof CCStore !== 'undefined') {
+          const localHistory = CCStore.getOrderHistory();
+          const mergedMap = new Map();
+          orders.forEach(o => {
+            if (o && o.orderNumber) mergedMap.set(o.orderNumber, o);
+          });
+          localHistory.forEach(o => {
+            if (o && o.orderNumber && !mergedMap.has(o.orderNumber)) {
+              mergedMap.set(o.orderNumber, o);
+            }
+          });
+          orders = Array.from(mergedMap.values());
+          CCStore.saveOrderHistory(orders);
+        }
+
+        // Populate Customer Profile Strings from latest order or profile
+        const latestOrder = orders.length > 0 ? orders[orders.length - 1] : null;
+        const c = latestOrder?.customer || profile || {};
+        if (profile || latestOrder) {
           document.querySelectorAll('.customer-fname').forEach(el => el.textContent = c.firstName || '—');
           document.querySelectorAll('.customer-lname').forEach(el => el.textContent = c.lastName || '—');
           document.querySelectorAll('.customer-email').forEach(el => el.textContent = c.email || '—');
@@ -377,50 +552,12 @@
               ${c.province || '—'} ${c.postalCode || '—'}
             `;
           }
-
-          // Populate Active Order Summary Box
-          const pieceWord = t.totalItems === 1 ? 'piece' : 'pieces';
-          if (!order) {
-            return;
-          }
-          document.getElementById('dashboard-order-number').textContent = order.orderNumber;
-          document.getElementById('dashboard-order-date').textContent = `${order.placedOn} · ${t.totalItems} ${pieceWord}`;
-          document.getElementById('dashboard-order-status').textContent = order.status.toUpperCase();
-          document.getElementById('dashboard-order-total').textContent = CCStore.formatPHP(t.total);
-          
-          document.getElementById('dashboard-subtotal-val').textContent = CCStore.formatPHP(t.subtotal);
-          document.getElementById('dashboard-shipping-val').textContent = CCStore.formatPHP(t.shipping);
-          document.getElementById('dashboard-final-val').textContent = CCStore.formatPHP(t.total);
-          
-          document.getElementById('dashboard-payment-method-text').textContent = 
-            `${c.paymentMethod || 'Payment method on file'} · Shipping to your default address.`;
-
-          // Populate Order Items Image Grid Layout (2 cols on md+)
-          const itemsContainer = document.getElementById('dashboard-order-items');
-          if (itemsContainer) {
-            itemsContainer.innerHTML = (order.items || []).map(item => `
-              <div class="col-12 col-md-6 d-flex align-items-center gap-3">
-
-                <img
-                src="${CCStore.getProductImage(item.id)}"
-                alt="${item.name} / ${item.color}"
-                class="img-fluid object-fit-cover border border-cc flex-shrink-0"
-                style="width: 88px; height: 106px; padding: 10px;"
-                >
-
-                <div class="d-flex flex-column gap-1 flex-grow-1">
-                  <span class="cc-xs-text text-light-cc">${item.name}</span>
-                  <span class="cc-eyebrow text-transform-none" style="text-transform: none;">
-                    ${item.color} / ${item.size} / Qty ${item.quantity}
-                  </span>
-                  <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
-                </div>
-              </div>
-            `).join('');
-          }
         }
+
+        // Render all orders
+        renderOrderHistory(orders);
       }
-      
+
       // Save Preferences Button Feedback
       const saveBtn = document.getElementById('save-preferences-btn');
       if(saveBtn) {

@@ -161,4 +161,23 @@ final class OrderRepository
             ? null
             : $this->findForUserOrNumber($userId, (string) $number);
     }
+
+    public function allForUser(int $userId): array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT order_number FROM orders WHERE user_id = :user_id ORDER BY created_at ASC'
+        );
+        $statement->execute(['user_id' => $userId]);
+        $numbers = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+        $orders = [];
+        foreach ($numbers as $number) {
+            $order = $this->findForUserOrNumber($userId, (string) $number);
+            if ($order !== null) {
+                $orders[] = $order;
+            }
+        }
+
+        return $orders;
+    }
 }

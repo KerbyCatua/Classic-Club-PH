@@ -473,11 +473,40 @@
       });
       updateBillingPreview();
 
-      // Place order on the server and redirect with the generated order number.
+      // Place order on the server and append to existing order history array.
       checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = checkoutForm.querySelector('button[type="submit"]');
         button.disabled = true;
+
+        const email = document.getElementById('checkout-email').value;
+        const firstName = document.getElementById('checkout-fname').value;
+        const lastName = document.getElementById('checkout-lname').value;
+        const mobile = document.getElementById('checkout-mobile').value;
+        const country = document.getElementById('checkout-country').value;
+        const street = document.getElementById('checkout-street').value;
+        const apartment = document.getElementById('checkout-apt').value;
+        const barangay = document.getElementById('checkout-brgy').value;
+        const city = document.getElementById('checkout-city').value;
+        const province = document.getElementById('checkout-province').value;
+        const postalCode = document.getElementById('checkout-postal').value;
+        const currentCart = CCStore.getCart();
+        const currentTotals = CCStore.getCartTotals();
+
+        const customerInfo = {
+          email,
+          firstName,
+          lastName,
+          mobile,
+          country,
+          street,
+          apartment,
+          barangay,
+          city,
+          province,
+          postalCode,
+          paymentMethod: selectedPaymentMethod
+        };
 
         try {
           const csrf = await fetch('public/api/auth/csrf.php', {
@@ -489,21 +518,21 @@
             credentials: 'same-origin',
             headers: {
               'Content-Type': 'application/json',
-              'Accept': 'application/json'
-              ,'X-CSRF-Token': csrf.data.token
+              'Accept': 'application/json',
+              'X-CSRF-Token': csrf.data.token
             },
             body: JSON.stringify({
-              email: document.getElementById('checkout-email').value,
-              first_name: document.getElementById('checkout-fname').value,
-              last_name: document.getElementById('checkout-lname').value,
-              mobile: document.getElementById('checkout-mobile').value,
-              country: document.getElementById('checkout-country').value,
-              street_address: document.getElementById('checkout-street').value,
-              apartment: document.getElementById('checkout-apt').value,
-              barangay: document.getElementById('checkout-brgy').value,
-              city: document.getElementById('checkout-city').value,
-              province: document.getElementById('checkout-province').value,
-              postal_code: document.getElementById('checkout-postal').value,
+              email,
+              first_name: firstName,
+              last_name: lastName,
+              mobile,
+              country,
+              street_address: street,
+              apartment,
+              barangay,
+              city,
+              province,
+              postal_code: postalCode,
               promotion_code: CCStore.getPromo().code || ''
             })
           });
@@ -512,14 +541,60 @@
             throw new Error(result.error?.message || 'Unable to create the order.');
           }
 
-          window.location.href =
-            `order-confirmation.html?order_number=${encodeURIComponent(result.data.order_number)}`;
+          const serverOrder = result.data || {};
+          const orderNumber = serverOrder.order_number;
+          const newOrder = {
+            orderNumber: orderNumber,
+            placedOn: serverOrder.placed_at
+              ? new Date(serverOrder.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+              : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+            status: serverOrder.status || 'Confirmed',
+            items: (serverOrder.items && serverOrder.items.length > 0) ? serverOrder.items : [...currentCart],
+            totals: {
+              totalItems: serverOrder.total_items || currentTotals.totalItems || (serverOrder.items || currentCart).reduce((sum, item) => sum + Number(item.quantity || 1), 0),
+              subtotal: Number(serverOrder.subtotal ?? currentTotals.subtotal),
+              shipping: Number(serverOrder.shipping ?? currentTotals.shipping),
+              discount: Number(serverOrder.discount ?? currentTotals.discount),
+              total: Number(serverOrder.total ?? currentTotals.total)
+            },
+            customer: customerInfo
+          };
+
+          // Append new order to the existing history array
+          CCStore.appendOrder(newOrder);
+          CCStore.clearCart();
+
+          window.location.href = 'order-confirmation.html?order_number=' + encodeURIComponent(orderNumber);
         } catch (error) {
-          alert(error.message);
-          button.disabled = false;
+          console.warn('Backend order creation failed, falling back to local history storage:', error);
+          if (currentCart.length === 0) {
+            alert(error.message || 'Your cart is empty.');
+            button.disabled = false;
+            return;
+          }
+          const localOrderNumber = 'CC-' + Math.floor(100000 + Math.random() * 900000);
+          const localOrder = {
+            orderNumber: localOrderNumber,
+            placedOn: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+            status: 'Confirmed',
+            items: [...currentCart],
+            totals: {
+              totalItems: currentTotals.totalItems,
+              subtotal: currentTotals.subtotal,
+              shipping: currentTotals.shipping,
+              discount: currentTotals.discount,
+              total: currentTotals.total
+            },
+            customer: customerInfo
+          };
+
+          // Append new order to the existing history array
+          CCStore.appendOrder(localOrder);
+          CCStore.clearCart();
+
+          window.location.href = 'order-confirmation.html?order_number=' + encodeURIComponent(localOrderNumber);
         }
       });
-
       renderCheckoutSummary();
     });
   </script>

@@ -8,6 +8,8 @@ const CCStore = (function () {
     CART_INIT: 'cc_cart_initialized',
     WISHLIST: 'cc_wishlist_data',
     PROMO: 'cc_promo_data',
+    ORDERS: 'cc_order_history',
+    LAST_ORDER: 'cc_last_order',
   };
 
   const SHIPPING_FEE = 180;
@@ -279,6 +281,44 @@ const CCStore = (function () {
     window.dispatchEvent(new CustomEvent('cc:cartUpdated', { detail: getCart() }));
   }
 
+  function getOrderHistory() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.ORDERS) || localStorage.getItem('cc_orders');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Error reading order history:', e);
+    }
+    return [];
+  }
+
+  function saveOrderHistory(orders) {
+    if (!Array.isArray(orders)) return;
+    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+    localStorage.setItem('cc_orders', JSON.stringify(orders));
+    if (orders.length > 0) {
+      localStorage.setItem(STORAGE_KEYS.LAST_ORDER, JSON.stringify(orders[orders.length - 1]));
+    }
+    window.dispatchEvent(new CustomEvent('cc:ordersUpdated', { detail: orders }));
+  }
+
+  function appendOrder(order) {
+    if (!order) return getOrderHistory();
+    const orders = getOrderHistory();
+    const existingIndex = orders.findIndex(o => (o.orderNumber && order.orderNumber && o.orderNumber === order.orderNumber) || (o.id && order.id && o.id === order.id));
+    if (existingIndex > -1) {
+      orders[existingIndex] = order;
+    } else {
+      orders.push(order);
+    }
+    saveOrderHistory(orders);
+    return orders;
+  }
+
   async function apiRequest(url, options = {}) {
     if ((options.method || 'GET').toUpperCase() !== 'GET') {
       const csrf = await fetch('public/api/auth/csrf.php', {
@@ -525,6 +565,57 @@ const CCStore = (function () {
           console.error('Server wishlist sync failed:', error);
         }
       }
+    },
+
+    // Order History Methods
+    getOrderHistory,
+    saveOrderHistory,
+    appendOrder,
+    getOrders: getOrderHistory,
+    getLastOrder: function () {
+      const orders = getOrderHistory();
+      return orders.length > 0 ? orders[orders.length - 1] : null;
+    },
+    clearOrderHistory: function () {
+      localStorage.removeItem(STORAGE_KEYS.ORDERS);
+      localStorage.removeItem('cc_orders');
+      localStorage.removeItem(STORAGE_KEYS.LAST_ORDER);
+      window.dispatchEvent(new CustomEvent('cc:ordersUpdated', { detail: [] }));
+    },
+    placeOrder: function (customerData) {
+      const cart = getCart();
+      const totals = this.getCartTotals();
+      const orderNumber = 'CC-' + Math.floor(100000 + Math.random() * 900000);
+      const orderData = {
+        orderNumber: orderNumber,
+        placedOn: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+        status: 'Confirmed',
+        items: cart.length > 0 ? [...cart] : [],
+        totals: {
+          totalItems: totals.totalItems,
+          subtotal: totals.subtotal,
+          shipping: totals.shipping,
+          discount: totals.discount,
+          total: totals.total
+        },
+        customer: Object.assign({
+          email: '',
+          firstName: '',
+          lastName: '',
+          mobile: '',
+          country: 'Philippines',
+          street: '',
+          apartment: '',
+          barangay: '',
+          city: '',
+          province: '',
+          postalCode: '',
+          paymentMethod: 'Illustrative card ending 4242.'
+        }, customerData || {})
+      };
+      appendOrder(orderData);
+      this.clearCart();
+      return orderData;
     }
   };
 })();

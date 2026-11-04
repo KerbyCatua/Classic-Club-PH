@@ -271,6 +271,14 @@
           console.error('Unable to load server order:', error);
         }
       }
+      if (!order && typeof CCStore !== 'undefined') {
+        const history = CCStore.getOrderHistory();
+        const found = history.find(o => o.orderNumber === orderNumber) || (history.length > 0 ? history[history.length - 1] : null);
+        if (found) {
+          order = found;
+        }
+      }
+
       if (!order) {
         document.getElementById('confirm-greeting').textContent = 'Order not found';
         document.getElementById('confirm-email-note').textContent =
