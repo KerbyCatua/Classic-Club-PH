@@ -113,25 +113,6 @@
             
             <hr class="border-cc m-0 opacity-100">
             
-            <!-- Colour Selection -->
-            <div class="d-flex flex-column gap-3">
-              <span class="cc-xs-text text-light-cc m-0" id="selected-color-label">Colour — Obsidian</span>
-              <div class="d-flex gap-3">
-                <button type="button" class="btn p-0 border-0 d-flex flex-column align-items-center gap-2 color-select-btn active" data-color="Obsidian">
-                  <span style="width: 32px; height: 32px; background: #101112; border: 2px solid var(--cc-accent); display: inline-block;"></span>
-                  <span style="font-size: 10px; color: var(--cc-muted);">Obsidian</span>
-                </button>
-                <button type="button" class="btn p-0 border-0 d-flex flex-column align-items-center gap-2 color-select-btn" data-color="Chalk">
-                  <span style="width: 32px; height: 32px; background: #D6D1C6; border: 1px solid var(--cc-border); display: inline-block;"></span>
-                  <span style="font-size: 10px; color: var(--cc-muted);">Chalk</span>
-                </button>
-                <button type="button" class="btn p-0 border-0 d-flex flex-column align-items-center gap-2 color-select-btn" data-color="Graphite">
-                  <span style="width: 32px; height: 32px; background: #626669; border: 1px solid var(--cc-border); display: inline-block;"></span>
-                  <span style="font-size: 10px; color: var(--cc-muted);">Graphite</span>
-                </button>
-              </div>
-            </div>
-            
             <!-- Size Selection -->
             <div class="d-flex flex-column gap-3">
               <div class="d-flex justify-content-between align-items-center">
@@ -310,11 +291,6 @@
                   <span class="cc-xs-text">Graphite</span>
                   <span class="cc-small-text text-light-cc">₱4,890.00</span>
                 </div>
-                <div class="d-inline-flex align-items-center gap-1">
-                  <span class="cc-swatch" style="background: #101112;"></span>
-                  <span class="cc-swatch" style="background: #8B8980;"></span>
-                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
-                </div>
               </div>
             </article>
           </div>
@@ -344,11 +320,6 @@
                 <div class="d-flex justify-content-between align-items-start">
                   <span class="cc-xs-text">Charcoal</span>
                   <span class="cc-small-text text-light-cc">₱3,690.00</span>
-                </div>
-                <div class="d-inline-flex align-items-center gap-1">
-                  <span class="cc-swatch" style="background: #101112;"></span>
-                  <span class="cc-swatch" style="background: #8B8980;"></span>
-                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
                 </div>
               </div>
             </article>
@@ -380,11 +351,6 @@
                   <span class="cc-xs-text">Chalk</span>
                   <span class="cc-small-text text-light-cc">₱1,890.00</span>
                 </div>
-                <div class="d-inline-flex align-items-center gap-1">
-                  <span class="cc-swatch" style="background: #101112;"></span>
-                  <span class="cc-swatch" style="background: #8B8980;"></span>
-                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
-                </div>
               </div>
             </article>
           </div>
@@ -414,11 +380,6 @@
                 <div class="d-flex justify-content-between align-items-start">
                   <span class="cc-xs-text">Obsidian</span>
                   <span class="cc-small-text text-light-cc">₱1,190.00</span>
-                </div>
-                <div class="d-inline-flex align-items-center gap-1">
-                  <span class="cc-swatch" style="background: #101112;"></span>
-                  <span class="cc-swatch" style="background: #8B8980;"></span>
-                  <span class="cc-swatch" style="background: #D6D1C6;"></span>
                 </div>
               </div>
             </article>
@@ -488,24 +449,6 @@
         size: 'M',
         quantity: 1
       };
-
-      // Handle Color Selection
-      const colorBtns = document.querySelectorAll('.color-select-btn');
-      const colorLabel = document.getElementById('selected-color-label');
-      
-      colorBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          colorBtns.forEach(b => {
-            b.classList.remove('active');
-            b.querySelector('span:first-child').style.border = '1px solid var(--cc-border)';
-          });
-          btn.classList.add('active');
-          btn.querySelector('span:first-child').style.border = '2px solid var(--cc-accent)';
-          
-          currentProduct.color = btn.getAttribute('data-color');
-          if(colorLabel) colorLabel.textContent = `Colour — ${currentProduct.color}`;
-        });
-      });
 
       // Handle Size Selection
       const sizeBtns = document.querySelectorAll('.size-select-btn');
