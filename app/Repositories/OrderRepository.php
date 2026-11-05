@@ -12,16 +12,36 @@ final class OrderRepository
     {
     }
 
+    /**
+     * Automatically update any pending orders whose scheduled delivery time has arrived.
+     * Simulation works persistently across browser sessions and restarts.
+     */
+    public function updateSimulatedDeliveries(): void
+    {
+        $sql = <<<'SQL'
+            UPDATE orders
+            SET status = 'delivered',
+                delivered_at = NOW()
+            WHERE status IN ('confirmed', 'preparing', 'shipped')
+              AND scheduled_delivery_at IS NOT NULL
+              AND scheduled_delivery_at <= NOW()
+        SQL;
+        $this->pdo->exec($sql);
+    }
+
     public function create(array $order): int
     {
+        // Randomized delivery simulation between 1 to 3 hours after checkout (3600 to 10800 seconds)
+        $randomSeconds = random_int(3600, 10800);
+
         $statement = $this->pdo->prepare(
-            <<<'SQL'
+            <<<SQL
                 INSERT INTO orders
                     (order_number, user_id, guest_email, status, payment_status,
-                     subtotal, shipping_amount, discount_amount, total_amount, placed_at)
+                     subtotal, shipping_amount, discount_amount, total_amount, placed_at, scheduled_delivery_at)
                 VALUES
                     (:order_number, :user_id, :guest_email, 'confirmed', 'illustrative',
-                     :subtotal, :shipping, :discount, :total, NOW())
+                     :subtotal, :shipping, :discount, :total, NOW(), DATE_ADD(NOW(), INTERVAL :interval_seconds SECOND))
             SQL
         );
         $statement->execute([
@@ -32,6 +52,7 @@ final class OrderRepository
             'shipping' => $order['shipping'],
             'discount' => $order['discount'],
             'total' => $order['total'],
+            'interval_seconds' => $randomSeconds,
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -91,10 +112,13 @@ final class OrderRepository
 
     public function findForUserOrNumber(?int $userId, string $orderNumber): ?array
     {
+        $this->updateSimulatedDeliveries();
+
         $statement = $this->pdo->prepare(
             <<<'SQL'
                 SELECT
                     o.id, o.order_number, o.status, o.payment_status, o.placed_at,
+                    o.scheduled_delivery_at, o.delivered_at,
                     o.subtotal, o.shipping_amount, o.discount_amount, o.total_amount,
                     o.guest_email, a.recipient_first_name, a.recipient_last_name,
                     a.mobile, a.country, a.street_address, a.apartment,
@@ -123,6 +147,7 @@ final class OrderRepository
         $items = $this->pdo->prepare(
             <<<'SQL'
                 SELECT
+                    oi.id AS order_item_id,
                     oi.sku_snapshot AS sku,
                     oi.product_name_snapshot AS name,
                     oi.color_snapshot AS color,
@@ -130,8 +155,13 @@ final class OrderRepository
                     oi.quantity,
                     oi.unit_price AS price,
                     oi.line_total,
+                    v.id AS variant_id,
+                    v.product_id,
                     v.catalog_key AS id,
-                    image.image_url AS image
+                    image.image_url AS image,
+                    (SELECT COUNT(*) FROM product_reviews pr 
+                     WHERE pr.order_id = oi.order_id 
+                       AND pr.variant_id = v.id) > 0 AS is_reviewed
                 FROM order_items oi
                 LEFT JOIN variant_sizes vs ON vs.id = oi.variant_size_id
                 LEFT JOIN product_variants v ON v.id = vs.variant_id
@@ -151,6 +181,8 @@ final class OrderRepository
 
     public function latestForUser(int $userId): ?array
     {
+        $this->updateSimulatedDeliveries();
+
         $statement = $this->pdo->prepare(
             'SELECT order_number FROM orders WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 1'
         );
@@ -164,6 +196,8 @@ final class OrderRepository
 
     public function allForUser(int $userId): array
     {
+        $this->updateSimulatedDeliveries();
+
         $statement = $this->pdo->prepare(
             'SELECT order_number FROM orders WHERE user_id = :user_id ORDER BY created_at ASC'
         );

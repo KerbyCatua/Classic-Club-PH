@@ -141,6 +141,11 @@
               <i class="bi bi-arrow-right"></i>
             </a>
 
+            <button type="button" id="confirm-simulate-delivery-btn" class="btn-cc-outline w-100 d-none">
+              <span>Simulate Delivery</span>
+              <i class="bi bi-box-seam"></i>
+            </button>
+
             <a href="shop-all.html" class="btn-cc-outline w-100">
               <span>Continue exploring</span>
               <i class="bi bi-arrow-right"></i>
@@ -332,12 +337,40 @@
         return match ? match.srcImage : '';
       };
 
+      const isDelivered = (order.status || '').toLowerCase() === 'delivered';
+
       const itemsContainer = document.getElementById('confirm-items-container');
       itemsContainer.innerHTML = (order.items || []).map(item => {
         const image = itemImage(item);
         const imageMarkup = image
           ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(item.name)} / ${escapeHtml(item.color)}" class="img-fluid w-100 h-100 object-fit-cover">`
           : '';
+        const isReviewed = !!item.is_reviewed;
+        const catalogKey = item.id || '';
+        const variantId = item.variant_id || '';
+
+        let reviewActionHtml = '';
+        if (isDelivered) {
+          if (isReviewed) {
+            reviewActionHtml = `
+              <div class="mt-2">
+                <span class="badge bg-transparent border border-cc text-accent py-1 px-2 font-sans" style="font-size: 11px;">
+                  <i class="bi bi-check2"></i> Product Reviewed
+                </span>
+              </div>
+            `;
+          } else {
+            reviewActionHtml = `
+              <div class="mt-2">
+                <a href="review-product.html?order_number=${encodeURIComponent(order.orderNumber)}&variant=${encodeURIComponent(catalogKey)}&variant_id=${encodeURIComponent(variantId)}" class="btn-cc-teal text-decoration-none py-1 px-3 d-inline-flex align-items-center gap-2" style="height: 32px; font-size: 11px;">
+                  <span>Write a Review</span>
+                  <i class="bi bi-star"></i>
+                </a>
+              </div>
+            `;
+          }
+        }
+
         return `
         <div class="d-flex align-items-center gap-3">
           <div class="flex-shrink-0 border border-cc" style="width: 88px; height: 106px;">
@@ -349,6 +382,7 @@
               ${escapeHtml(item.color)} / ${escapeHtml(item.size)} / Qty ${escapeHtml(item.quantity)}
             </span>
             <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
+            ${reviewActionHtml}
           </div>
         </div>
         <hr class="border-cc m-0 opacity-100">
@@ -387,8 +421,55 @@
       document.getElementById('confirm-subtotal-label').textContent = `Subtotal · ${t.totalItems} ${pieceWord}`;
       document.getElementById('confirm-subtotal-value').textContent = CCStore.formatPHP(t.subtotal);
       document.getElementById('confirm-shipping-value').textContent = CCStore.formatPHP(t.shipping);
-      document.getElementById('confirm-discount-value').textContent = t.discount > 0 ? `−${CCStore.formatPHP(t.discount)}` : CCStore.formatPHP(0);
+      document.getElementById('confirm-discount-value').textContent = t.discount > 0 ? `-${CCStore.formatPHP(t.discount)}` : CCStore.formatPHP(0);
       document.getElementById('confirm-total-value').textContent = CCStore.formatPHP(t.total);
+
+      // Simulation Button Handler
+      const simBtn = document.getElementById('confirm-simulate-delivery-btn');
+      if (simBtn && !isDelivered) {
+        simBtn.classList.remove('d-none');
+        simBtn.addEventListener('click', async () => {
+          simBtn.disabled = true;
+          simBtn.innerHTML = `<span>Updating...</span>`;
+          try {
+            const formData = new FormData();
+            formData.append('order_number', order.orderNumber);
+            const response = await fetch('public/api/orders/simulate-delivery.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              body: formData
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+              window.location.reload();
+            } else {
+              alert(result.error?.message || 'Failed to simulate delivery.');
+              simBtn.disabled = false;
+              simBtn.innerHTML = `<span>Simulate Delivery</span> <i class=\"bi bi-box-seam\"></i>`;
+            }
+          } catch (err) {
+            console.error('Simulate delivery error:', err);
+            simBtn.disabled = false;
+            simBtn.innerHTML = `<span>Simulate Delivery</span> <i class=\"bi bi-box-seam\"></i>`;
+          }
+        });
+      }
+
+      // Seamless Auto-Refresh when order transitions to Delivered
+      if (!isDelivered) {
+        setInterval(async () => {
+          try {
+            const response = await fetch(
+              `public/api/orders/view.php?order_number=${encodeURIComponent(order.orderNumber)}`,
+              { credentials: 'same-origin', headers: { 'Accept': 'application/json' } }
+            );
+            const result = await response.json();
+            if (response.ok && result.success && (result.data.status || '').toLowerCase() === 'delivered') {
+              window.location.reload();
+            }
+          } catch (e) {}
+        }, 15000);
+      }
     });
   </script>
   <script src="assets/js/scroll-reveal.js"></script>

@@ -1,0 +1,1400 @@
+I’ll inspect the repository structure and the existing HTML/CSS/JavaScript contents first, then trace navigation, state, authentication, and commerce flows before producing the architecture blueprint. I will not modify files or execute SQL.
+
+Find files matching `**/*`
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\index.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\auth.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\account-dashboard.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\cart.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\checkout.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\order-confirmation.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\wishlist.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\components\\header.html"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\components\\footer.html"
+}
+
+Search for `<script|<form|href=|data-|localStorage|sessionStorage|fetch\(|addEventListene...`
+
+Search for `localStorage|sessionStorage|fetch\(|addEventListener|function |const |let |ca...`
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\store.js"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\partials.js"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\main.js"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\infra.txt"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\.github\\copilot-instructions.md"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\.vscode\\settings.json"
+}
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\css\\global-loader.css"
+}
+
+Read , lines 1 to 220
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\css\\style.css",
+  "view_range": [
+    1,
+    220
+  ]
+}
+
+Read , lines 1 to 280
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\store.js",
+  "view_range": [
+    1,
+    280
+  ]
+}
+
+Read , lines 281 to 560
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\store.js",
+  "view_range": [
+    281,
+    560
+  ]
+}
+
+Read , lines 1 to 220
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\auth.html",
+  "view_range": [
+    1,
+    220
+  ]
+}
+
+Read , lines 221 to 380
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\auth.html",
+  "view_range": [
+    221,
+    380
+  ]
+}
+
+Read , lines 1 to 330
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\checkout.html",
+  "view_range": [
+    1,
+    330
+  ]
+}
+
+Read , lines 331 to 540
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\checkout.html",
+  "view_range": [
+    331,
+    540
+  ]
+}
+
+Read , lines 1 to 260
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\account-dashboard.html",
+  "view_range": [
+    1,
+    260
+  ]
+}
+
+Read , lines 261 to 430
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\account-dashboard.html",
+  "view_range": [
+    261,
+    430
+  ]
+}
+
+The inspection confirms this is currently a static, multi-page storefront: catalog, cart, wishlist, checkout, authentication screens, and account screens are rendered in HTML, while browser `localStorage` in `store.js` acts as the catalog/cart/order state. I’m now checking the remaining page-specific workflows and exact data fields so the proposed schema stays limited to features actually present.
+
+Search for `<title>|<h1|id="|class="cc-product-card|data-product-id|onsubmit=|addEventLis...`
+
+Read , lines 180 to 340
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\store.js",
+  "view_range": [
+    180,
+    340
+  ]
+}
+
+Read , lines 340 to 450
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\assets\\js\\store.js",
+  "view_range": [
+    340,
+    450
+  ]
+}
+
+Read , lines 180 to 330
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\components\\header.html",
+  "view_range": [
+    180,
+    330
+  ]
+}
+
+Read , lines 60 to 330
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\contact.html",
+  "view_range": [
+    60,
+    330
+  ]
+}
+
+Read , lines 100 to 330
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\wishlist.html",
+  "view_range": [
+    100,
+    330
+  ]
+}
+
+Read , lines 120 to 360
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\product-detail.html",
+  "view_range": [
+    120,
+    360
+  ]
+}
+
+Read , lines 110 to 520
+Completed with input: {
+  "path": "C:\\Users\\Kerby\\Desktop\\classic-club-ph\\cart.html",
+  "view_range": [
+    110,
+    520
+  ]
+}
+
+# 1. Existing Infrastructure Assessment
+
+## Current architecture
+
+The project is currently a static, multi-page storefront with no PHP backend or database.
+
+- HTML pages are located at the repository root.
+- Shared header and footer markup are loaded dynamically from `components/`.
+- Global styling is centralized in `assets/css/style.css`.
+- Client-side behavior is implemented in `assets/js/`.
+- Bootstrap, Bootstrap Icons, and Google Fonts are loaded from CDNs.
+- Product, cart, wishlist, promotion, and illustrative order data are stored in browser `localStorage`.
+
+### Existing page groups
+
+| Area | Existing files |
+|---|---|
+| Marketing/content | `index.html`, `about.html`, `lookbook.html`, `contact.html`, `faq-shipping.html`, `size-guide.html` |
+| Catalog | `shop-all.html`, `tops-tees.html`, `outerwear-hoodies.html`, `bottoms-accessories.html`, `new-arrivals.html`, `product-detail.html` |
+| Shopping | `cart.html`, `checkout.html`, `order-confirmation.html` |
+| Account | `auth.html`, `account-dashboard.html`, `wishlist.html` |
+
+## Existing JavaScript responsibilities
+
+### `store.js`
+
+Contains:
+
+- 16-product catalog.
+- Product IDs, SKUs, names, categories, colors, prices, descriptions, image URLs, and new/core status.
+- Cart storage and quantity changes.
+- Wishlist storage.
+- Promotion codes:
+  - `CLASSIC10`
+  - `FREESHIP`
+- Fixed PHP 180 shipping fee.
+- Illustrative order creation.
+- Last-order persistence.
+- Default seeded cart and illustrative fallback order.
+
+Important observations:
+
+- Product identity currently combines style and color, for example `essential-hw-tee-obsidian`.
+- Size is stored as a cart attribute rather than catalog data.
+- Inventory is not persisted; products are always presented as available.
+- Orders use a fixed order number and illustrative fallback data.
+- Unknown product IDs fall back to the Essential Heavyweight Tee, which should eventually become an explicit not-found response.
+
+### `main.js`
+
+Handles:
+
+- Cart badge synchronization.
+- Wishlist badge synchronization.
+- Product detail hydration from `?id=`.
+- Product image hydration.
+- Wishlist button behavior.
+- Favicon injection.
+
+### `partials.js`
+
+Loads:
+
+- `components/header.html`
+- `components/footer.html`
+
+using `fetch()` and injects them into placeholder elements.
+
+### `global-loader.js`
+
+Provides the global loading overlay and reduced-motion behavior.
+
+## Existing workflows
+
+### Catalog workflow
+
+1. User navigates through catalog pages.
+2. Product cards contain product IDs.
+3. `main.js` adds product query parameters.
+4. `product-detail.html` is hydrated from `CCStore`.
+
+### Cart workflow
+
+1. User selects color, size, and quantity.
+2. `CCStore.addToCart()` stores the item in `localStorage`.
+3. `cart.html` reads and renders cart data.
+4. User can update quantities, remove items, or move items to wishlist.
+5. Checkout reads the same browser state.
+
+### Checkout workflow
+
+1. User enters contact and shipping details in `checkout.html`.
+2. Payment methods are illustrative only.
+3. `CCStore.placeOrder()` stores an illustrative order in `localStorage`.
+4. The user is redirected to `order-confirmation.html`.
+
+### Authentication workflow
+
+The forms in `auth.html` currently prevent submission and redirect directly to the dashboard. There is no:
+
+- Real account creation.
+- Password verification.
+- Session.
+- Logout.
+- Password reset.
+- Authorization check.
+
+### Account workflow
+
+`account-dashboard.html` renders illustrative profile, address, wishlist count, and order information from `CCStore`.
+
+### Contact workflow
+
+`contact.html` contains an inquiry form with:
+
+- Name.
+- Email.
+- Topic.
+- Optional order number.
+- Message.
+- Optional JPG, PNG, or PDF upload.
+- Consent checkbox.
+
+It currently does not submit data to a backend.
+
+## Strengths
+
+- Clear visual separation between content, catalog, shopping, and account pages.
+- Centralized reusable header and footer.
+- Centralized client-side store module.
+- Product identifiers are already consistently used across pages.
+- Existing frontend can remain largely intact.
+- Existing UX already identifies the future persistence requirements.
+
+## Weaknesses relevant to database integration
+
+- No backend validation.
+- No server-side authentication or authorization.
+- No persistent product, inventory, customer, order, wishlist, or inquiry records.
+- Client-controlled prices and order totals.
+- Client-controlled payment labels.
+- Fixed order number.
+- Static illustrative customer information.
+- No CSRF protection.
+- No server-side session.
+- `localStorage` is not suitable for account-specific or trusted transactional data.
+- Absolute URLs such as `/components/header.html` may require adjustment when hosted in an XAMPP subdirectory.
+- External image URLs are used instead of locally managed product media.
+
+## Components that should remain unchanged initially
+
+- Visual styling in `assets/css/style.css`.
+- Loading behavior in `assets/js/global-loader.js`.
+- Marketing pages and content.
+- Existing product card presentation.
+- Header/footer visual design.
+- Bootstrap-based layout.
+
+The first integration should replace data and submission behavior, not redesign the frontend.
+
+---
+
+# 2. Proposed Database Architecture
+
+## Database name
+
+```text
+classic_club_ph
+```
+
+Recommended local configuration:
+
+- MySQL or MariaDB through XAMPP.
+- `utf8mb4` character set.
+- `utf8mb4_unicode_ci` or the MariaDB-compatible equivalent.
+- PHP PDO connection.
+- Database credentials stored outside public frontend files.
+
+## Table inventory
+
+### Core catalog
+
+1. `categories`
+2. `products`
+3. `product_variants`
+4. `product_images`
+5. `sizes`
+6. `variant_sizes`
+7. `inventory_movements`
+
+### Customers and commerce
+
+8. `users`
+9. `customer_addresses`
+10. `carts`
+11. `cart_items`
+12. `wishlists`
+13. `wishlist_items`
+14. `orders`
+15. `order_items`
+16. `order_addresses`
+17. `promotions`
+18. `promotion_redemptions`
+
+### RBAC
+
+19. `roles`
+20. `permissions`
+21. `user_roles`
+22. `role_permissions`
+23. `user_permissions`
+
+### Communication and auditing
+
+24. `contact_inquiries`
+25. `newsletter_subscribers`
+26. `audit_logs`
+27. `login_attempts`
+
+`user_permissions` is included for future exceptions, but ordinary authorization should use roles and role permissions.
+
+---
+
+## Catalog tables
+
+### `categories`
+
+Purpose: Stores catalog groupings currently represented by values such as “Tops & tees” and “Outerwear & hoodies”.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `name` | `VARCHAR(100)` | Not null, unique |
+| `slug` | `VARCHAR(120)` | Not null, unique |
+| `description` | `TEXT` | Nullable |
+| `is_active` | `TINYINT(1)` | Not null, default `1` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+Used by catalog pages and product filtering.
+
+### `products`
+
+Purpose: Stores the product style independent of color or sellable SKU.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `category_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `name` | `VARCHAR(160)` | Not null |
+| `slug` | `VARCHAR(180)` | Not null, unique |
+| `description` | `TEXT` | Nullable |
+| `care_description` | `TEXT` | Nullable |
+| `material_description` | `TEXT` | Nullable |
+| `is_active` | `TINYINT(1)` | Not null, default `1` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+A product such as “Essential Heavyweight Tee” belongs here.
+
+### `product_variants`
+
+Purpose: Stores sellable combinations currently represented by product ID, color, SKU, price, image, and new/core status.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `product_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `sku` | `VARCHAR(50)` | Not null, unique |
+| `color_name` | `VARCHAR(80)` | Not null |
+| `color_code` | `VARCHAR(20)` | Nullable |
+| `price` | `DECIMAL(10,2)` | Not null |
+| `is_new` | `TINYINT(1)` | Not null, default `0` |
+| `availability_status` | `ENUM('active','draft','archived')` | Not null, default `active` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+This preserves the current 16 catalog entries while allowing multiple colors and SKUs under one product.
+
+### `product_images`
+
+Purpose: Allows multiple product images rather than storing one image URL directly in the product record.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `variant_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `image_url` | `VARCHAR(500)` | Not null |
+| `alt_text` | `VARCHAR(255)` | Nullable |
+| `image_role` | `ENUM('primary','front','back','detail','gallery')` | Not null |
+| `sort_order` | `SMALLINT UNSIGNED` | Not null, default `0` |
+| `created_at` | `DATETIME` | Not null |
+
+### `sizes`
+
+Purpose: Normalizes apparel sizes such as XS–XXL and numeric sizes such as 28–38.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `code` | `VARCHAR(20)` | Not null, unique |
+| `size_type` | `ENUM('alpha','numeric','one_size')` | Not null |
+| `sort_order` | `SMALLINT UNSIGNED` | Not null |
+| `is_active` | `TINYINT(1)` | Not null, default `1` |
+
+### `variant_sizes`
+
+Purpose: Defines which sizes are available for each product variant and tracks current stock.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `variant_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `size_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `quantity_on_hand` | `INT UNSIGNED` | Not null, default `0` |
+| `quantity_reserved` | `INT UNSIGNED` | Not null, default `0` |
+| `is_active` | `TINYINT(1)` | Not null, default `1` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+Unique constraint:
+
+```text
+UNIQUE (variant_id, size_id)
+```
+
+### `inventory_movements`
+
+Purpose: Provides an audit trail for stock additions, removals, adjustments, and order reservations.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `variant_size_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `quantity_delta` | `INT` | Not null |
+| `movement_type` | `ENUM('receipt','sale','return','adjustment','reservation','release')` | Not null |
+| `reference_type` | `VARCHAR(50)` | Nullable |
+| `reference_id` | `BIGINT UNSIGNED` | Nullable |
+| `notes` | `VARCHAR(255)` | Nullable |
+| `created_by` | `BIGINT UNSIGNED` | Nullable, foreign key to `users` |
+| `created_at` | `DATETIME` | Not null |
+
+---
+
+## Users and addresses
+
+### `users`
+
+Purpose: Stores customer, staff, admin, and super-admin accounts.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `email` | `VARCHAR(190)` | Not null, unique |
+| `password_hash` | `VARCHAR(255)` | Not null |
+| `first_name` | `VARCHAR(100)` | Not null |
+| `last_name` | `VARCHAR(100)` | Not null |
+| `mobile` | `VARCHAR(40)` | Nullable |
+| `status` | `ENUM('active','inactive','suspended','pending')` | Not null, default `pending` |
+| `email_verified_at` | `DATETIME` | Nullable |
+| `last_login_at` | `DATETIME` | Nullable |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+| `deleted_at` | `DATETIME` | Nullable |
+
+Passwords must contain only PHP password hashes generated by `password_hash()`.
+
+### `customer_addresses`
+
+Purpose: Stores reusable shipping addresses for authenticated customers.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `user_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `label` | `VARCHAR(80)` | Not null |
+| `country` | `VARCHAR(80)` | Not null, default `Philippines` |
+| `street_address` | `VARCHAR(255)` | Not null |
+| `apartment` | `VARCHAR(255)` | Nullable |
+| `barangay` | `VARCHAR(120)` | Not null |
+| `city` | `VARCHAR(120)` | Not null |
+| `province` | `VARCHAR(120)` | Not null |
+| `postal_code` | `VARCHAR(20)` | Not null |
+| `is_default` | `TINYINT(1)` | Not null, default `0` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+---
+
+## Cart and wishlist tables
+
+### `carts`
+
+Purpose: Replaces the browser-only cart for authenticated users and optionally supports guest carts through a session token.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `user_id` | `BIGINT UNSIGNED` | Nullable, foreign key |
+| `session_token_hash` | `CHAR(64)` | Nullable, unique |
+| `status` | `ENUM('active','converted','abandoned')` | Not null, default `active` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+Constraint: at least one of `user_id` or `session_token_hash` should identify the cart.
+
+### `cart_items`
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `cart_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `variant_size_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `quantity` | `INT UNSIGNED` | Not null |
+| `unit_price` | `DECIMAL(10,2)` | Not null |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+Unique constraint:
+
+```text
+UNIQUE (cart_id, variant_size_id)
+```
+
+### `wishlists`
+
+Purpose: Provides one wishlist per authenticated user.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `user_id` | `BIGINT UNSIGNED` | Not null, unique, foreign key |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+### `wishlist_items`
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `wishlist_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `variant_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `created_at` | `DATETIME` | Not null |
+
+Unique constraint:
+
+```text
+UNIQUE (wishlist_id, variant_id)
+```
+
+---
+
+## Order tables
+
+### `orders`
+
+Purpose: Stores trusted server-created orders.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `order_number` | `VARCHAR(30)` | Not null, unique |
+| `user_id` | `BIGINT UNSIGNED` | Nullable, foreign key |
+| `guest_email` | `VARCHAR(190)` | Nullable |
+| `status` | `ENUM('pending','confirmed','preparing','shipped','delivered','cancelled','refunded')` | Not null, default `pending` |
+| `payment_status` | `ENUM('unpaid','illustrative','paid','failed','refunded')` | Not null, default `illustrative` |
+| `currency` | `CHAR(3)` | Not null, default `PHP` |
+| `subtotal` | `DECIMAL(10,2)` | Not null |
+| `shipping_amount` | `DECIMAL(10,2)` | Not null |
+| `discount_amount` | `DECIMAL(10,2)` | Not null, default `0.00` |
+| `total_amount` | `DECIMAL(10,2)` | Not null |
+| `placed_at` | `DATETIME` | Nullable |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+### `order_items`
+
+Purpose: Stores an immutable snapshot of products purchased.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `order_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `variant_size_id` | `BIGINT UNSIGNED` | Nullable, foreign key |
+| `sku_snapshot` | `VARCHAR(50)` | Not null |
+| `product_name_snapshot` | `VARCHAR(160)` | Not null |
+| `color_snapshot` | `VARCHAR(80)` | Not null |
+| `size_snapshot` | `VARCHAR(20)` | Not null |
+| `quantity` | `INT UNSIGNED` | Not null |
+| `unit_price` | `DECIMAL(10,2)` | Not null |
+| `line_total` | `DECIMAL(10,2)` | Not null |
+
+Historical snapshots are necessary so future catalog changes do not alter old orders.
+
+### `order_addresses`
+
+Purpose: Stores the shipping address used for the order, independent of later profile edits.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `order_id` | `BIGINT UNSIGNED` | Not null, unique, foreign key |
+| `recipient_first_name` | `VARCHAR(100)` | Not null |
+| `recipient_last_name` | `VARCHAR(100)` | Not null |
+| `mobile` | `VARCHAR(40)` | Not null |
+| `country` | `VARCHAR(80)` | Not null |
+| `street_address` | `VARCHAR(255)` | Not null |
+| `apartment` | `VARCHAR(255)` | Nullable |
+| `barangay` | `VARCHAR(120)` | Not null |
+| `city` | `VARCHAR(120)` | Not null |
+| `province` | `VARCHAR(120)` | Not null |
+| `postal_code` | `VARCHAR(20)` | Not null |
+
+No full payment card numbers should be stored.
+
+---
+
+## Promotions
+
+### `promotions`
+
+Purpose: Replaces hardcoded promotion logic.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `code` | `VARCHAR(50)` | Not null, unique |
+| `discount_type` | `ENUM('percentage','fixed_amount','free_shipping')` | Not null |
+| `discount_value` | `DECIMAL(10,2)` | Not null |
+| `starts_at` | `DATETIME` | Nullable |
+| `ends_at` | `DATETIME` | Nullable |
+| `usage_limit` | `INT UNSIGNED` | Nullable |
+| `is_active` | `TINYINT(1)` | Not null, default `1` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+### `promotion_redemptions`
+
+Purpose: Prevents unlimited or duplicate promotion use if restrictions are later required.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `promotion_id` | `BIGINT UNSIGNED` | Not null, foreign key |
+| `order_id` | `BIGINT UNSIGNED` | Not null, unique, foreign key |
+| `user_id` | `BIGINT UNSIGNED` | Nullable, foreign key |
+| `discount_amount` | `DECIMAL(10,2)` | Not null |
+| `created_at` | `DATETIME` | Not null |
+
+---
+
+## Communication tables
+
+### `contact_inquiries`
+
+Purpose: Persists the form currently displayed in `contact.html`.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `user_id` | `BIGINT UNSIGNED` | Nullable, foreign key |
+| `full_name` | `VARCHAR(200)` | Not null |
+| `email` | `VARCHAR(190)` | Not null |
+| `topic` | `ENUM('sizing','order','return','other')` | Not null |
+| `order_number` | `VARCHAR(30)` | Nullable |
+| `message` | `TEXT` | Not null |
+| `attachment_path` | `VARCHAR(255)` | Nullable |
+| `status` | `ENUM('new','open','resolved','closed')` | Not null, default `new` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+Uploaded files should be stored outside the public web root, with validated MIME type, size, and extension.
+
+### `newsletter_subscribers`
+
+Purpose: Persists the newsletter form in `components/footer.html`.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `email` | `VARCHAR(190)` | Not null, unique |
+| `status` | `ENUM('subscribed','unsubscribed')` | Not null, default `subscribed` |
+| `consented_at` | `DATETIME` | Not null |
+| `unsubscribed_at` | `DATETIME` | Nullable |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+---
+
+# 3. RBAC Architecture
+
+## Roles
+
+Initial seed roles:
+
+| Role | Intended access |
+|---|---|
+| `super_admin` | All system functionality, including roles and permissions |
+| `admin` | Administrative catalog, orders, users, and inquiries |
+| `manager` | Operational catalog, inventory, and order management |
+| `staff` | Assigned operational modules |
+| `customer` | Personal profile, orders, addresses, and wishlist |
+| `guest` | Public catalog and guest checkout |
+
+`guest` may be represented as an application state rather than a database user.
+
+## `roles`
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `name` | `VARCHAR(80)` | Not null, unique |
+| `display_name` | `VARCHAR(100)` | Not null |
+| `description` | `VARCHAR(255)` | Nullable |
+| `is_system_role` | `TINYINT(1)` | Not null, default `0` |
+| `created_at` | `DATETIME` | Not null |
+| `updated_at` | `DATETIME` | Not null |
+
+## `permissions`
+
+Examples:
+
+- `catalog.view`
+- `catalog.manage`
+- `inventory.view`
+- `inventory.manage`
+- `orders.view_own`
+- `orders.view_all`
+- `orders.manage`
+- `users.view`
+- `users.manage`
+- `roles.manage`
+- `permissions.manage`
+- `inquiries.view`
+- `inquiries.manage`
+- `newsletter.manage`
+- `audit.view`
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | `BIGINT UNSIGNED` | Primary key |
+| `name` | `VARCHAR(120)` | Not null, unique |
+| `display_name` | `VARCHAR(150)` | Not null |
+| `description` | `VARCHAR(255)` | Nullable |
+| `created_at` | `DATETIME` | Not null |
+
+## `user_roles`
+
+Supports multiple roles per user.
+
+```text
+UNIQUE (user_id, role_id)
+```
+
+Foreign keys:
+
+- `user_id` → `users.id`
+- `role_id` → `roles.id`
+
+Recommended deletion rule: `ON DELETE CASCADE`.
+
+## `role_permissions`
+
+Associates roles with permissions.
+
+```text
+UNIQUE (role_id, permission_id)
+```
+
+Recommended deletion rule: `ON DELETE CASCADE`.
+
+## `user_permissions`
+
+Use only for explicit exceptions.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `user_id` | `BIGINT UNSIGNED` | Primary/foreign key component |
+| `permission_id` | `BIGINT UNSIGNED` | Primary/foreign key component |
+| `effect` | `ENUM('allow','deny')` | Not null |
+| `created_at` | `DATETIME` | Not null |
+
+Authorization precedence:
+
+1. Explicit deny.
+2. Explicit allow.
+3. Role permissions.
+4. Default deny.
+
+Frontend visibility must never be treated as authorization.
+
+---
+
+# 4. Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    USERS ||--o{ USER_ROLES : has
+    ROLES ||--o{ USER_ROLES : assigned
+    ROLES ||--o{ ROLE_PERMISSIONS : grants
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : contains
+    USERS ||--o{ USER_PERMISSIONS : overrides
+    PERMISSIONS ||--o{ USER_PERMISSIONS : overrides
+
+    CATEGORIES ||--o{ PRODUCTS : contains
+    PRODUCTS ||--o{ PRODUCT_VARIANTS : has
+    PRODUCT_VARIANTS ||--o{ PRODUCT_IMAGES : displays
+    PRODUCT_VARIANTS ||--o{ VARIANT_SIZES : offers
+    SIZES ||--o{ VARIANT_SIZES : defines
+    VARIANT_SIZES ||--o{ INVENTORY_MOVEMENTS : tracks
+
+    USERS ||--o{ CUSTOMER_ADDRESSES : owns
+    USERS ||--o{ CARTS : owns
+    CARTS ||--o{ CART_ITEMS : contains
+    VARIANT_SIZES ||--o{ CART_ITEMS : selected
+
+    USERS ||--o| WISHLISTS : owns
+    WISHLISTS ||--o{ WISHLIST_ITEMS : contains
+    PRODUCT_VARIANTS ||--o{ WISHLIST_ITEMS : saved
+
+    USERS ||--o{ ORDERS : places
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    ORDERS ||--|| ORDER_ADDRESSES : ships_to
+    VARIANT_SIZES ||--o{ ORDER_ITEMS : purchased
+
+    PROMOTIONS ||--o{ PROMOTION_REDEMPTIONS : used_by
+    ORDERS ||--o| PROMOTION_REDEMPTIONS : applies
+
+    USERS ||--o{ CONTACT_INQUIRIES : submits
+    USERS ||--o{ AUDIT_LOGS : performs
+    USERS ||--o{ LOGIN_ATTEMPTS : generates
+```
+
+---
+
+# 5. Proposed PHP Project Structure
+
+The existing HTML frontend should remain at the repository root during the first implementation. PHP should be introduced around it rather than replacing it with a framework.
+
+```text
+classic-club-ph/
+├── public/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── login.php
+│   │   │   ├── register.php
+│   │   │   ├── logout.php
+│   │   │   └── forgot-password.php
+│   │   ├── account/
+│   │   │   ├── profile.php
+│   │   │   ├── addresses.php
+│   │   │   └── wishlist.php
+│   │   ├── catalog/
+│   │   │   ├── products.php
+│   │   │   └── product.php
+│   │   ├── cart/
+│   │   │   ├── view.php
+│   │   │   ├── add.php
+│   │   │   ├── update.php
+│   │   │   └── remove.php
+│   │   ├── checkout/
+│   │   │   └── create-order.php
+│   │   ├── contact/
+│   │   │   └── submit-inquiry.php
+│   │   └── newsletter/
+│   │       └── subscribe.php
+│   └── index.php
+│
+├── app/
+│   ├── Config/
+│   │   ├── app.php
+│   │   └── database.php
+│   ├── Database/
+│   │   ├── Connection.php
+│   │   └── Transaction.php
+│   ├── Auth/
+│   │   ├── Authenticator.php
+│   │   ├── SessionManager.php
+│   │   └── PasswordManager.php
+│   ├── Authorization/
+│   │   ├── AuthorizationService.php
+│   │   └── PermissionChecker.php
+│   ├── Controllers/
+│   │   ├── AuthController.php
+│   │   ├── AccountController.php
+│   │   ├── CatalogController.php
+│   │   ├── CartController.php
+│   │   ├── CheckoutController.php
+│   │   ├── ContactController.php
+│   │   └── NewsletterController.php
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Role.php
+│   │   ├── Permission.php
+│   │   ├── Category.php
+│   │   ├── Product.php
+│   │   ├── ProductVariant.php
+│   │   ├── Cart.php
+│   │   ├── Wishlist.php
+│   │   ├── Order.php
+│   │   ├── Promotion.php
+│   │   ├── ContactInquiry.php
+│   │   └── NewsletterSubscriber.php
+│   ├── Repositories/
+│   │   ├── UserRepository.php
+│   │   ├── ProductRepository.php
+│   │   ├── CartRepository.php
+│   │   ├── WishlistRepository.php
+│   │   ├── OrderRepository.php
+│   │   └── PromotionRepository.php
+│   ├── Services/
+│   │   ├── CatalogService.php
+│   │   ├── CartService.php
+│   │   ├── CheckoutService.php
+│   │   ├── OrderService.php
+│   │   ├── WishlistService.php
+│   │   ├── ContactService.php
+│   │   └── NewsletterService.php
+│   ├── Middleware/
+│   │   ├── AuthMiddleware.php
+│   │   ├── GuestMiddleware.php
+│   │   ├── PermissionMiddleware.php
+│   │   └── CsrfMiddleware.php
+│   ├── Validation/
+│   │   ├── AuthValidator.php
+│   │   ├── CheckoutValidator.php
+│   │   ├── ContactValidator.php
+│   │   └── ProductValidator.php
+│   ├── Http/
+│   │   ├── Request.php
+│   │   ├── Response.php
+│   │   └── JsonResponse.php
+│   └── Support/
+│       ├── CsrfToken.php
+│       ├── Input.php
+│       ├── Output.php
+│       └── Logger.php
+│
+├── database/
+│   ├── migrations/
+│   │   ├── 001_create_rbac_tables.sql
+│   │   ├── 002_create_catalog_tables.sql
+│   │   ├── 003_create_customer_tables.sql
+│   │   ├── 004_create_order_tables.sql
+│   │   └── 005_create_communication_tables.sql
+│   └── seeders/
+│       ├── RolesSeeder.php
+│       ├── PermissionsSeeder.php
+│       ├── CatalogSeeder.php
+│       └── PromotionsSeeder.php
+│
+├── storage/
+│   ├── logs/
+│   └── uploads/contact/
+│
+├── config/
+│   └── .env.example
+│
+├── existing HTML files
+├── assets/
+└── components/
+```
+
+This is a proposed future structure only. No files should be added until implementation begins.
+
+## File responsibilities
+
+| File | Responsibility |
+|---|---|
+| `app/Config/database.php` | Reads local database configuration |
+| `app/Database/Connection.php` | Creates and configures the PDO connection |
+| `app/Database/Transaction.php` | Provides transaction helpers for checkout and inventory |
+| `app/Auth/Authenticator.php` | Login, registration, logout, and credential verification |
+| `app/Auth/SessionManager.php` | Secure PHP session lifecycle |
+| `app/Auth/PasswordManager.php` | `password_hash()` and `password_verify()` handling |
+| `app/Authorization/PermissionChecker.php` | Evaluates effective permissions |
+| `app/Authorization/AuthorizationService.php` | Higher-level access decisions |
+| `app/Repositories/*` | Database queries only |
+| `app/Services/*` | Business rules and workflows |
+| `app/Controllers/*` | Converts requests into service calls and responses |
+| `app/Middleware/*` | Authentication, authorization, CSRF, and guest checks |
+| `app/Validation/*` | Validates request data before business logic |
+| `app/Http/*` | Normalizes request and response behavior |
+| `app/Support/CsrfToken.php` | CSRF token generation and verification |
+| `app/Support/Input.php` | Input normalization |
+| `app/Support/Output.php` | Output escaping helpers |
+| `app/Support/Logger.php` | Application and audit logging |
+| `database/migrations/*` | Versioned schema definitions |
+| `database/seeders/*` | Initial roles, permissions, catalog, and promotion data |
+| `public/api/*` | Thin HTTP entry points consumed by the existing frontend |
+
+The repositories should not contain HTML rendering, and controllers should not contain raw SQL.
+
+---
+
+# 6. Infrastructure Integration Plan
+
+## Existing-to-new mapping
+
+| Existing component | Future integration |
+|---|---|
+| `assets/js/store.js` | Gradually becomes an API-backed client state layer |
+| `assets/js/main.js` | Continues UI synchronization, but reads server-backed cart and wishlist data |
+| `assets/js/partials.js` | Remains reusable; URLs may need XAMPP subdirectory configuration |
+| `components/header.html` | Remains visually unchanged; account/logout state may become dynamic |
+| `components/footer.html` | Newsletter form will submit to `newsletter/subscribe.php` |
+| Catalog HTML pages | Initially remain static; later fetch catalog data from `catalog/products.php` |
+| `auth.html` | Sign-in and registration forms submit to authentication endpoints |
+| `cart.html` | Uses cart API endpoints |
+| `checkout.html` | Sends validated checkout data to `checkout/create-order.php` |
+| `order-confirmation.html` | Loads a server-created order by authenticated session or secure order reference |
+| `account-dashboard.html` | Loads profile, addresses, wishlist, and orders from account endpoints |
+| `wishlist.html` | Uses authenticated wishlist endpoints |
+| `contact.html` | Submits inquiries and optional validated attachments |
+
+## Frontend-to-PHP communication
+
+Recommended initial approach:
+
+```text
+Existing HTML page
+    ↓ fetch()
+public/api/*.php
+    ↓
+Controller
+    ↓
+Validator
+    ↓
+Service
+    ↓
+Repository
+    ↓
+PDO / MySQL
+```
+
+Responses should be JSON with consistent success and error formats.
+
+The frontend should never receive:
+
+- Database credentials.
+- Password hashes.
+- Internal authorization details.
+- Unfiltered database errors.
+- Sensitive audit information.
+
+## Checkout flow
+
+1. Load cart from server or guest session.
+2. Recalculate prices from database values.
+3. Validate variants, sizes, quantities, promotion, and address.
+4. Begin database transaction.
+5. Lock or verify inventory.
+6. Create order.
+7. Create immutable order items.
+8. Create order address snapshot.
+9. Record promotion redemption if applicable.
+10. Update inventory.
+11. Convert the cart.
+12. Commit transaction.
+13. Return order number.
+14. Redirect to confirmation page.
+
+The browser must not be trusted for totals, prices, stock, order status, or payment status.
+
+## Authentication flow
+
+1. Submit credentials over localhost HTTPS if configured, otherwise restrict usage to local development.
+2. Validate email and password.
+3. Query the user by email.
+4. Verify with `password_verify()`.
+5. Regenerate the session ID.
+6. Store only the user ID and minimal session metadata.
+7. Load roles and permissions server-side.
+8. Redirect or return authenticated response.
+9. On logout, invalidate the session and regenerate it.
+
+## Authorization flow
+
+```text
+Request
+  → SessionManager
+  → AuthMiddleware
+  → PermissionMiddleware
+  → Controller
+  → Service
+```
+
+Examples:
+
+- Public product listing: no login required.
+- Checkout: guest or authenticated user.
+- Account dashboard: authenticated user required.
+- Admin catalog management: `catalog.manage`.
+- Role management: `roles.manage`.
+- Order management: `orders.manage`.
+
+---
+
+# 7. Security Architecture
+
+The future implementation should include:
+
+- `password_hash()` with the default strong PHP algorithm.
+- `password_verify()` for authentication.
+- PDO prepared statements for every query.
+- Server-side validation of all submitted fields.
+- Session ID regeneration after login.
+- Secure session cookie settings.
+- CSRF tokens for state-changing requests.
+- Output escaping using `htmlspecialchars()`.
+- Upload validation by size, extension, and MIME type.
+- Upload storage outside the public web root.
+- No payment card storage.
+- Server-side recalculation of order totals.
+- Server-side inventory validation.
+- Login attempt tracking through `login_attempts`.
+- Temporary account throttling after repeated failures.
+- Audit logging for:
+  - Login failures.
+  - Role changes.
+  - Permission changes.
+  - User suspension.
+  - Product changes.
+  - Inventory adjustments.
+  - Order status changes.
+- Database credentials stored in local environment configuration, not HTML or JavaScript.
+- Generic user-facing errors and detailed local logs.
+- Explicit error handling rather than silent fallbacks.
+
+Because the system is localhost-only, a full production deployment stack is unnecessary. However, the application should still follow secure backend boundaries so local development does not establish unsafe patterns.
+
+---
+
+# 8. Architectural Recommendations
+
+## Maintainability
+
+- Keep the existing frontend presentation.
+- Move catalog data out of `store.js` only after the API layer is ready.
+- Use repositories for SQL and services for business logic.
+- Keep migrations versioned.
+- Use consistent JSON responses.
+- Replace hardcoded order and customer fallback data with explicit empty states.
+
+## Scalability
+
+- Separate products from product variants.
+- Store historical order snapshots.
+- Use role-permission relationships rather than hardcoded admin checks.
+- Support both guest carts and authenticated carts.
+- Use inventory records instead of an `in_stock` boolean.
+- Keep order status and payment status separate.
+
+## Performance
+
+- Add indexes on:
+  - User email.
+  - Product slug.
+  - Variant SKU.
+  - Order number.
+  - Order user and status.
+  - Cart user/session.
+  - Inquiry status.
+  - Promotion code.
+- Load only the fields needed for catalog cards.
+- Use transactions for checkout.
+- Avoid querying product data repeatedly inside loops.
+
+## Compatibility
+
+- Continue serving existing HTML from XAMPP.
+- Use relative or configurable application URLs instead of assuming `/`.
+- Integrate one module at a time.
+- Preserve the existing CSS classes and page layout.
+- Keep `localStorage` temporarily as a guest fallback only if necessary, but do not use it as the source of truth for authenticated orders.
+
+---
+
+# 9. Implementation Roadmap
+
+## Phase 1 — Local XAMPP foundation
+
+1. Configure Apache and MySQL/MariaDB.
+2. Create the local `classic_club_ph` database through phpMyAdmin.
+3. Add local PHP configuration.
+4. Establish PDO connectivity.
+5. Add basic error logging.
+6. Confirm the frontend still loads unchanged.
+
+## Phase 2 — Schema and seed data
+
+1. Create migrations.
+2. Create RBAC tables.
+3. Create catalog tables.
+4. Import the 16 existing products and their current categories, prices, SKUs, colors, and image URLs.
+5. Seed sizes and initial promotions.
+6. Add indexes and foreign keys.
+
+## Phase 3 — PHP application foundation
+
+1. Add request and response helpers.
+2. Add repositories.
+3. Add validation classes.
+4. Add services.
+5. Add API entry points.
+6. Standardize JSON responses.
+
+## Phase 4 — Authentication
+
+1. Implement registration.
+2. Implement login.
+3. Implement logout.
+4. Add password hashing.
+5. Add session management.
+6. Add authentication middleware.
+7. Replace direct redirects in `auth.html` with API calls.
+
+## Phase 5 — RBAC
+
+1. Seed initial roles and permissions.
+2. Assign the customer role during registration.
+3. Add permission checks to backend endpoints.
+4. Add admin and staff restrictions.
+5. Add audit logging for security-sensitive changes.
+
+## Phase 6 — Catalog, cart, and wishlist integration
+
+1. Add catalog API reads.
+2. Replace product fallback behavior with explicit API errors.
+3. Add guest cart support.
+4. Add authenticated cart persistence.
+5. Add wishlist persistence.
+6. Synchronize existing badges and UI with API responses.
+
+## Phase 7 — Checkout and orders
+
+1. Add server-side cart validation.
+2. Add address validation.
+3. Add promotion validation.
+4. Add transactional order creation.
+5. Add order item snapshots.
+6. Add inventory reservation and movement logging.
+7. Replace fixed order numbers with generated values.
+8. Update confirmation and account pages.
+
+## Phase 8 — Contact and newsletter
+
+1. Persist contact inquiries.
+2. Add secure file upload handling.
+3. Persist newsletter subscriptions.
+4. Add administrative inquiry management permissions.
+
+## Phase 9 — Cleanup and verification
+
+1. Remove illustrative customer and order fallbacks.
+2. Remove hardcoded prices from trusted calculations.
+3. Test guest checkout.
+4. Test authenticated checkout.
+5. Test role restrictions.
+6. Test invalid input and CSRF failures.
+7. Test cart, wishlist, order, and inventory edge cases.
+8. Preserve all existing presentation and navigation behavior.
+
+No files, database objects, or SQL statements were created or modified during this planning task.

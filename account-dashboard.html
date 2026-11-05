@@ -380,10 +380,38 @@
             const cust = ord.customer || profile || {};
             const isFirst = index === 0;
 
+            const isDelivered = (ord.status || '').toLowerCase() === 'delivered';
+
             const itemsHTML = (ord.items || []).map(item => {
               const imgSrc = item.image || (typeof CCStore !== 'undefined' ? CCStore.getProductImage(item.id) : '') || 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp';
               const itemPrice = Number(item.price || 0);
               const itemQty = Number(item.quantity || 1);
+              const isReviewed = !!item.is_reviewed;
+              const catalogKey = item.id || '';
+              const variantId = item.variant_id || '';
+
+              let reviewActionHtml = '';
+              if (isDelivered) {
+                if (isReviewed) {
+                  reviewActionHtml = `
+                    <div class="mt-2">
+                      <span class="badge bg-transparent border border-cc text-accent py-1 px-2 font-sans" style="font-size: 11px;">
+                        <i class="bi bi-check2"></i> Product Reviewed
+                      </span>
+                    </div>
+                  `;
+                } else {
+                  reviewActionHtml = `
+                    <div class="mt-2">
+                      <a href="review-product.html?order_number=${encodeURIComponent(ord.orderNumber)}&variant=${encodeURIComponent(catalogKey)}&variant_id=${encodeURIComponent(variantId)}" class="btn-cc-teal text-decoration-none py-1 px-3 d-inline-flex align-items-center gap-2" style="height: 32px; font-size: 11px;">
+                        <span>Rate Product</span>
+                        <i class="bi bi-star"></i>
+                      </a>
+                    </div>
+                  `;
+                }
+              }
+
               return `
                 <div class="col-12 col-md-6 d-flex align-items-center gap-3">
                   <img
@@ -399,6 +427,7 @@
                       ${item.color || 'Obsidian'} / ${item.size || 'M'} / Qty ${itemQty}
                     </span>
                     <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(itemPrice * itemQty)}</span>
+                    ${reviewActionHtml}
                   </div>
                 </div>
               `;
@@ -489,6 +518,12 @@
                     <span>View order details</span>
                     <i class="bi bi-arrow-right"></i>
                   </a>
+                  ${!isDelivered ? `
+                    <button type="button" class="btn-cc-outline border-cc text-muted-cc py-1 px-3 d-inline-flex align-items-center gap-2 simulate-delivery-btn" data-order-number="${ord.orderNumber}" style="height: 50px; font-size: 12px;">
+                      <span>Simulate Delivery</span>
+                      <i class="bi bi-box-seam"></i>
+                    </button>
+                  ` : ""}
                   <a href="contact.html" class="cc-underline-link">Get help with this order ↗</a>
                 </div>
 
@@ -569,6 +604,84 @@
 
         // Render all orders
         renderOrderHistory(orders);
+
+        // Simulated Delivery Button Handler & Auto-refresh
+        document.addEventListener('click', async (e) => {
+          const simBtn = e.target.closest('.simulate-delivery-btn');
+          if (!simBtn) return;
+          const orderNum = simBtn.getAttribute('data-order-number');
+          if (!orderNum) return;
+          
+          simBtn.disabled = true;
+          simBtn.innerHTML = `<span>Updating...</span>`;
+          try {
+            const formData = new FormData();
+            formData.append('order_number', orderNum);
+            const response = await fetch('public/api/orders/simulate-delivery.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              body: formData
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+              window.location.reload();
+            } else {
+              alert(result.error?.message || 'Failed to update delivery simulation.');
+              simBtn.disabled = false;
+              simBtn.innerHTML = `<span>Simulate Delivery</span> <i class="bi bi-box-seam"></i>`;
+            }
+          } catch (err) {
+            console.error('Simulate delivery error:', err);
+            simBtn.disabled = false;
+            simBtn.innerHTML = `<span>Simulate Delivery</span> <i class="bi bi-box-seam"></i>`;
+          }
+        });
+
+        // Periodic check to auto-update delivered orders seamlessly
+        setInterval(async () => {
+          try {
+            const response = await fetch('public/api/orders/history.php', {
+              cache: 'no-store',
+              credentials: 'same-origin',
+              headers: { 'Accept': 'application/json' }
+            });
+            const result = await response.json();
+            if (response.ok && result.success && Array.isArray(result.data)) {
+              const updatedOrders = result.data.map(serverOrder => ({
+                orderNumber: serverOrder.order_number,
+                placedOn: serverOrder.placed_at
+                  ? new Date(serverOrder.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+                  : 'Recently placed',
+                status: serverOrder.status || 'Confirmed',
+                items: serverOrder.items || [],
+                totals: {
+                  totalItems: (serverOrder.items || []).reduce((sum, item) => sum + Number(item.quantity || 1), 0),
+                  subtotal: Number(serverOrder.subtotal || 0),
+                  shipping: Number(serverOrder.shipping_amount || 0),
+                  discount: Number(serverOrder.discount_amount || 0),
+                  total: Number(serverOrder.total_amount || 0)
+                },
+                customer: {
+                  firstName: serverOrder.recipient_first_name,
+                  lastName: serverOrder.recipient_last_name,
+                  email: serverOrder.guest_email,
+                  mobile: serverOrder.mobile,
+                  country: serverOrder.country,
+                  street: serverOrder.street_address,
+                  apartment: serverOrder.apartment,
+                  barangay: serverOrder.barangay,
+                  city: serverOrder.city,
+                  province: serverOrder.province,
+                  postalCode: serverOrder.postal_code,
+                  paymentMethod: serverOrder.payment_status === 'illustrative' ? 'Illustrative payment' : serverOrder.payment_status
+                }
+              }));
+              renderOrderHistory(updatedOrders);
+            }
+          } catch (e) {
+            // Background check error ignored
+          }
+        }, 15000);
       }
 
       // Save Preferences Button Feedback
