@@ -13,8 +13,11 @@ final class SessionManager
         }
 
         session_set_cookie_params([
-            'httponly' => true,
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
             'secure' => false,
+            'httponly' => true,
             'samesite' => 'Lax',
         ]);
 
@@ -25,6 +28,7 @@ final class SessionManager
     {
         self::start();
 
+        $_SESSION = [];
         session_regenerate_id(true);
         $_SESSION['user_id'] = $userId;
         $_SESSION['logged_in_at'] = time();
@@ -53,13 +57,24 @@ final class SessionManager
             setcookie(
                 session_name(),
                 '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                (bool) $params['secure'],
-                (bool) $params['httponly']
+                [
+                    'expires' => time() - 42000,
+                    'path' => $params['path'] ?: '/',
+                    'domain' => $params['domain'] ?? '',
+                    'secure' => (bool) $params['secure'],
+                    'httponly' => (bool) $params['httponly'],
+                    'samesite' => $params['samesite'] ?? 'Lax',
+                ]
             );
         }
+
+        setcookie('cc_csrf_token', '', [
+            'expires' => time() - 42000,
+            'path' => '/',
+            'secure' => false,
+            'httponly' => false,
+            'samesite' => 'Lax',
+        ]);
 
         session_destroy();
     }

@@ -231,6 +231,7 @@
       let profile = null;
       try {
         const profileResponse = await fetch('public/api/auth/me.php', {
+          cache: 'no-store',
           credentials: 'same-origin',
           headers: { 'Accept': 'application/json' }
         });
@@ -241,6 +242,7 @@
         }
         const user = profileResult.data.user;
         profile = {
+          id: user.id,
           firstName: user.first_name,
           lastName: user.last_name,
           email: user.email,
@@ -252,6 +254,22 @@
         return;
       }
 
+      // Immediately populate user profile in DOM from the authenticated user
+      const fName = profile.firstName || '—';
+      const lName = profile.lastName || '—';
+      const email = profile.email || '—';
+      const mobile = profile.mobile || '—';
+
+      document.querySelectorAll('.customer-fname').forEach(el => el.textContent = fName);
+      document.querySelectorAll('.customer-lname').forEach(el => el.textContent = lName);
+      document.querySelectorAll('.customer-email').forEach(el => el.textContent = email);
+      document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = mobile);
+
+      const fInit = (profile.firstName || '').trim().charAt(0).toUpperCase();
+      const lInit = (profile.lastName || '').trim().charAt(0).toUpperCase();
+      const initials = (fInit + lInit) || 'CC';
+      document.querySelectorAll('.customer-initials').forEach(el => el.textContent = initials);
+
       if (accountMain) {
         accountMain.hidden = false;
       }
@@ -262,12 +280,14 @@
           signOutBtn.disabled = true;
           try {
             const csrfResponse = await fetch('public/api/auth/csrf.php', {
+              cache: 'no-store',
               credentials: 'same-origin',
               headers: { Accept: 'application/json' }
             });
             const csrf = await csrfResponse.json();
             const response = await fetch('public/api/auth/logout.php', {
               method: 'POST',
+              cache: 'no-store',
               credentials: 'same-origin',
               headers: {
                 Accept: 'application/json',
@@ -277,6 +297,11 @@
             const result = await response.json();
             if (!response.ok || !result.success) {
               throw new Error(result.error?.message || 'Unable to sign out.');
+            }
+            if (typeof CCStore !== 'undefined' && typeof CCStore.clearAllUserData === 'function') {
+              CCStore.clearAllUserData();
+            } else {
+              localStorage.clear();
             }
             window.location.replace('auth.html');
           } catch (error) {
@@ -471,10 +496,11 @@
           }).join('');
         }
 
-        // Fetch Orders from Server and/or Local Store
+        // Fetch Orders from Server for the authenticated user
         let orders = [];
         try {
           const response = await fetch('public/api/orders/history.php', {
+            cache: 'no-store',
             credentials: 'same-origin',
             headers: { 'Accept': 'application/json' }
           });
@@ -514,43 +540,29 @@
           console.warn('Unable to load server order history:', error);
         }
 
-        // Merge with CCStore order history array
+        // Synchronize CCStore strictly with authenticated user's orders (never reuse or merge stale local orders from other users)
         if (typeof CCStore !== 'undefined') {
-          const localHistory = CCStore.getOrderHistory();
-          const mergedMap = new Map();
-          orders.forEach(o => {
-            if (o && o.orderNumber) mergedMap.set(o.orderNumber, o);
-          });
-          localHistory.forEach(o => {
-            if (o && o.orderNumber && !mergedMap.has(o.orderNumber)) {
-              mergedMap.set(o.orderNumber, o);
-            }
-          });
-          orders = Array.from(mergedMap.values());
           CCStore.saveOrderHistory(orders);
         }
 
-        // Populate Customer Profile Strings from latest order or profile
+        // Populate Default Address from authenticated user's latest order if available
         const latestOrder = orders.length > 0 ? orders[orders.length - 1] : null;
-        const c = latestOrder?.customer || profile || {};
-        if (profile || latestOrder) {
-          document.querySelectorAll('.customer-fname').forEach(el => el.textContent = c.firstName || '—');
-          document.querySelectorAll('.customer-lname').forEach(el => el.textContent = c.lastName || '—');
-          document.querySelectorAll('.customer-email').forEach(el => el.textContent = c.email || '—');
-          document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = c.mobile || '—');
-          
-          const fInit = (c.firstName || 'A').charAt(0).toUpperCase();
-          const lInit = (c.lastName || 'R').charAt(0).toUpperCase();
-          document.querySelectorAll('.customer-initials').forEach(el => el.textContent = fInit + lInit);
-
-          // Populate Default Address
-          const addressEl = document.getElementById('dashboard-shipping-address');
-          if (addressEl) {
+        const addressEl = document.getElementById('dashboard-shipping-address');
+        if (addressEl) {
+          const addr = latestOrder?.customer;
+          const hasAddress = addr && (addr.street || addr.city || addr.province);
+          if (hasAddress) {
             addressEl.innerHTML = `
-              ${c.street || '—'}${c.apartment ? ', ' + c.apartment : ''}<br>
-              ${c.barangay || '—'}, ${c.city || '—'}<br>
-              ${c.province || '—'} ${c.postalCode || '—'}
+              ${addr.street || '—'}${addr.apartment ? ', ' + addr.apartment : ''}<br>
+              ${[addr.barangay, addr.city].filter(Boolean).join(', ') || '—'}<br>
+              ${[addr.province, addr.postalCode].filter(Boolean).join(' ') || '—'}
             `;
+            // If the user's mobile is empty in profile but was entered on order, display it
+            if ((!profile.mobile || profile.mobile === '—') && addr.mobile) {
+              document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = addr.mobile);
+            }
+          } else {
+            addressEl.textContent = 'No saved address.';
           }
         }
 

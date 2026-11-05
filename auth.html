@@ -330,15 +330,17 @@
   <script>
     async function sendAuthRequest(url, payload) {
       const csrf = await fetch('public/api/auth/csrf.php', {
+        cache: 'no-store',
         credentials: 'same-origin',
         headers: { Accept: 'application/json' }
       }).then(response => response.json());
       const response = await fetch(url, {
         method: 'POST',
+        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
-          ,'X-CSRF-Token': csrf.data.token
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrf.data.token
         },
         credentials: 'same-origin',
         body: JSON.stringify(payload)
@@ -363,6 +365,10 @@
         button.disabled = true;
 
         try {
+          if (typeof CCStore !== 'undefined' && typeof CCStore.clearAllUserData === 'function') {
+            CCStore.clearAllUserData();
+          }
+
           await sendAuthRequest('public/api/auth/login.php', {
             email: document.getElementById('signin-email').value,
             password: document.getElementById('signin-password').value
@@ -384,6 +390,10 @@
         button.disabled = true;
 
         try {
+          if (typeof CCStore !== 'undefined' && typeof CCStore.clearAllUserData === 'function') {
+            CCStore.clearAllUserData();
+          }
+
           await sendAuthRequest('public/api/auth/register.php', {
             first_name: document.getElementById('create-fname').value,
             last_name: document.getElementById('create-lname').value,

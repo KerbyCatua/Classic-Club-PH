@@ -100,7 +100,7 @@ final class OrderRepository
                     a.mobile, a.country, a.street_address, a.apartment,
                     a.barangay, a.city, a.province, a.postal_code
                 FROM orders o
-                INNER JOIN order_addresses a ON a.order_id = o.id
+                LEFT JOIN order_addresses a ON a.order_id = o.id
                 WHERE o.order_number = :order_number
                   AND (
                       o.user_id = :user_id_match

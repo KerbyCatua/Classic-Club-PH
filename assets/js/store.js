@@ -322,6 +322,7 @@ const CCStore = (function () {
   async function apiRequest(url, options = {}) {
     if ((options.method || 'GET').toUpperCase() !== 'GET') {
       const csrf = await fetch('public/api/auth/csrf.php', {
+        cache: 'no-store',
         credentials: 'same-origin',
         headers: { Accept: 'application/json' }
       }).then(response => response.json());
@@ -331,6 +332,7 @@ const CCStore = (function () {
       };
     }
     const response = await fetch(url, {
+      cache: 'no-store',
       credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
@@ -581,6 +583,19 @@ const CCStore = (function () {
       localStorage.removeItem('cc_orders');
       localStorage.removeItem(STORAGE_KEYS.LAST_ORDER);
       window.dispatchEvent(new CustomEvent('cc:ordersUpdated', { detail: [] }));
+    },
+    clearAllUserData: function () {
+      this.clearCart();
+      this.clearOrderHistory();
+      saveWishlist([]);
+      localStorage.removeItem(STORAGE_KEYS.CART);
+      localStorage.removeItem(STORAGE_KEYS.CART_INIT);
+      localStorage.removeItem(STORAGE_KEYS.WISHLIST);
+      localStorage.removeItem(STORAGE_KEYS.PROMO);
+      localStorage.removeItem(STORAGE_KEYS.ORDERS);
+      localStorage.removeItem('cc_orders');
+      localStorage.removeItem(STORAGE_KEYS.LAST_ORDER);
+      localStorage.removeItem('cc_user_profile');
     },
     placeOrder: function (customerData) {
       const cart = getCart();
