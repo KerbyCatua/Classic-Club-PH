@@ -242,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderNewLiveCatalogCards();
       hydrateProductCards();
       hydrateProductDetail();
+      window.dispatchEvent(new CustomEvent('cc:catalogReady'));
     });
   }
 

@@ -64,9 +64,9 @@
               </div>
               <div class="d-flex flex-column gap-1">
                 <span class="text-light-cc" style="font-size: 14px;">
-                  <span class="customer-fname">â€”</span> <span class="customer-lname">â€”</span>
+                  <span class="customer-fname">—</span> <span class="customer-lname">—</span>
                 </span>
-                <span class="cc-xs-text customer-email">â€”</span>
+                <span class="cc-xs-text customer-email">—</span>
               </div>
             </div>
 
@@ -98,14 +98,14 @@
                 <div class="bg-cc-surface p-4 d-flex flex-column gap-3 h-100">
                   <span class="cc-eyebrow m-0">YOUR PROFILE</span>
                   <h2 class="font-lora text-light-cc m-0" style="font-size: 26px; line-height: 30.68px;">
-                    <span class="customer-fname">â€”</span> <span class="customer-lname">â€”</span>
+                    <span class="customer-fname">—</span> <span class="customer-lname">—</span>
                   </h2>
                   <p class="cc-small-text m-0">
-                    <span class="customer-email">â€”</span><br>
-                    <span class="customer-mobile">â€”</span>
+                    <span class="customer-email">—</span><br>
+                    <span class="customer-mobile">—</span>
                   </p>
                   <div>
-                    <a href="#" class="cc-underline-link m-0">Edit profile â†—</a>
+                    <a href="#" class="cc-underline-link m-0">Edit profile ↗</a>
                   </div>
                 </div>
               </div>
@@ -116,7 +116,7 @@
                     No saved address.
                   </p>
                   <div>
-                    <a href="#" class="cc-underline-link m-0">Manage addresses â†—</a>
+                    <a href="#" class="cc-underline-link m-0">Manage addresses ↗</a>
                   </div>
                 </div>
               </div>
@@ -143,7 +143,7 @@
                       <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">NO ORDER YET</span>
                     </div>
                     <div class="col-6 col-md-4 text-end">
-                      <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">â€”</span>
+                      <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">—</span>
                     </div>
                   </div>
                   <hr class="border-cc m-0 opacity-100">
@@ -158,15 +158,15 @@
                     <div class="col-12 col-md-6 d-flex flex-column gap-2" style="max-width: 330px;">
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="cc-small-text">Subtotal</span>
-                        <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">â€”</span>
+                        <span class="cc-small-text text-light-cc" id="dashboard-subtotal-val">—</span>
                       </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="cc-small-text">Shipping</span>
-                        <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">â€”</span>
+                        <span class="cc-small-text text-light-cc" id="dashboard-shipping-val">—</span>
                       </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="cc-small-text">Total · tax included</span>
-                        <span class="cc-small-text text-light-cc" id="dashboard-final-val">â€”</span>
+                        <span class="cc-small-text text-light-cc" id="dashboard-final-val">—</span>
                       </div>
                     </div>
                   </div>
@@ -188,7 +188,7 @@
               
               <label class="d-flex align-items-center gap-3 m-0" style="cursor: pointer;">
                 <input type="checkbox" class="d-none cc-custom-check" checked>
-                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">âœ“</span>
+                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
                 <span class="cc-xs-text">Receive the Club Letter for new collections and editorial stories.</span>
               </label>
 
@@ -220,9 +220,9 @@
 
   <!-- Project Scripts -->
    <script src="assets/js/global-loader.js"></script>
-  <script src="assets/js/store.js?v=20261107-8"></script>
+  <script src="assets/js/store.js?v=20261107-10"></script>
   <script src="assets/js/partials.js?v=20261103"></script>
-  <script src="assets/js/main.js?v=20261107-8"></script>
+  <script src="assets/js/main.js?v=20261107-10"></script>
 
   <!-- Dashboard Initialization Script -->
   <script>
@@ -256,10 +256,10 @@
       }
 
       // Immediately populate user profile in DOM from the authenticated user
-      const fName = profile.firstName || 'â€”';
-      const lName = profile.lastName || 'â€”';
-      const email = profile.email || 'â€”';
-      const mobile = profile.mobile || 'â€”';
+      const fName = profile.firstName || '—';
+      const lName = profile.lastName || '—';
+      const email = profile.email || '—';
+      const mobile = profile.mobile || '—';
 
       document.querySelectorAll('.customer-fname').forEach(el => el.textContent = fName);
       document.querySelectorAll('.customer-lname').forEach(el => el.textContent = lName);
@@ -321,7 +321,7 @@
           if (input.checked) {
             box.style.background = 'var(--cc-accent)';
             box.style.borderColor = 'var(--cc-accent)';
-            box.textContent = 'âœ“';
+            box.textContent = '✓';
           } else {
             box.style.background = 'var(--cc-bg)';
             box.style.borderColor = 'var(--cc-border)';
@@ -362,7 +362,7 @@
                     <span class="cc-eyebrow-teal m-0" id="dashboard-order-status">NO ORDER YET</span>
                   </div>
                   <div class="col-6 col-md-4 text-end">
-                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">â€”</span>
+                    <span class="text-light-cc" id="dashboard-order-total" style="font-size: 18px; line-height: 29.7px;">—</span>
                   </div>
                 </div>
                 <hr class="border-cc m-0 opacity-100">
@@ -498,7 +498,7 @@
                     ${discount > 0 ? `
                     <div class="d-flex justify-content-between align-items-center">
                       <span class="cc-small-text">Discount</span>
-                      <span class="cc-small-text text-light-cc">âˆ’${CCStore.formatPHP(discount)}</span>
+                      <span class="cc-small-text text-light-cc">−${CCStore.formatPHP(discount)}</span>
                     </div>
                     ` : ''}
                     <div class="d-flex justify-content-between align-items-center">
@@ -524,7 +524,7 @@
                       <i class="bi bi-box-seam"></i>
                     </button>
                   ` : ""}
-                  <a href="contact.html" class="cc-underline-link">Get help with this order â†—</a>
+                  <a href="contact.html" class="cc-underline-link">Get help with this order ↗</a>
                 </div>
 
               </div>
@@ -589,12 +589,12 @@
           const hasAddress = addr && (addr.street || addr.city || addr.province);
           if (hasAddress) {
             addressEl.innerHTML = `
-              ${addr.street || 'â€”'}${addr.apartment ? ', ' + addr.apartment : ''}<br>
-              ${[addr.barangay, addr.city].filter(Boolean).join(', ') || 'â€”'}<br>
-              ${[addr.province, addr.postalCode].filter(Boolean).join(' ') || 'â€”'}
+              ${addr.street || '—'}${addr.apartment ? ', ' + addr.apartment : ''}<br>
+              ${[addr.barangay, addr.city].filter(Boolean).join(', ') || '—'}<br>
+              ${[addr.province, addr.postalCode].filter(Boolean).join(' ') || '—'}
             `;
             // If the user's mobile is empty in profile but was entered on order, display it
-            if ((!profile.mobile || profile.mobile === 'â€”') && addr.mobile) {
+            if ((!profile.mobile || profile.mobile === '—') && addr.mobile) {
               document.querySelectorAll('.customer-mobile').forEach(el => el.textContent = addr.mobile);
             }
           } else {

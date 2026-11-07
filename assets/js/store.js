@@ -14,6 +14,8 @@ const CCStore = (function () {
 
   const SHIPPING_FEE = 180;
   let liveCatalogItems = [];
+  let catalogPromise = null;
+  let catalogLoaded = false;
 
   // Product records are loaded from the database catalog API.
   const PRODUCTS = Object.create(null);
@@ -178,26 +180,66 @@ const CCStore = (function () {
       const product = this.getProductById(productId);
       return product ? product.srcImage || '' : '';
     },
-    syncCatalogFromApi: async function () {
-      try {
-        const res = await fetch('public/api/catalog/products.php?per_page=50', {
-          cache: 'no-store',
-          headers: { 'Accept': 'application/json' }
-        });
-        const json = await res.json();
-        if (json.success && json.data && Array.isArray(json.data.items)) {
-          liveCatalogItems = json.data.items;
-          Object.keys(PRODUCTS).forEach(key => delete PRODUCTS[key]);
-          liveCatalogItems.forEach(p => {
-            const key = p.catalog_key || `catalog-${p.id}-${p.variant_id}`;
-            PRODUCTS[key] = catalogItemToProduct(p);
+        // Cart items persisted before images were stored can be backfilled from
+        // the live catalog once it is available.
+        resolveCartImage: function (item) {
+          if (!item) return '';
+          if (item.image) return item.image;
+          const product = this.getProductById(item.id);
+          if (product && product.srcImage) {
+            item.image = product.srcImage;
+            return product.srcImage;
+          }
+          return '';
+        },
+        hydrateCartImages: function () {
+          const cart = getCart();
+          let changed = false;
+          cart.forEach(item => {
+            if (!item.image) {
+              const image = this.getProductImage(item.id);
+              if (image) {
+                item.image = image;
+                changed = true;
+              }
+            }
           });
-          return liveCatalogItems;
+          if (changed) saveCart(cart);
+          return cart;
+        },
+    syncCatalogFromApi: function () {
+      if (catalogLoaded) return Promise.resolve(liveCatalogItems);
+      if (catalogPromise) return catalogPromise;
+      catalogPromise = (async () => {
+        try {
+          const res = await fetch('public/api/catalog/products.php?per_page=50', {
+            cache: 'no-store',
+            headers: { 'Accept': 'application/json' }
+          });
+          const json = await res.json();
+          if (json.success && json.data && Array.isArray(json.data.items)) {
+            liveCatalogItems = json.data.items;
+            Object.keys(PRODUCTS).forEach(key => delete PRODUCTS[key]);
+            liveCatalogItems.forEach(p => {
+              const key = p.catalog_key || `catalog-${p.id}-${p.variant_id}`;
+              PRODUCTS[key] = catalogItemToProduct(p);
+            });
+            catalogLoaded = true;
+            return liveCatalogItems;
+          }
+        } catch (e) {
+          console.warn('Could not sync live catalog:', e);
         }
-      } catch (e) {
-        console.warn('Could not sync live catalog:', e);
-      }
-      return null;
+        catalogPromise = null;
+        return null;
+      })();
+      return catalogPromise;
+    },
+    isCatalogLoaded: function () {
+      return catalogLoaded;
+    },
+    whenCatalogReady: function () {
+      return catalogLoaded ? Promise.resolve(liveCatalogItems) : this.syncCatalogFromApi();
     },
     isProductAvailable: function (productId) {
       if (!liveCatalogItems.length) return true;
@@ -238,18 +280,22 @@ const CCStore = (function () {
         c => c.id === item.id && c.color === color && c.size === size
       );
 
-      if (existing) {
-        existing.quantity += Number(item.quantity || 1);
-      } else {
-        cart.push({
-          id: item.id,
-          name: item.name,
-          color: color,
-          size: size,
-          price: Number(item.price),
-          quantity: Number(item.quantity || 1)
-        });
-      }
+      const image = item.image || this.getProductImage(item.id) || '';
+
+            if (existing) {
+              existing.quantity += Number(item.quantity || 1);
+              if (image) existing.image = image;
+            } else {
+              cart.push({
+                id: item.id,
+                name: item.name,
+                color: color,
+                size: size,
+                price: Number(item.price),
+                quantity: Number(item.quantity || 1),
+                image: image
+              });
+            }
       saveCart(cart);
       apiRequest('public/api/cart/add.php', {
         method: 'POST',

@@ -55,7 +55,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
           <span class="cc-eyebrow-teal" id="wishlist-count-label">0 SAVED PIECES / ALL AVAILABLE</span>
           <div class="d-flex align-items-center gap-4">
-            <a href="shop-all.html" class="cc-underline-link m-0">Continue shopping â†—</a>
+            <a href="shop-all.html" class="cc-underline-link m-0">Continue shopping ↗</a>
             <span class="cc-xs-text text-muted-cc m-0 d-none d-sm-block">Sort: Recently saved ⌄</span>
           </div>
         </div>
@@ -122,13 +122,13 @@
 
   <!-- Project Scripts -->
    <script src="assets/js/global-loader.js"></script>
-  <script src="assets/js/store.js?v=20261107-8"></script>
+  <script src="assets/js/store.js?v=20261107-10"></script>
   <script src="assets/js/partials.js?v=20261103"></script>
-  <script src="assets/js/main.js?v=20261107-8"></script>
+  <script src="assets/js/main.js?v=20261107-10"></script>
 
   <!-- Wishlist Hydration & Interactive Logic -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       if (typeof CCStore === 'undefined') return;
 
       const wishlistGrid = document.getElementById('wishlist-grid');
@@ -261,6 +261,13 @@
       // Initial Render & Re-render on updates
       renderWishlist();
       window.addEventListener('cc:wishlistUpdated', renderWishlist);
+      // The catalog is fetched asynchronously; wait for it so cards render
+      // with their images instead of being skipped as unknown products.
+      if (typeof CCStore.whenCatalogReady === 'function') {
+        await CCStore.whenCatalogReady();
+      }
+      renderWishlist();
+      window.addEventListener('cc:catalogReady', renderWishlist);
 
       // Update Size Display Note when dropdown changes
       wishlistGrid.addEventListener('change', (e) => {

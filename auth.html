@@ -21,7 +21,7 @@
     <div id="auth-gate-notice" class="cc-section-px pt-4" hidden>
       <div class="d-flex align-items-center justify-content-between gap-3 px-3 py-3" role="status" style="background: #112B2E; border-left: 2px solid var(--cc-accent);">
         <p id="auth-gate-notice-text" class="mb-0 text-light-cc" style="font-size: 14px;">Login or Signup First</p>
-        <button type="button" id="auth-gate-dismiss" class="btn p-0 border-0 text-muted-cc" aria-label="Dismiss notice" style="font-size: 20px; line-height: 1;">Ã—</button>
+        <button type="button" id="auth-gate-dismiss" class="btn p-0 border-0 text-muted-cc" aria-label="Dismiss notice" style="font-size: 20px; line-height: 1;">×</button>
       </div>
     </div>
 
@@ -115,7 +115,7 @@
                 Forgotten your password? Use the reset link to request an email. Check your spam folder before requesting another.
               </p>
               <div>
-                <a href="#" class="cc-underline-link">Request a password reset â†—</a>
+                <a href="#" class="cc-underline-link">Request a password reset ↗</a>
               </div>
               <p class="cc-eyebrow text-transform-none m-0 pt-2" style="text-transform: none; line-height: 18.15px;">
                 For your privacy, do not share your password or verification emails with anyone.
@@ -262,9 +262,9 @@
 
   <!-- Project Scripts -->
    <script src="assets/js/global-loader.js"></script>
-  <script src="assets/js/store.js?v=20261107-8"></script>
+  <script src="assets/js/store.js?v=20261107-10"></script>
   <script src="assets/js/partials.js?v=20261103"></script>
-  <script src="assets/js/main.js?v=20261107-8"></script>
+  <script src="assets/js/main.js?v=20261107-10"></script>
 
   <!-- Micro-interactions Script -->
   <script>
@@ -298,7 +298,7 @@
         if (input.checked) {
           box.style.background = 'var(--cc-accent)';
           box.style.borderColor = 'var(--cc-accent)';
-          box.textContent = 'âœ“';
+          box.textContent = '✓';
         }
 
         // Change event
@@ -306,7 +306,7 @@
           if (input.checked) {
             box.style.background = 'var(--cc-accent)';
             box.style.borderColor = 'var(--cc-accent)';
-            box.textContent = 'âœ“';
+            box.textContent = '✓';
           } else {
             box.style.background = 'var(--cc-bg)';
             box.style.borderColor = 'var(--cc-border)';
