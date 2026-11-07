@@ -20,16 +20,23 @@ $request = new Request();
 if ($request->method() !== 'POST') {
     JsonResponse::error('Method not allowed.', 405)->send();
 }
-\ClassicClub\Middleware\CsrfMiddleware::require();
+
+try {
+    \ClassicClub\Middleware\CsrfMiddleware::require();
+} catch (\Throwable) {
+    // If CSRF token is expired or missing, still destroy session to ensure user is logged out
+}
 
 $userId = SessionManager::userId();
 
-(new AuditLogger($pdo))->record(
-    'auth.logout',
-    $userId,
-    'user',
-    $userId
-);
+if ($userId !== null) {
+    (new AuditLogger($pdo))->record(
+        'auth.logout',
+        $userId,
+        'user',
+        $userId
+    );
+}
 
 SessionManager::logout();
 

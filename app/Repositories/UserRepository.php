@@ -93,6 +93,22 @@ final class UserRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    public function getRoles(int $userId): array
+    {
+        $statement = $this->pdo->prepare(
+            <<<'SQL'
+                SELECT r.id, r.name, r.display_name
+                FROM roles r
+                INNER JOIN user_roles ur ON ur.role_id = r.id
+                WHERE ur.user_id = :user_id
+            SQL
+        );
+
+        $statement->execute(['user_id' => $userId]);
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
     public function updateLastLogin(int $userId): void
     {
         $statement = $this->pdo->prepare(

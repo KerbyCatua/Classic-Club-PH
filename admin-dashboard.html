@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Club PH | Admin / Business Owner Dashboard</title>
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Global & Admin Stylesheets -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/scroll-reveal.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body id="top" class="bg-cc-dark">
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2000;">
+    <div id="adminToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div id="adminToastBody" class="toast-body">Action successful.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay (No d-flex class to prevent Bootstrap !important display conflict) -->
+  <div id="adminLoadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-cc-dark" style="z-index: 3000; display: flex; align-items: center; justify-content: center;">
+    <div class="text-center">
+      <div class="spinner-border text-accent mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+      <div class="cc-eyebrow text-muted-cc">VERIFYING BUSINESS CREDENTIALS...</div>
+    </div>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  <div class="admin-announcement d-flex align-items-center justify-content-center px-3 text-center">
+    <span>CONSIDERED ESSENTIALS. DELIVERED ACROSS THE PHILIPPINES.</span>
+  </div>
+
+  <!-- Header Section -->
+  <header class="admin-header px-4 px-lg-5 py-4 d-flex justify-content-between align-items-center">
+    <div class="d-flex flex-column gap-1">
+      <a href="admin-dashboard.html" class="text-decoration-none">
+        <div class="text-light-cc font-sans fw-semibold" style="font-size: 20px; letter-spacing: 3px;">CLASSIC CLUB PH</div>
+      </a>
+      <div class="text-muted-cc font-sans" style="font-size: 9px; letter-spacing: 4px;">PHILIPPINES · EVERYDAY, REFINED</div>
+    </div>
+    
+    <div class="d-none d-md-flex align-items-center gap-4">
+      <span class="text-light-cc" style="font-size: 13px;">Business workspace</span>
+      <a href="index.html" target="_blank" class="text-muted-cc text-decoration-none" style="font-size: 13px;">
+        View storefront <i class="bi bi-box-arrow-up-right ms-1"></i>
+      </a>
+    </div>
+
+    <!-- Admin Account Menu -->
+    <div class="dropdown">
+      <button class="btn btn-sm btn-admin-outline dropdown-toggle py-2 px-3 text-light-cc d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="badge bg-secondary rounded-circle p-1 px-2" id="adminUserInitials">MS</span>
+        <span id="adminUserName">Mara Santos</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end bg-cc-surface border-cc shadow">
+        <li><h6 class="dropdown-header text-muted-cc" id="adminUserRoleLabel">Assigned: Business Owner</h6></li>
+        <li><a class="dropdown-item text-light-cc" href="#module-settings"><i class="bi bi-person me-2"></i>Account settings</a></li>
+        <li><a class="dropdown-item text-light-cc" href="#module-logs"><i class="bi bi-clock-history me-2"></i>Activity logs</a></li>
+        <li><hr class="dropdown-divider border-cc"></li>
+        <li><button class="dropdown-item text-danger" id="adminLogoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Logout</button></li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="adminMainContent" class="admin-container" hidden>
+
+    <!-- Hero Section / Context Header -->
+    <section class="px-4 px-lg-5 pt-4 pb-5">
+      <div class="text-muted-cc cc-eyebrow mb-2">Home / Administration / Classic Club PH</div>
+      <div class="text-muted-cc cc-eyebrow mb-4">20 / ADMIN / BUSINESS OWNER</div>
+
+      <div class="row align-items-end g-4 mb-4">
+        <div class="col-12 col-lg-8">
+          <h1 class="admin-section-title display-4 m-0">Your business,<br>in clear view.</h1>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="d-flex flex-column gap-2">
+            <span class="cc-eyebrow text-accent">ASSIGNED BUSINESS · CLASSIC CLUB PH</span>
+            <p class="admin-section-desc mb-1">Products, stock, sales and people. Manage only the business assigned to your account.</p>
+            <small class="text-muted-cc" style="font-size: 11px;">
+              Live data snapshot: <span id="snapshotTimestamp">November 2026</span>. Business-scoped permissions enforced.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Context Pills -->
+      <div class="d-flex flex-wrap gap-3">
+        <div class="admin-card py-2 px-3 flex-row align-items-center gap-2">
+          <span class="text-muted-cc" style="font-size: 12px;">Business:</span>
+          <span class="text-light-cc fw-medium" style="font-size: 13px;" id="heroBusinessName">Classic Club PH</span>
+        </div>
+        <div class="admin-card py-2 px-3 flex-row align-items-center gap-2">
+          <span class="text-muted-cc" style="font-size: 12px;">Access:</span>
+          <span class="text-light-cc fw-medium" style="font-size: 13px;" id="heroAccessLabel">Business Owner / Administrator</span>
+        </div>
+        <div class="admin-card py-2 px-3 flex-row align-items-center gap-2">
+          <span class="text-muted-cc" style="font-size: 12px;">Isolation:</span>
+          <span class="badge admin-badge-active">Business-Scoped Data</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workspace Directory Navigation Grid (9 Modules) -->
+    <nav class="px-4 px-lg-5 py-4 bg-cc-surface border-top border-bottom border-cc" id="module-directory">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="cc-eyebrow text-muted-cc">WORKSPACE DIRECTORY</span>
+        <span class="text-muted-cc" style="font-size: 12px;">Select a module to navigate</span>
+      </div>
+      <div class="row g-2 g-md-3">
+        <div class="col-12 col-md-4">
+          <a href="#module-overview" class="admin-module-link active" data-module="module-overview">
+            <span>01 / Dashboard overview</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-products" class="admin-module-link" data-module="module-products">
+            <span>02 / Product management</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-inventory" class="admin-module-link" data-module="module-inventory">
+            <span>03 / Inventory & stock</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-sales" class="admin-module-link" data-module="module-sales">
+            <span>04 / Sales & analytics</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-reviews" class="admin-module-link" data-module="module-reviews">
+            <span>05 / Reviews & feedback</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-notifications" class="admin-module-link" data-module="module-notifications">
+            <span>06 / Business notifications</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-staff" class="admin-module-link" data-module="module-staff">
+            <span>07 / Business staff</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-logs" class="admin-module-link" data-module="module-logs">
+            <span>08 / Business activity logs</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+        <div class="col-12 col-md-4">
+          <a href="#module-settings" class="admin-module-link" data-module="module-settings">
+            <span>09 / Business account settings</span> <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- SECTION 20.1: DASHBOARD OVERVIEW -->
+    <section id="module-overview" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.1 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Dashboard overview</h2>
+      <p class="admin-section-desc mb-4">
+        Classic Club PH only · Real-time inventory and sales snapshot. Revenue is merchandise sales, tax included; shipping excluded.
+      </p>
+
+      <!-- KPI Summary Cards: 6 Key Metrics -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4 col-xl-2">
+          <div class="admin-card h-100">
+            <span class="admin-card-label">Total products</span>
+            <div class="admin-card-stat" id="statTotalProducts">6</div>
+            <span class="admin-card-sub" id="statProductsSub">5 active · 1 inactive</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-2">
+          <div class="admin-card h-100">
+            <span class="admin-card-label">Total available stock</span>
+            <div class="admin-card-stat" id="statAvailableStock">140</div>
+            <span class="admin-card-sub" id="statPhysicalStockSub">Purchasable units</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-2">
+          <div class="admin-card h-100">
+            <span class="admin-card-label">Total products sold</span>
+            <div class="admin-card-stat" id="statProductsSold">240</div>
+            <span class="admin-card-sub">Completed sales</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-2">
+          <div class="admin-card h-100">
+            <span class="admin-card-label">Total revenue</span>
+            <div class="admin-card-stat" id="statTotalRevenue">₱647,800</div>
+            <span class="admin-card-sub text-muted-cc" id="statRevenueChange">â€”</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-2">
+          <div class="admin-card h-100">
+            <span class="admin-card-label">Low-stock products</span>
+            <div class="admin-card-stat text-warning" id="statLowStock">1</div>
+            <span class="admin-card-sub" id="statLowStockSub">At or below threshold</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-2">
+          <div class="admin-card h-100">
+            <span class="admin-card-label">Out-of-stock products</span>
+            <div class="admin-card-stat text-danger" id="statOutStock">1</div>
+            <span class="admin-card-sub" id="statOutStockSub">Requires restocking</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Performance Chart & Selling Patterns -->
+      <div class="row g-4 mb-4">
+        <!-- Weekly Sales Performance -->
+        <div class="col-12 col-lg-8">
+          <div class="admin-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 class="font-lora text-light-cc mb-0" style="font-size: 20px;">Sales performance summary</h3>
+              <span class="text-muted-cc" style="font-size: 12px;">Last four sales weeks (PHP)</span>
+            </div>
+            
+            <!-- Visual Bar Chart -->
+            <div class="d-flex flex-column gap-3 py-3" id="salesBarChartContainer">
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted-cc" style="width: 100px; font-size: 12px;">01â€“07 Oct</span>
+                <div class="flex-grow-1 bg-cc-bg" style="height: 28px; border: 1px solid var(--cc-border);">
+                  <div class="bg-accent h-100" style="width: 51%;"></div>
+                </div>
+                <span class="text-light-cc fw-medium" style="width: 90px; font-size: 12px; text-align: right;">₱112,490</span>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted-cc" style="width: 100px; font-size: 12px;">08â€“14 Oct</span>
+                <div class="flex-grow-1 bg-cc-bg" style="height: 28px; border: 1px solid var(--cc-border);">
+                  <div class="bg-accent h-100" style="width: 66%;"></div>
+                </div>
+                <span class="text-light-cc fw-medium" style="width: 90px; font-size: 12px; text-align: right;">₱145,170</span>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted-cc" style="width: 100px; font-size: 12px;">15â€“21 Oct</span>
+                <div class="flex-grow-1 bg-cc-bg" style="height: 28px; border: 1px solid var(--cc-border);">
+                  <div class="bg-accent h-100" style="width: 77%;"></div>
+                </div>
+                <span class="text-light-cc fw-medium" style="width: 90px; font-size: 12px; text-align: right;">₱169,280</span>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted-cc" style="width: 100px; font-size: 12px;">22â€“31 Oct</span>
+                <div class="flex-grow-1 bg-cc-bg" style="height: 28px; border: 1px solid var(--cc-border);">
+                  <div class="bg-accent h-100" style="width: 100%;"></div>
+                </div>
+                <span class="text-light-cc fw-medium" style="width: 90px; font-size: 12px; text-align: right;">₱220,860</span>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between text-muted-cc pt-2 border-top border-cc" style="font-size: 11px;">
+              <span id="salesChartTotal">Total merchandise sales: â€”</span>
+              <span id="salesChartUnits">â€” units sold · completed orders</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selling Patterns Summary -->
+        <div class="col-12 col-lg-4">
+          <div class="admin-card h-100">
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Selling patterns</h3>
+            
+            <div class="d-flex flex-column gap-3">
+              <div>
+                <span class="text-accent cc-eyebrow d-block mb-1">BEST PERFORMERS</span>
+                <div class="d-flex flex-column gap-1" id="bestSellersList">
+                  <div class="text-muted-cc" style="font-size: 12px;">No sales recorded.</div>
+                </div>
+              </div>
+
+              <div class="border-top border-cc pt-2">
+                <span class="text-muted-cc cc-eyebrow d-block mb-1">LEAST PERFORMING</span>
+                <div class="d-flex flex-column gap-1" id="leastSellersList">
+                  <div class="text-muted-cc" style="font-size: 12px;">No sales recorded.</div>
+                </div>
+              </div>
+
+              <div class="admin-callout mt-2">
+                <span class="text-accent fw-medium d-block" style="font-size: 12px;">ACTION REQUIRED</span>
+                <span class="text-light-cc" style="font-size: 12px;" id="overviewActionRequired">Checking inventory thresholdsâ€¦</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Tri-Panel: Recent Activities, Reviews, Notifications -->
+      <div class="row g-4">
+        <!-- Recent Inventory Activities -->
+        <div class="col-12 col-md-4">
+          <div class="admin-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="font-lora text-light-cc mb-0" style="font-size: 18px;">Recent inventory</h4>
+              <a href="#module-inventory" class="text-accent cc-underline-link" style="font-size: 12px;">View all</a>
+            </div>
+            <div class="d-flex flex-column gap-3" id="overviewRecentActivities">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Customer Reviews -->
+        <div class="col-12 col-md-4">
+          <div class="admin-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="font-lora text-light-cc mb-0" style="font-size: 18px;">Recent reviews</h4>
+              <a href="#module-reviews" class="text-accent cc-underline-link" style="font-size: 12px;">Moderate</a>
+            </div>
+            <div class="d-flex flex-column gap-3" id="overviewRecentReviews">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Important Business Notifications -->
+        <div class="col-12 col-md-4">
+          <div class="admin-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="font-lora text-light-cc mb-0" style="font-size: 18px;">Business notifications</h4>
+              <a href="#module-notifications" class="text-accent cc-underline-link" style="font-size: 12px;">Inbox</a>
+            </div>
+            <div class="d-flex flex-column gap-3" id="overviewRecentNotifications">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 20.2: PRODUCT MANAGEMENT -->
+    <section id="module-products" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.2 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Product management</h2>
+      <p class="admin-section-desc mb-4">
+        All assigned-business products. Names, descriptions, pricing, inventory thresholds and catalog availability remain strictly within Classic Club PH.
+      </p>
+
+      <!-- Filter Bar & Actions -->
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-wrap gap-2 flex-grow-1">
+          <input type="text" id="prodSearchInput" class="admin-input-filter" placeholder="Search product or SKU..." style="min-width: 200px;">
+          <select id="prodCategoryFilter" class="admin-select-filter">
+            <option value="">Category: All</option>
+            <option value="Tops & tees">Tops & tees</option>
+            <option value="Outerwear & hoodies">Outerwear & hoodies</option>
+            <option value="Bottoms & accessories">Bottoms & accessories</option>
+          </select>
+          <select id="prodAvailabilityFilter" class="admin-select-filter">
+            <option value="">Availability: All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="low_stock">Low stock</option>
+            <option value="out_of_stock">Out of stock</option>
+          </select>
+          <select id="prodSortFilter" class="admin-select-filter">
+            <option value="">Sort: Default</option>
+            <option value="name_asc">Name (A-Z)</option>
+            <option value="name_desc">Name (Z-A)</option>
+            <option value="price_asc">Price (Low to High)</option>
+            <option value="price_desc">Price (High to Low)</option>
+            <option value="stock_asc">Stock (Low to High)</option>
+            <option value="stock_desc">Stock (High to Low)</option>
+          </select>
+        </div>
+
+        <button class="btn-admin-primary" id="btnAddProduct" data-bs-toggle="modal" data-bs-target="#modalAddProduct">
+          <i class="bi bi-plus-lg"></i> Add new product
+        </button>
+      </div>
+
+      <!-- Products Table -->
+      <div class="admin-table-container mb-4">
+        <table class="admin-table" id="productsTable">
+          <thead>
+            <tr>
+              <th>Product / SKU</th>
+              <th>Category</th>
+              <th>Price (PHP)</th>
+              <th>Stock</th>
+              <th>Availability</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.3: INVENTORY & STOCK MANAGEMENT -->
+    <section id="module-inventory" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.3 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Inventory & stock management</h2>
+      <p class="admin-section-desc mb-4">
+        Track physical and purchasable units, configure minimum safety thresholds, and execute attributable stock adjustments with negative-stock prevention.
+      </p>
+
+      <!-- Inventory Metrics -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-3">
+          <div class="admin-card">
+            <span class="admin-card-label">Physical stock</span>
+            <div class="admin-card-stat" id="invPhysicalStock">180</div>
+            <span class="admin-card-sub">All warehouse units</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-3">
+          <div class="admin-card">
+            <span class="admin-card-label">Available for purchase</span>
+            <div class="admin-card-stat" id="invAvailableStock">140</div>
+            <span class="admin-card-sub">Active products only</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-3">
+          <div class="admin-card">
+            <span class="admin-card-label">Low-stock products</span>
+            <div class="admin-card-stat text-warning" id="invLowStock">1</div>
+            <span class="admin-card-sub">Units â‰¤ Threshold</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-3">
+          <div class="admin-card">
+            <span class="admin-card-label">Out-of-stock products</span>
+            <div class="admin-card-stat text-danger" id="invOutStock">1</div>
+            <span class="admin-card-sub">0 units available</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="admin-table-container mb-5">
+        <table class="admin-table" id="inventoryTable">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Current units</th>
+              <th>Minimum units</th>
+              <th>Stock state</th>
+              <th>Availability</th>
+              <th class="text-end">Manage</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Stock Movement History -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Stock movement history</h3>
+        <div class="d-flex gap-2">
+          <input type="text" id="movementSearchInput" class="admin-input-filter" placeholder="Filter movements...">
+          <select id="movementTypeFilter" class="admin-select-filter">
+            <option value="">All movement types</option>
+            <option value="restock">Restock</option>
+            <option value="adjustment">Manual adjustment</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-container">
+        <table class="admin-table" id="movementsTable">
+          <thead>
+            <tr>
+              <th>Date / Time</th>
+              <th>Product</th>
+              <th>Stock Transition</th>
+              <th>Reason</th>
+              <th>Administrator</th>
+            </tr>
+          </thead>
+          <tbody id="movementsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.4: SALES REPORTS & BUSINESS ANALYTICS -->
+    <section id="module-sales" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.4 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Sales reports & business analytics</h2>
+      <p class="admin-section-desc mb-4">
+        Merchandise revenue · PHP · Taxes included, shipping excluded · Classic Club PH only. Analyze performance, revenue share, and stock turnover.
+      </p>
+
+      <!-- Period Filter & Export Bar -->
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-sm btn-admin-primary report-period-btn active" data-period="monthly">Monthly</button>
+          <button class="btn btn-sm btn-admin-outline report-period-btn" data-period="weekly">Weekly</button>
+          <button class="btn btn-sm btn-admin-outline report-period-btn" data-period="daily">Daily</button>
+          <button class="btn btn-sm btn-admin-outline report-period-btn" data-period="yearly">Yearly</button>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="public/api/admin/reports.php?format=csv" class="btn btn-sm btn-admin-outline" id="exportCsvBtn">
+            <i class="bi bi-download me-1"></i> Export CSV
+          </a>
+          <button class="btn btn-sm btn-admin-outline" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Print / PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Sales Summary Table (Daily / Weekly / Monthly / Yearly) -->
+      <div class="admin-table-container mb-5">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Report view</th>
+              <th>Period</th>
+              <th>Revenue (PHP)</th>
+              <th>Units</th>
+              <th>Context</th>
+            </tr>
+          </thead>
+          <tbody id="salesSummaryTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Detailed Product Sales & Turnover Report -->
+      <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Product sales performance & turnover</h3>
+      <div class="admin-table-container mb-5">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Product / SKU</th>
+              <th>Unit Price</th>
+              <th>Sold</th>
+              <th>Revenue</th>
+              <th>Revenue Share</th>
+              <th>Turnover Rate</th>
+            </tr>
+          </thead>
+          <tbody id="detailedProductSalesBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Period Reconciliation -->
+      <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Period reconciliation by category</h3>
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Tops &amp; tees</th>
+              <th>Outerwear &amp; hoodies</th>
+              <th>Bottoms &amp; accessories</th>
+              <th>Total Units</th>
+              <th>Revenue (PHP)</th>
+            </tr>
+          </thead>
+          <tbody id="reconciliationTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.5: CUSTOMER REVIEWS & FEEDBACK -->
+    <section id="module-reviews" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.5 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Customer reviews & feedback</h2>
+      <p class="admin-section-desc mb-4">
+        Review feedback for Classic Club PH products. Publish official business responses or flag abusive content for moderation. Reviews cannot be permanently deleted by business admins.
+      </p>
+
+      <!-- Review KPI Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+          <div class="admin-card">
+            <span class="admin-card-label">Highest rated</span>
+            <div class="admin-card-stat text-accent" id="revHighestRated">â€”</div>
+            <span class="admin-card-sub" id="revHighestProduct">No reviews yet</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="admin-card">
+            <span class="admin-card-label">Lowest rated</span>
+            <div class="admin-card-stat text-warning" id="revLowestRated">â€”</div>
+            <span class="admin-card-sub" id="revLowestProduct">No reviews yet</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="admin-card">
+            <span class="admin-card-label">Foundational product rating</span>
+            <div class="admin-card-stat" id="revTeeRating">â€”</div>
+            <span class="admin-card-sub" id="revTeeProduct">Essential Heavyweight Tee</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <input type="text" id="reviewSearchInput" class="admin-input-filter" placeholder="Search feedback or reviewer...">
+        <select id="reviewRatingFilter" class="admin-select-filter">
+          <option value="">Rating: All</option>
+          <option value="5">5 stars</option>
+          <option value="4">4 stars</option>
+          <option value="3">3 stars</option>
+          <option value="2">2 stars</option>
+          <option value="1">1 star</option>
+        </select>
+      </div>
+
+      <!-- Reviews Table -->
+      <div class="admin-table-container">
+        <table class="admin-table" id="reviewsTable">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Product</th>
+              <th>Rating</th>
+              <th>Comment & Business Reply</th>
+              <th>Date</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.6: BUSINESS NOTIFICATIONS & ALERTS -->
+    <section id="module-notifications" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.6 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Business notifications & alerts</h2>
+      <p class="admin-section-desc mb-4">
+        Real-time alerts for low stock, restocks, sales milestones, new customer feedback, and sensitive operations.
+      </p>
+
+      <!-- Notification Filter & Bulk Actions -->
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-wrap gap-2">
+          <select id="notifStatusFilter" class="admin-select-filter">
+            <option value="">Status: All</option>
+            <option value="unread">Unread only</option>
+            <option value="read">Read only</option>
+          </select>
+          <select id="notifTypeFilter" class="admin-select-filter">
+            <option value="">Type: All</option>
+            <option value="low_stock">Low stock</option>
+            <option value="out_of_stock">Out of stock</option>
+            <option value="restock">Restock</option>
+            <option value="new_review">New review</option>
+            <option value="milestone">Sales milestone</option>
+            <option value="declining_sales">Declining sales</option>
+            <option value="unusual_change">Unusual stock change</option>
+            <option value="activity">Activity</option>
+          </select>
+        </div>
+        <button class="btn-admin-outline" id="markAllNotifsBtn">
+          <i class="bi bi-check2-all me-1"></i> Mark all as read
+        </button>
+      </div>
+
+      <!-- Notifications Table -->
+      <div class="admin-table-container">
+        <table class="admin-table" id="notificationsTable">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Type / Title</th>
+              <th>Details</th>
+              <th>Timestamp</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody id="notificationsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.7: BUSINESS STAFF MANAGEMENT -->
+    <section id="module-staff" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.7 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Business staff management</h2>
+      <p class="admin-section-desc mb-4">
+        Authorized staff for Classic Club PH only. Assign permissions for inventory, products, reports, or reviews. Global role administration is strictly prohibited here.
+      </p>
+
+      <!-- Staff Actions -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="staffSearchInput" class="admin-input-filter" placeholder="Search staff name or email...">
+        <button class="btn-admin-primary" id="btnInviteStaff" data-bs-toggle="modal" data-bs-target="#modalInviteStaff">
+          <i class="bi bi-person-plus me-1"></i> Invite / add business staff
+        </button>
+      </div>
+
+      <!-- Staff Table -->
+      <div class="admin-table-container mb-5">
+        <table class="admin-table" id="staffTable">
+          <thead>
+            <tr>
+              <th>Staff account</th>
+              <th>Contact & Joined</th>
+              <th>Role title</th>
+              <th>Permission scope</th>
+              <th>Status</th>
+              <th class="text-end">Manage</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Staff Permission Matrix -->
+      <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Business permission matrix</h3>
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Permission set</th>
+              <th>Manage products</th>
+              <th>Adjust stock</th>
+              <th>View sales reports</th>
+              <th>Reply to reviews</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fw-medium text-light-cc">Business Owner</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+            </tr>
+            <tr>
+              <td class="fw-medium text-light-cc">Inventory Manager</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
+            </tr>
+            <tr>
+              <td class="fw-medium text-light-cc">Review & Reports Staff</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> View</td>
+              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
+            </tr>
+            <tr>
+              <td class="fw-medium text-light-cc">Inventory Viewer</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> View only</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> View only</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
+              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.8: BUSINESS ACTIVITY LOGS -->
+    <section id="module-logs" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.8 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Business activity logs</h2>
+      <p class="admin-section-desc mb-4">
+        Attributable audit trail for Classic Club PH. Track which administrator performed inventory restocks, price changes, product activations, and staff updates. All timestamps PHT.
+      </p>
+
+      <!-- Logs Filter Bar -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <input type="text" id="logSearchInput" class="admin-input-filter" placeholder="Search activity or administrator...">
+        <select id="logActionFilter" class="admin-select-filter">
+          <option value="">Activity: All</option>
+          <option value="Restock">Restock</option>
+          <option value="Manual stock">Manual stock adjustments</option>
+          <option value="Stock adjustment">Stock adjustment</option>
+          <option value="threshold">Stock threshold changes</option>
+          <option value="Product">Product changes</option>
+          <option value="Review">Review moderation</option>
+          <option value="Staff">Staff changes</option>
+          <option value="Business profile">Business profile changes</option>
+        </select>
+      </div>
+
+      <!-- Activity Logs Table -->
+      <div class="admin-table-container">
+        <table class="admin-table" id="activityLogsTable">
+          <thead>
+            <tr>
+              <th>Date / Time</th>
+              <th>Responsible person</th>
+              <th>Role</th>
+              <th>Action</th>
+              <th>Affected resource</th>
+              <th>Change details</th>
+            </tr>
+          </thead>
+          <tbody id="activityLogsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20.9: BUSINESS ACCOUNT SETTINGS -->
+    <section id="module-settings" class="admin-section px-4 px-lg-5">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">20.9 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory â†‘</a>
+      </div>
+      <h2 class="admin-section-title mb-2">Business account settings</h2>
+      <p class="admin-section-desc mb-4">
+        Business profile information and your personal administrator credentials. Global platform settings and database administration are strictly excluded from this interface.
+      </p>
+
+      <div class="row g-4 mb-4">
+        <!-- Business Information Form -->
+        <div class="col-12 col-lg-6">
+          <div class="admin-card h-100">
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Assigned business profile</h3>
+            <form id="businessProfileForm" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Business name</label>
+                <input type="text" class="admin-input-filter w-100" id="bizName" required>
+              </div>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;">Contact email</label>
+                  <input type="email" class="admin-input-filter w-100" id="bizEmail" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;">Phone</label>
+                  <input type="text" class="admin-input-filter w-100" id="bizPhone">
+                </div>
+              </div>
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Location / City</label>
+                <input type="text" class="admin-input-filter w-100" id="bizLocation">
+              </div>
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Full address</label>
+                <input type="text" class="admin-input-filter w-100" id="bizAddress">
+              </div>
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Description</label>
+                <textarea class="admin-input-filter w-100" id="bizDescription" rows="3"></textarea>
+              </div>
+              <button type="submit" class="btn-admin-primary mt-2">Save business information</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Personal Admin Profile Form -->
+        <div class="col-12 col-lg-6">
+          <div class="admin-card h-100">
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Administrator personal profile</h3>
+            <form id="adminPersonalForm" class="d-flex flex-column gap-3">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;">First name</label>
+                  <input type="text" class="admin-input-filter w-100" id="adminFirstName" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;">Last name</label>
+                  <input type="text" class="admin-input-filter w-100" id="adminLastName" required>
+                </div>
+              </div>
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Email (Login username)</label>
+                <input type="email" class="admin-input-filter w-100" id="adminEmail" disabled>
+                <small class="text-muted-cc" style="font-size: 11px;">Primary login email cannot be changed without re-authentication.</small>
+              </div>
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Mobile phone</label>
+                <input type="text" class="admin-input-filter w-100" id="adminMobile">
+              </div>
+              <button type="submit" class="btn-admin-primary mt-2">Update administrator profile</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password Update Section -->
+      <div class="row g-4">
+        <div class="col-12 col-lg-6">
+          <div class="admin-card">
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Update credentials</h3>
+            <form id="adminPasswordForm" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Current password *</label>
+                <input type="password" class="admin-input-filter w-100" id="currentPassword" required>
+              </div>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;">New password *</label>
+                  <input type="password" class="admin-input-filter w-100" id="newPassword" minlength="8" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;">Confirm new password *</label>
+                  <input type="password" class="admin-input-filter w-100" id="confirmNewPassword" minlength="8" required>
+                </div>
+              </div>
+              <small class="text-muted-cc" style="font-size: 11px;">Minimum 8 characters. Must contain letters and numbers.</small>
+              <button type="submit" class="btn-admin-primary">Change password</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Security & Access Toggles (Readonly settings / indicators) -->
+        <div class="col-12 col-lg-6">
+          <div class="admin-card">
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Account security & scope</h3>
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex align-items-center justify-content-between p-3 bg-cc-bg border-cc">
+                <div>
+                  <div class="text-light-cc" style="font-size: 13px;">Two-factor authentication</div>
+                  <div class="text-muted-cc" style="font-size: 11px;">Additional security layer for admin sign-in</div>
+                </div>
+                <span class="badge admin-badge-active">Enabled</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between p-3 bg-cc-bg border-cc">
+                <div>
+                  <div class="text-light-cc" style="font-size: 13px;">Email notifications for new sign-ins</div>
+                  <div class="text-muted-cc" style="font-size: 11px;">Alert administrator upon session creation</div>
+                </div>
+                <span class="badge admin-badge-active">Active</span>
+              </div>
+              <div class="admin-callout">
+                <span class="text-accent fw-medium d-block" style="font-size: 12px;">BUSINESS ACCESS ISOLATION</span>
+                <span class="text-light-cc" style="font-size: 12px;" id="securityBusinessScope">
+                  This account has permissions strictly limited to its assigned business.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="admin-section px-4 px-lg-5 py-4 d-flex flex-wrap justify-content-between align-items-center text-muted-cc" style="font-size: 11px;">
+      <span>Â© 2026 Classic Club PH. All rights reserved. Business Owner Workspace.</span>
+      <span>Assigned business only · Classic Club PH / Philippines · PHT · PHP ₱</span>
+    </footer>
+  </main>
+
+  <!-- MODALS -->
+
+  <!-- Modal: Add Product -->
+  <div class="modal fade" id="modalAddProduct" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora">Add new product</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formAddProduct">
+          <div class="modal-body d-flex flex-column gap-3">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Product name *</label>
+                <input type="text" class="admin-input-filter w-100" id="newProdName" required placeholder="e.g. Vintage Wash Crewneck">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">SKU *</label>
+                <input type="text" class="admin-input-filter w-100" id="newProdSku" required placeholder="e.g. CC-CRW-017">
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Category</label>
+                <select class="admin-select-filter w-100" id="newProdCategory">
+                  <option value="1">Tops & tees</option>
+                  <option value="2">Outerwear & hoodies</option>
+                  <option value="3">Bottoms & accessories</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Price (PHP) *</label>
+                <input type="number" step="0.01" class="admin-input-filter w-100" id="newProdPrice" required placeholder="1890.00">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Initial stock quantity</label>
+                <input type="number" class="admin-input-filter w-100" id="newProdStock" value="20" min="0">
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Min stock threshold</label>
+                <input type="number" class="admin-input-filter w-100" id="newProdThreshold" value="10" min="1">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Status</label>
+                <select class="admin-select-filter w-100" id="newProdStatus">
+                  <option value="1">Active · Available</option>
+                  <option value="0">Inactive · Unavailable</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Description</label>
+              <textarea class="admin-input-filter w-100" id="newProdDescription" rows="3" placeholder="Fabric composition, cut, features..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Create product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Product -->
+  <div class="modal fade" id="modalEditProduct" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora">Edit product details</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formEditProduct">
+          <input type="hidden" id="editProdId">
+          <div class="modal-body d-flex flex-column gap-3">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Product name</label>
+                <input type="text" class="admin-input-filter w-100" id="editProdName" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">SKU (Read-only)</label>
+                <input type="text" class="admin-input-filter w-100" id="editProdSku" disabled>
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Category</label>
+                <select class="admin-select-filter w-100" id="editProdCategory">
+                  <option value="1">Tops & tees</option>
+                  <option value="2">Outerwear & hoodies</option>
+                  <option value="3">Bottoms & accessories</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Price (PHP)</label>
+                <input type="number" step="0.01" class="admin-input-filter w-100" id="editProdPrice" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Min stock threshold</label>
+                <input type="number" class="admin-input-filter w-100" id="editProdThreshold" required min="1">
+              </div>
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Description</label>
+              <textarea class="admin-input-filter w-100" id="editProdDesc" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Restock Product -->
+  <div class="modal fade" id="modalRestock" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora">Restock inventory</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formRestock">
+          <input type="hidden" id="restockProdId">
+          <div class="modal-body d-flex flex-column gap-3">
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Product</label>
+              <div class="text-light-cc fw-medium" id="restockProdName">Product Name</div>
+              <div class="text-muted-cc" style="font-size: 12px;" id="restockCurrentStock">Current stock: 0</div>
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Quantity to add *</label>
+              <input type="number" class="admin-input-filter w-100" id="restockQty" min="1" required placeholder="e.g. 20">
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Restock reason / Supplier reference</label>
+              <input type="text" class="admin-input-filter w-100" id="restockReason" value="Routine supplier restocking">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Confirm restock</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Manual Stock Adjustment -->
+  <div class="modal fade" id="modalAdjustStock" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora">Manual stock adjustment</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formAdjustStock">
+          <input type="hidden" id="adjustProdId">
+          <div class="modal-body d-flex flex-column gap-3">
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Product</label>
+              <div class="text-light-cc fw-medium" id="adjustProdName">Product Name</div>
+              <div class="text-muted-cc" style="font-size: 12px;" id="adjustCurrentStock">Current stock: 0</div>
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Adjustment type</label>
+              <div class="d-flex gap-3">
+                <label class="d-flex align-items-center gap-2 text-light-cc" style="cursor: pointer;">
+                  <input type="radio" name="adjustType" value="decrease" checked> Decrease stock (damage / return / recount)
+                </label>
+              </div>
+              <div class="d-flex gap-3 mt-1">
+                <label class="d-flex align-items-center gap-2 text-light-cc" style="cursor: pointer;">
+                  <input type="radio" name="adjustType" value="increase"> Increase stock (found units / count surplus)
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Quantity to adjust *</label>
+              <input type="number" class="admin-input-filter w-100" id="adjustQty" min="1" required placeholder="e.g. 2">
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Reason for manual adjustment *</label>
+              <input type="text" class="admin-input-filter w-100" id="adjustReason" required placeholder="e.g. Damaged units pulled from floor">
+            </div>
+            <div class="admin-callout">
+              <span class="text-accent fw-medium d-block" style="font-size: 11px;">INTEGRITY SAFEGUARD</span>
+              <span class="text-light-cc" style="font-size: 11px;">The system prevents negative stock adjustments. Decreases greater than available stock will be blocked.</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Apply adjustment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reply to Customer Review -->
+  <div class="modal fade" id="modalReplyReview" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora">Business reply to customer</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formReplyReview">
+          <input type="hidden" id="replyReviewId">
+          <div class="modal-body d-flex flex-column gap-3">
+            <div class="p-3 bg-cc-bg border-cc">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-light-cc fw-medium" id="replyCustomerName">Customer</span>
+                <span class="text-accent" id="replyProductRating">5 / 5 â˜…</span>
+              </div>
+              <div class="text-muted-cc fst-italic" style="font-size: 12px;" id="replyCustomerComment">"Comment text"</div>
+            </div>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Official response</label>
+              <textarea class="admin-input-filter w-100" id="replyText" rows="3" required placeholder="Thank you for your feedback..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Publish response</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Flag Review for Moderation -->
+  <div class="modal fade" id="modalFlagReview" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora text-warning">Flag review for moderation</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formFlagReview">
+          <input type="hidden" id="flagReviewId">
+          <div class="modal-body d-flex flex-column gap-3">
+            <p class="text-muted-cc" style="font-size: 13px;">
+              Business administrators cannot delete customer reviews directly. Flagging sends this entry for content moderation review.
+            </p>
+            <div>
+              <label class="form-label text-muted-cc" style="font-size: 12px;">Reason for moderation flag *</label>
+              <select class="admin-select-filter w-100" id="flagReason">
+                <option value="Contains abusive or profane language">Contains abusive or profane language</option>
+                <option value="Spam or promotional solicitation">Spam or promotional solicitation</option>
+                <option value="Off-topic or irrelevant to product">Off-topic or irrelevant to product</option>
+                <option value="Personal identifiable information">Contains personal contact info</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Submit flag</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Invite Business Staff -->
+  <div class="modal fade" id="modalInviteStaff" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h5 class="modal-title font-lora">Invite business staff</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formInviteStaff">
+          <div class="modal-body d-flex flex-column gap-3">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Full name *</label>
+                <input type="text" class="admin-input-filter w-100" id="newStaffName" required placeholder="e.g. Christian Reyes">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Staff email *</label>
+                <input type="email" class="admin-input-filter w-100" id="newStaffEmail" required placeholder="christian@classicclub.ph">
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Role title *</label>
+                <input type="text" class="admin-input-filter w-100" id="newStaffRoleTitle" required placeholder="e.g. Warehouse Lead">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted-cc" style="font-size: 12px;">Permission preset</label>
+                <select class="admin-select-filter w-100" id="newStaffPreset">
+                  <option value="Inventory manager">Inventory manager</option>
+                  <option value="Review & reports staff">Review & reports staff</option>
+                  <option value="Inventory viewer">Inventory viewer (Read-only)</option>
+                </select>
+              </div>
+            </div>
+            <div class="border-top border-cc pt-3">
+              <span class="cc-eyebrow text-muted-cc d-block mb-2">CUSTOM PERMISSION TOGGLES</span>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permManageProducts" checked>
+                    <label class="form-check-label text-light-cc" for="permManageProducts" style="font-size: 12px;">Can manage products</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permAdjustStock" checked>
+                    <label class="form-check-label text-light-cc" for="permAdjustStock" style="font-size: 12px;">Can restock & adjust inventory</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permViewReports">
+                    <label class="form-check-label text-light-cc" for="permViewReports" style="font-size: 12px;">Can view sales & analytics</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permReplyReviews">
+                    <label class="form-check-label text-light-cc" for="permReplyReviews" style="font-size: 12px;">Can reply to customer reviews</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-admin-primary">Add staff member</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin.js"></script>
+  <script src="assets/js/admin-page.js"></script>
+  <script src="assets/js/scroll-reveal.js"></script>
+</body>
+</html>
+

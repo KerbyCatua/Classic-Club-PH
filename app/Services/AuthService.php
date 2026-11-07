@@ -100,6 +100,7 @@ final class AuthService
         );
 
         unset($user['password_hash']);
+        $user['roles'] = array_column($this->users->getRoles($userId), 'name');
 
         return $user;
     }
@@ -119,6 +120,9 @@ final class AuthService
             throw new RuntimeException('User account was not found.');
         }
 
+        $user['roles'] = array_column($this->users->getRoles($userId), 'name');
+
+        
         return $user;
     }
 
@@ -132,3 +136,4 @@ final class AuthService
         $this->users->assignRole($userId, $role);
     }
 }
+

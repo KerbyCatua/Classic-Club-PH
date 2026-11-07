@@ -55,6 +55,10 @@
     '#header-partial *',
     '#footer-partial',
     '#footer-partial *',
+    '#adminLoadingOverlay',
+    '#adminLoadingOverlay *',
+    '.toast-container',
+    '.toast-container *',
     '.cc-global-loader',
     '.cc-global-loader *',
     '.modal',
@@ -142,6 +146,9 @@
     tagElements();
     initObserver();
   }
+
+  // Expose global refresh function so dynamic pages can re-scan and observe newly added elements
+  window.refreshScrollReveal = boot;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot, { once: true });

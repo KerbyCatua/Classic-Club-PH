@@ -61,15 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 3. Dynamic Hydration for product-detail.html based on URL ?id=...
-  const addToCartBtn = document.getElementById('add-to-cart-btn');
-  if (addToCartBtn) {
+  function hydrateProductDetail() {
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    if (!addToCartBtn) return;
     const params = new URLSearchParams(window.location.search);
     const requestedId = params.get('id');
 
     if (requestedId) {
       const product = CCStore.getProductById(requestedId);
       if (product) {
-        document.title = `${product.name} — Classic Club PH`;
+        document.title = product.name + ' — Classic Club PH';
 
         // Update Breadcrumb
         const breadcrumbTitle = document.getElementById('product-breadcrumb-title');
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const priceEl = titleEl ? titleEl.nextElementSibling : null;
           const descEl = priceEl ? priceEl.nextElementSibling : null;
 
-          if (eyebrow) eyebrow.textContent = `${product.badge} / ${product.sku}`;
+          if (eyebrow) eyebrow.textContent = product.badge + ' / ' + product.sku;
           if (titleEl) titleEl.textContent = product.name;
           if (priceEl) priceEl.textContent = CCStore.formatPHP(product.price);
           if (descEl) descEl.textContent = product.description;
@@ -98,19 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update Gallery Asset Labels
         const galleryLabels = document.querySelectorAll('.col-lg-7 .cc-asset-label');
-        if (galleryLabels[0]) galleryLabels[0].textContent = `${product.name} / ${product.color} / front`;
-        if (galleryLabels[1]) galleryLabels[1].textContent = `${product.name} / ${product.color} / back`;
+        if (galleryLabels[0]) galleryLabels[0].textContent = product.name + ' / ' + product.color + ' / front';
+        if (galleryLabels[1]) galleryLabels[1].textContent = product.name + ' / ' + product.color + ' / back';
 
         // Update Color Label
         const colorLabel = document.getElementById('selected-color-label');
-        if (colorLabel) colorLabel.textContent = `Colour — ${product.color}`;
+        if (colorLabel) colorLabel.textContent = 'Colour — ' + product.color;
 
         // Update Button Data & Price Text
         addToCartBtn.setAttribute('data-product-id', product.id);
         addToCartBtn.setAttribute('data-product-name', product.name);
         addToCartBtn.setAttribute('data-product-price', product.price);
         addToCartBtn.setAttribute('data-product-color', product.color);
-        addToCartBtn.innerHTML = `<span>Add to bag — ${CCStore.formatPHP(product.price)}</span><i class="bi bi-arrow-right"></i>`;
+        addToCartBtn.innerHTML = '<span>Add to bag — ' + CCStore.formatPHP(product.price) + '</span><i class="bi bi-arrow-right"></i>';
 
         const mainWishBtn = document.querySelector('.cc-main-wishlist-toggle');
         if (mainWishBtn) {
@@ -118,34 +119,134 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const detailImage = document.querySelector('[data-product-detail-image]');
-
         if (detailImage && product.srcImage) {
           detailImage.src = product.srcImage;
-          detailImage.alt = `${product.name} / ${product.color}`;
+          detailImage.alt = product.name + ' / ' + product.color;
         }
       }
     }
   }
 
-  // Hydrate product images from CCStore
-  document.querySelectorAll('[data-product-image]').forEach(image => {
-    const card = image.closest('.cc-product-card');
+  // 4. Hydrate product cards (live prices, titles, images) across shop-all & collections
+  function hydrateProductCards() {
+    // Find all product card containers or cards with data-product-id
+    const cards = document.querySelectorAll('.cc-product-card, .product-item');
+    cards.forEach(card => {
+      const productId =
+        card.getAttribute('data-product-id') ||
+        card.querySelector('[data-product-id]')?.getAttribute('data-product-id');
 
-    const productId =
-      card?.getAttribute('data-product-id') ||
-      card?.querySelector('[data-product-id]')?.getAttribute('data-product-id');
+      if (!productId) return;
+      const product = CCStore.getProductById(productId);
+      if (!product) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = CCStore.isProductAvailable(productId) ? '' : 'none';
 
-    if (!productId) return;
+      // Update image
+      const image = card.querySelector('[data-product-image]');
+      if (image && product.srcImage) {
+        image.src = product.srcImage;
+        image.alt = product.name + ' / ' + (product.color || '');
+      }
 
-    const product = CCStore.getProductById(productId);
+      // Update live price text (find the element displaying the price)
+      const priceEls = card.querySelectorAll('.text-light-cc, [data-product-price]');
+      priceEls.forEach(priceEl => {
+        if (product.price) {
+          priceEl.textContent = CCStore.formatPHP(product.price);
+        }
+      });
 
-    if (product && product.srcImage) {
-      image.src = product.srcImage;
-      image.alt = `${product.name} / ${product.color}`;
-    }
-  });
+      // Update live title text
+      const titleEl = card.querySelector('.cc-product-title');
+      if (titleEl && product.name) {
+        titleEl.textContent = product.name;
+      }
+    });
+  }
 
-  // Handle wishlist buttons on pages that use button elements
+  function escapeHtml(value) {
+    const element = document.createElement('span');
+    element.textContent = String(value ?? '');
+    return element.innerHTML;
+  }
+
+  function renderNewLiveCatalogCards() {
+    const grid = document.getElementById('product-grid');
+    if (!grid || typeof CCStore.getLiveCatalogItems !== 'function') return;
+
+    const existingSkus = new Set(
+      Array.from(grid.querySelectorAll('[data-product-id]'))
+        .map(element => CCStore.getProductById(element.getAttribute('data-product-id'))?.sku)
+        .filter(Boolean)
+    );
+    const existingProductIds = new Set(
+      Array.from(grid.querySelectorAll('[data-product-id]'))
+        .map(element => element.getAttribute('data-product-id'))
+        .filter(Boolean)
+    );
+
+    const pageName = window.location.pathname.split('/').pop() || 'shop-all.html';
+    const pageCategory = pageName.replace(/\.html$/, '');
+    CCStore.getLiveCatalogItems().forEach(item => {
+      const productId = item.catalog_key || `catalog-${item.id}-${item.variant_id}`;
+      if (!item.sku || existingSkus.has(item.sku) || existingProductIds.has(productId)) return;
+      const product = CCStore.getProductById(productId);
+      if (!product) return;
+      if (
+        pageName !== 'shop-all.html' &&
+        !(
+          (pageName === 'new-arrivals.html' && product.isNew) ||
+          product.categorySlug === pageCategory
+        )
+      ) return;
+
+      const card = document.createElement('div');
+      card.className = 'col product-item';
+      card.setAttribute('data-product-id', productId);
+      card.innerHTML = `
+        <article class="cc-product-card d-flex flex-column gap-3 h-100">
+          <div class="position-relative">
+            <a href="product-detail.html?id=${encodeURIComponent(productId)}" class="text-decoration-none">
+              <img src="${escapeHtml(product.srcImage || '')}" data-product-image
+                alt="${escapeHtml(product.name)} / ${escapeHtml(product.color || '')}"
+                class="img-fluid w-100 object-fit-cover border border-cc" style="height: 370px;">
+            </a>
+            <button type="button" class="cc-wishlist-btn" data-product-id="${escapeHtml(productId)}"
+              aria-label="Add to wishlist"><i class="bi bi-heart"></i></button>
+          </div>
+          <div class="d-flex flex-column gap-2">
+            <span class="cc-eyebrow">${escapeHtml(product.badge || 'LIVE CATALOG')}</span>
+            <a href="product-detail.html?id=${encodeURIComponent(productId)}" class="cc-product-title">${escapeHtml(product.name)}</a>
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="cc-xs-text">${escapeHtml(product.color || 'Standard')}</span>
+              <span class="cc-small-text text-light-cc">${CCStore.formatPHP(product.price)}</span>
+            </div>
+          </div>
+        </article>`;
+      grid.appendChild(card);
+      existingSkus.add(item.sku);
+      existingProductIds.add(productId);
+    });
+  }
+
+  // Initial render from local definitions
+  hydrateProductDetail();
+  hydrateProductCards();
+
+  // Sync live database catalog (prices, availability) and re-hydrate
+  if (typeof CCStore !== 'undefined' && typeof CCStore.syncCatalogFromApi === 'function') {
+    CCStore.syncCatalogFromApi().then(() => {
+      renderNewLiveCatalogCards();
+      hydrateProductCards();
+      hydrateProductDetail();
+    });
+  }
+
+
+    // Handle wishlist buttons on pages that use button elements
   document.querySelectorAll('.cc-wishlist-btn').forEach(button => {
     if (
       button.tagName !== 'BUTTON' ||

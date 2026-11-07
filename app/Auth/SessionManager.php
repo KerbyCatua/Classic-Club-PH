@@ -32,6 +32,11 @@ final class SessionManager
         session_regenerate_id(true);
         $_SESSION['user_id'] = $userId;
         $_SESSION['logged_in_at'] = time();
+
+        // Login rotates the session ID and clears the session payload. Issue a
+        // fresh CSRF secret immediately so the token fetched before login is
+        // never reused against the authenticated session.
+        self::rotateCsrfToken();
     }
 
     public static function userId(): ?int
@@ -79,6 +84,16 @@ final class SessionManager
         session_destroy();
     }
 
+    public static function rotateCsrfToken(): string
+    {
+        self::start();
+
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        self::setCsrfCookie($_SESSION['csrf_token']);
+
+        return $_SESSION['csrf_token'];
+    }
+
     public static function csrfToken(): string
     {
         self::start();
@@ -87,7 +102,36 @@ final class SessionManager
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
-        setcookie('cc_csrf_token', $_SESSION['csrf_token'], [
+        self::setCsrfCookie($_SESSION['csrf_token']);
+
+        return $_SESSION['csrf_token'];
+    }
+
+    public static function requireCsrf(): void
+    {
+        // A missing session secret means the security context expired (for
+        // example after session garbage collection). Issue a new secret so the
+        // client can refresh and retry, but still reject this request.
+        $sessionToken = self::csrfToken();
+
+        $requestToken = $_SERVER['HTTP_X_CSRF_TOKEN']
+            ?? $_POST['_csrf']
+            ?? $_POST['csrf_token']
+            ?? '';
+
+        if (!is_string($requestToken) || $requestToken === '' || !hash_equals($sessionToken, $requestToken)) {
+            throw new \RuntimeException('Invalid or expired CSRF token. Please retry.');
+        }
+    }
+
+    private static function setCsrfCookie(string $token): void
+    {
+        $current = $_COOKIE['cc_csrf_token'] ?? null;
+        if ($current === $token) {
+            return;
+        }
+
+        setcookie('cc_csrf_token', $token, [
             'expires' => 0,
             'path' => '/',
             'secure' => false,
@@ -95,16 +139,6 @@ final class SessionManager
             'samesite' => 'Lax',
         ]);
 
-        return $_SESSION['csrf_token'];
-    }
-
-    public static function requireCsrf(): void
-    {
-        $sessionToken = self::csrfToken();
-        $requestToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-
-        if (!is_string($requestToken) || !hash_equals($sessionToken, $requestToken)) {
-            throw new \RuntimeException('Invalid CSRF token.');
-        }
+        $_COOKIE['cc_csrf_token'] = $token;
     }
 }

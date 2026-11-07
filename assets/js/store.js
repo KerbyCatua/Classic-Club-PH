@@ -13,219 +13,10 @@ const CCStore = (function () {
   };
 
   const SHIPPING_FEE = 180;
+  let liveCatalogItems = [];
 
-  // Master Product Catalog (16 pieces)
-  const PRODUCTS = {
-    'essential-hw-tee-obsidian': {
-      id: 'essential-hw-tee-obsidian',
-      sku: 'CC-TEE-001',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp',
-      badge: 'CORE / 240 GSM',
-      isNew: false,
-      name: 'Essential Heavyweight Tee',
-      color: 'Obsidian',
-      price: 1890,
-      category: 'Tops & tees',
-      categoryUrl: 'tops-tees.html',
-      description: 'A foundational tee with substance. Cut from 240 GSM cotton jersey with a relaxed body, dropped shoulder and a clean, substantial neckline.'
-    },
-    'structured-overshirt-graphite': {
-      id: 'structured-overshirt-graphite',
-      sku: 'CC-OVR-002',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/02_STRUCTURED_OVERSHIRT_jxr8nm.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Structured Overshirt',
-      color: 'Graphite',
-      price: 4890,
-      category: 'Outerwear & hoodies',
-      categoryUrl: 'outerwear-hoodies.html',
-      description: 'A clean shoulder and an open collar. Cut from structured cotton twill to frame your base layer with purposeful weight.'
-    },
-    'relaxed-trouser-charcoal': {
-      id: 'relaxed-trouser-charcoal',
-      sku: 'CC-BTM-003',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/03_RELAXED_TAILORED_TROUSER_oi09yl.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Relaxed Tailored Trouser',
-      color: 'Charcoal',
-      price: 3690,
-      category: 'Bottoms & accessories',
-      categoryUrl: 'bottoms-accessories.html',
-      description: 'Relaxed through the hip and clean through the leg. Tailored for everyday movement and effortless pairing.'
-    },
-    'textured-knit-polo-oat': {
-      id: 'textured-knit-polo-oat',
-      sku: 'CC-TOP-004',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/04_TEXTURED_KNIT_POLO_lpd9rr.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Textured Knit Polo',
-      color: 'Oat',
-      price: 2890,
-      category: 'Tops & tees',
-      categoryUrl: 'tops-tees.html',
-      description: 'Tactile open-stitch cotton knit with a soft collar and relaxed drape that transitions seamlessly from day to evening.'
-    },
-    'essential-hw-tee-chalk': {
-      id: 'essential-hw-tee-chalk',
-      sku: 'CC-TEE-005',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/05_ESSENTIAL_HEAVYWEIGHT_TEE_g1xl7f.webp',
-      badge: 'CORE / 240 GSM',
-      isNew: false,
-      name: 'Essential Heavyweight Tee',
-      color: 'Chalk',
-      price: 1890,
-      category: 'Tops & tees',
-      categoryUrl: 'tops-tees.html',
-      description: 'A foundational tee with substance. Cut from 240 GSM cotton jersey with a relaxed body, dropped shoulder and a clean, substantial neckline.'
-    },
-    'loopback-hoodie-obsidian': {
-      id: 'loopback-hoodie-obsidian',
-      sku: 'CC-HOD-006',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/06_LOOPBACK_CLUB_HOODIE_pywyby.webp',
-      badge: 'CORE / 380 GSM',
-      isNew: false,
-      name: 'Loopback Club Hoodie',
-      color: 'Obsidian',
-      price: 4290,
-      category: 'Outerwear & hoodies',
-      categoryUrl: 'outerwear-hoodies.html',
-      description: 'Heavyweight 380 GSM loopback cotton fleece with a double-layered hood, relaxed body and structured ribbed cuffs.'
-    },
-    'everyday-poplin-shirt-ivory': {
-      id: 'everyday-poplin-shirt-ivory',
-      sku: 'CC-SHRT-007',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513902/07_EVERYDAY_POPLIN_SHIRT_niuho7.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Everyday Poplin Shirt',
-      color: 'Ivory',
-      price: 3290,
-      category: 'Tops & tees',
-      categoryUrl: 'tops-tees.html',
-      description: 'Crisp cotton poplin cut with generous ease through the chest and shoulders for an unhurried, refined profile.'
-    },
-    'pleated-city-short-stone': {
-      id: 'pleated-city-short-stone',
-      sku: 'CC-BTM-008',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513903/08_PLEATED_CITY_SHORT_iuukkm.webp',
-      badge: 'CORE / COTTON TWILL',
-      isNew: false,
-      name: 'Pleated City Short',
-      color: 'Stone',
-      price: 2490,
-      category: 'Bottoms & accessories',
-      categoryUrl: 'bottoms-accessories.html',
-      description: ' tailored front pleats and a comfortable mid-thigh length crafted from breathable, structured cotton twill.'
-    },
-    'ls-jersey-tee-graphite': {
-      id: 'ls-jersey-tee-graphite',
-      sku: 'CC-TEE-009',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513902/09_LONG-SLEEVE_JERSEY_TEE_rdexnf.webp',
-      badge: 'CORE / 220 GSM',
-      isNew: false,
-      name: 'Long-sleeve Jersey Tee',
-      color: 'Graphite',
-      price: 2290,
-      category: 'Tops & tees',
-      categoryUrl: 'tops-tees.html',
-      description: 'Cut from 220 GSM combed cotton jersey with ribbed cuffs and a straight hem for standalone wear or easy layering.'
-    },
-    'ribbed-tank-chalk': {
-      id: 'ribbed-tank-chalk',
-      sku: 'CC-TOP-010',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513902/10_RIBBED_LAYERING_TANK_jivwsn.webp',
-      badge: 'CORE / COTTON RIB',
-      isNew: false,
-      name: 'Ribbed Layering Tank',
-      color: 'Chalk',
-      price: 1290,
-      category: 'Tops & tees',
-      categoryUrl: 'tops-tees.html',
-      description: 'A close-fitting first layer in soft 2x2 cotton rib, designed to sit cleanly underneath open shirts and knitwear.'
-    },
-    'collarless-jacket-obsidian': {
-      id: 'collarless-jacket-obsidian',
-      sku: 'CC-JKT-011',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513906/11_COLLARLESS_STUDIO_JACKET_a5aupw.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Collarless Studio Jacket',
-      color: 'Obsidian',
-      price: 5890,
-      category: 'Outerwear & hoodies',
-      categoryUrl: 'outerwear-hoodies.html',
-      description: 'Architectural collarless neckline with concealed front closure and welt pockets for a minimalist outer layer.'
-    },
-    'double-zip-hoodie-ash': {
-      id: 'double-zip-hoodie-ash',
-      sku: 'CC-HOD-012',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513906/12_DOUBLE-ZIP_CLUB_HOODIE_fqbd9r.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Double-zip Club Hoodie',
-      color: 'Ash',
-      price: 4590,
-      category: 'Outerwear & hoodies',
-      categoryUrl: 'outerwear-hoodies.html',
-      description: 'Two-way matte metal zipper on 380 GSM loopback cotton allows customizable proportion and effortless layering.'
-    },
-    'understated-cap-obsidian': {
-      id: 'understated-cap-obsidian',
-      sku: 'CC-ACC-013',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513905/13_UNDERSTATED_CLUB_CAP_fopwz5.webp',
-      badge: 'CORE / ADJUSTABLE',
-      isNew: false,
-      name: 'Understated Club Cap',
-      color: 'Obsidian',
-      price: 1190,
-      category: 'Bottoms & accessories',
-      categoryUrl: 'bottoms-accessories.html',
-      description: 'Unstructured six-panel silhouette in brushed cotton twill with a tonal back strap and minimal detailing.'
-    },
-    'daily-canvas-tote-natural': {
-      id: 'daily-canvas-tote-natural',
-      sku: 'CC-ACC-014',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513905/14_DAILY_CANVAS_TOTE_zqzhqh.webp',
-      badge: 'CORE / HEAVY CANVAS',
-      isNew: false,
-      name: 'Daily Canvas Tote',
-      color: 'Natural',
-      price: 1490,
-      category: 'Bottoms & accessories',
-      categoryUrl: 'bottoms-accessories.html',
-      description: 'Heavyweight unbleached cotton canvas with reinforced shoulder straps and an internal slip pocket for daily essentials.'
-    },
-    'slim-leather-belt-black': {
-      id: 'slim-leather-belt-black',
-      sku: 'CC-ACC-015',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/15_SLIM_LEATHER_BELT_lylsjo.webp',
-      badge: 'CORE / LEATHER',
-      isNew: false,
-      name: 'Slim Leather Belt',
-      color: 'Black',
-      price: 2290,
-      category: 'Bottoms & accessories',
-      categoryUrl: 'bottoms-accessories.html',
-      description: 'Full-grain cowhide leather with a understated brushed metal buckle, cut to a versatile 28mm width.'
-    },
-    'drawstring-pant-stone': {
-      id: 'drawstring-pant-stone',
-      sku: 'CC-BTM-016',
-      srcImage: 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/16_DRAWSTRING_COTTON_PANT_x3ulk3.webp',
-      badge: 'NEW / DROP 03',
-      isNew: true,
-      name: 'Drawstring Cotton Pant',
-      color: 'Stone',
-      price: 3190,
-      category: 'Bottoms & accessories',
-      categoryUrl: 'bottoms-accessories.html',
-      description: 'Internal drawstring waist and a straight leg in peached cotton twill for unrestrictive, all-day comfort.'
-    }
-  };
-
+  // Product records are loaded from the database catalog API.
+  const PRODUCTS = Object.create(null);
   function ensureInitialized() {
     if (!localStorage.getItem(STORAGE_KEYS.CART_INIT)) {
       localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify([]));
@@ -238,6 +29,25 @@ const CCStore = (function () {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
+  }
+
+  function catalogItemToProduct(item) {
+    const key = item.catalog_key || `catalog-${item.id}-${item.variant_id}`;
+    return {
+      id: key,
+      sku: item.sku || '',
+      srcImage: item.image_url || '',
+      badge: Number(item.is_new) === 1 ? 'NEW / LIVE CATALOG' : 'LIVE CATALOG',
+      isNew: Number(item.is_new) === 1,
+      name: item.name || '',
+      color: item.color_name || 'Standard',
+      price: Number(item.price || 0),
+      category: item.category_name || 'Collection',
+      categorySlug: item.category_slug || '',
+      categoryUrl: `${item.category_slug || 'shop-all'}.html`,
+      description: item.description || '',
+      liveCatalogKey: key
+    };
   }
 
   function getCart() {
@@ -358,11 +168,49 @@ const CCStore = (function () {
       return PRODUCTS;
     },
     getProductById: function (id) {
-      return PRODUCTS[id] || null;
+      if (PRODUCTS[id]) return PRODUCTS[id];
+      const liveItem = liveCatalogItems.find(item =>
+        String(item.catalog_key || '') === String(id)
+      );
+      return liveItem ? catalogItemToProduct(liveItem) : null;
     },
     getProductImage: function (productId) {
       const product = this.getProductById(productId);
       return product ? product.srcImage || '' : '';
+    },
+    syncCatalogFromApi: async function () {
+      try {
+        const res = await fetch('public/api/catalog/products.php?per_page=50', {
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        const json = await res.json();
+        if (json.success && json.data && Array.isArray(json.data.items)) {
+          liveCatalogItems = json.data.items;
+          Object.keys(PRODUCTS).forEach(key => delete PRODUCTS[key]);
+          liveCatalogItems.forEach(p => {
+            const key = p.catalog_key || `catalog-${p.id}-${p.variant_id}`;
+            PRODUCTS[key] = catalogItemToProduct(p);
+          });
+          return liveCatalogItems;
+        }
+      } catch (e) {
+        console.warn('Could not sync live catalog:', e);
+      }
+      return null;
+    },
+    isProductAvailable: function (productId) {
+      if (!liveCatalogItems.length) return true;
+      const product = PRODUCTS[productId];
+      const catalogKey = product?.liveCatalogKey || productId;
+      return liveCatalogItems.some(item =>
+        String(item.catalog_key || '') === String(catalogKey) ||
+        item.sku === product?.sku ||
+        (item.name && product && item.name.toLowerCase() === product.name.toLowerCase())
+      );
+    },
+    getLiveCatalogItems: function () {
+      return liveCatalogItems.slice();
     },
 
     // Cart Methods

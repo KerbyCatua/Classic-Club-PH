@@ -21,7 +21,7 @@
     <div id="auth-gate-notice" class="cc-section-px pt-4" hidden>
       <div class="d-flex align-items-center justify-content-between gap-3 px-3 py-3" role="status" style="background: #112B2E; border-left: 2px solid var(--cc-accent);">
         <p id="auth-gate-notice-text" class="mb-0 text-light-cc" style="font-size: 14px;">Login or Signup First</p>
-        <button type="button" id="auth-gate-dismiss" class="btn p-0 border-0 text-muted-cc" aria-label="Dismiss notice" style="font-size: 20px; line-height: 1;">×</button>
+        <button type="button" id="auth-gate-dismiss" class="btn p-0 border-0 text-muted-cc" aria-label="Dismiss notice" style="font-size: 20px; line-height: 1;">Ã—</button>
       </div>
     </div>
 
@@ -115,7 +115,7 @@
                 Forgotten your password? Use the reset link to request an email. Check your spam folder before requesting another.
               </p>
               <div>
-                <a href="#" class="cc-underline-link">Request a password reset ↗</a>
+                <a href="#" class="cc-underline-link">Request a password reset â†—</a>
               </div>
               <p class="cc-eyebrow text-transform-none m-0 pt-2" style="text-transform: none; line-height: 18.15px;">
                 For your privacy, do not share your password or verification emails with anyone.
@@ -262,16 +262,24 @@
 
   <!-- Project Scripts -->
    <script src="assets/js/global-loader.js"></script>
-  <script src="assets/js/store.js"></script>
+  <script src="assets/js/store.js?v=20261107-8"></script>
   <script src="assets/js/partials.js?v=20261103"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/main.js?v=20261107-8"></script>
 
   <!-- Micro-interactions Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const notice = new URLSearchParams(window.location.search).get('notice');
       const noticePanel = document.getElementById('auth-gate-notice');
-      if (notice === 'login' && noticePanel) {
+      const noticeText = document.getElementById('auth-gate-notice-text');
+      if (notice && noticePanel) {
+        if (notice === 'admin_required' && noticeText) {
+          noticeText.textContent = 'Administrator sign-in required. Use your Business Owner credentials (adminadmin@gmail.com).';
+        } else if (notice === 'logged_out' && noticeText) {
+          noticeText.textContent = 'You have been signed out safely.';
+        } else if (noticeText) {
+          noticeText.textContent = 'Login or Signup First';
+        }
         noticePanel.hidden = false;
         const url = new URL(window.location.href);
         url.searchParams.delete('notice');
@@ -290,7 +298,7 @@
         if (input.checked) {
           box.style.background = 'var(--cc-accent)';
           box.style.borderColor = 'var(--cc-accent)';
-          box.textContent = '✓';
+          box.textContent = 'âœ“';
         }
 
         // Change event
@@ -298,7 +306,7 @@
           if (input.checked) {
             box.style.background = 'var(--cc-accent)';
             box.style.borderColor = 'var(--cc-accent)';
-            box.textContent = '✓';
+            box.textContent = 'âœ“';
           } else {
             box.style.background = 'var(--cc-bg)';
             box.style.borderColor = 'var(--cc-border)';
@@ -370,12 +378,17 @@
             CCStore.clearAllUserData();
           }
 
-          await sendAuthRequest('public/api/auth/login.php', {
+          const authResult = await sendAuthRequest('public/api/auth/login.php', {
             email: document.getElementById('signin-email').value,
             password: document.getElementById('signin-password').value
           });
 
-          window.location.href = 'account-dashboard.html';
+          const roles = authResult.data?.user?.roles || [];
+          if (roles.includes('admin') || roles.includes('super_admin')) {
+            window.location.href = 'admin-dashboard.html';
+          } else {
+            window.location.href = 'account-dashboard.html';
+          }
         } catch (error) {
           alert(error.message);
           button.disabled = false;
@@ -413,3 +426,4 @@
   <script src="assets/js/scroll-reveal.js"></script>
 </body>
 </html>
+
