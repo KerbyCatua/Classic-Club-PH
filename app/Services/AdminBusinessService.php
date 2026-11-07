@@ -388,6 +388,7 @@ final class AdminBusinessService
                 p.name,
                 p.slug,
                 p.description,
+                (SELECT pi.image_url FROM product_images pi WHERE pi.variant_id = (SELECT pv0.id FROM product_variants pv0 WHERE pv0.product_id = p.id ORDER BY pv0.id LIMIT 1) ORDER BY pi.sort_order, pi.id LIMIT 1) AS image_url,
                 p.min_stock_threshold,
                 p.is_active,
                 p.created_at,
@@ -486,6 +487,7 @@ final class AdminBusinessService
      */
     public function createProduct(int $businessId, array $data, int $adminUserId, string $adminName): array
     {
+        $image = $this->prepareProductImage($data['image'] ?? null, true);
         $name = trim($data['name'] ?? '');
         $sku = strtoupper(trim($data['sku'] ?? ''));
         $price = (float)($data['price'] ?? 0);
@@ -555,6 +557,7 @@ final class AdminBusinessService
                 'status' => $isActive ? 'active' : 'draft',
             ]);
             $variantId = (int)$this->pdo->lastInsertId();
+            $this->saveProductImage($variantId, $image, $name);
 
             // Get default size
             $stmtSize = $this->pdo->query("SELECT id FROM sizes WHERE is_active = 1 LIMIT 1");
@@ -614,6 +617,7 @@ final class AdminBusinessService
      */
     public function updateProduct(int $businessId, int $productId, array $data, int $adminUserId, string $adminName): array
     {
+        $image = $this->prepareProductImage($data['image'] ?? null, true);
         $stmtFind = $this->pdo->prepare(<<<SQL
             SELECT p.*, pv.id as variant_id, pv.sku, pv.price 
             FROM products p
@@ -681,6 +685,7 @@ final class AdminBusinessService
                     'status' => $isActive ? 'active' : 'draft',
                     'pid' => $productId,
                 ]);
+                $this->saveProductImage((int)$prod['variant_id'], $image, $name);
             }
 
             // Log activity
@@ -700,6 +705,47 @@ final class AdminBusinessService
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    private function prepareProductImage(mixed $value, bool $required): array
+    {
+            if (!is_string($value) || !preg_match('#^data:(image/jpeg|image/png|image/webp);base64,([A-Za-z0-9+/=]+)$#', $value, $matches)) {
+                if ($required) {
+                    throw new RuntimeException('A square product image is required.');
+                }
+                return [];
+            }
+            $mime = $matches[1];
+            $binary = base64_decode($matches[2], true);
+            if ($binary === false || strlen($binary) > 5 * 1024 * 1024) {
+                throw new RuntimeException('Product image must be a valid image up to 5 MB.');
+            }
+            $size = @getimagesizefromstring($binary);
+            if ($size === false || $size[0] !== $size[1]) {
+                throw new RuntimeException('Product image must be exactly 1:1 square.');
+            }
+            return [$mime, $binary];
+    }
+
+    private function saveProductImage(int $variantId, array $image, string $name): void
+    {
+            if (count($image) !== 2) {
+                throw new RuntimeException('Product image is required.');
+            }
+            $extension = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$image[0]];
+            $directory = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'products';
+            if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+                throw new RuntimeException('Unable to prepare product image storage.');
+            }
+            $filename = bin2hex(random_bytes(16)) . '.' . $extension;
+            if (file_put_contents($directory . DIRECTORY_SEPARATOR . $filename, $image[1], LOCK_EX) === false) {
+                throw new RuntimeException('Unable to save product image.');
+            }
+            $url = 'public/uploads/products/' . $filename;
+            $stmt = $this->pdo->prepare("DELETE FROM product_images WHERE variant_id = :variant_id AND image_role = 'primary'");
+            $stmt->execute(['variant_id' => $variantId]);
+            $stmt = $this->pdo->prepare("INSERT INTO product_images (variant_id, image_url, alt_text, image_role, sort_order) VALUES (:variant_id, :url, :alt, 'primary', 0)");
+            $stmt->execute(['variant_id' => $variantId, 'url' => $url, 'alt' => $name]);
     }
 
     /**

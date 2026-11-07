@@ -402,9 +402,42 @@ async function initDashboard() {
     document.getElementById(id).addEventListener('change', loadProducts);
   });
 
+  async function readProductImage(input) {
+    const file = input.files[0];
+    if (!file) {
+      CCAdmin.showToast('A square product image is required.', 'error');
+      return null;
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      CCAdmin.showToast('Use a JPG, PNG, or WebP image.', 'error');
+      return null;
+    }
+    const dimensions = await new Promise((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+      image.onerror = () => resolve(null);
+      image.src = URL.createObjectURL(file);
+    });
+    if (!dimensions || dimensions.width !== dimensions.height) {
+      CCAdmin.showToast('Product images must be exactly 1:1 square.', 'error');
+      return null;
+    }
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => {
+        CCAdmin.showToast('Unable to read the selected image.', 'error');
+        resolve(null);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   // Modal: Create Product Form
   document.getElementById('formAddProduct').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const image = await readProductImage(document.getElementById('newProdImage'));
+    if (!image) return;
     const payload = {
       action: 'create',
       name: document.getElementById('newProdName').value,
@@ -414,7 +447,8 @@ async function initDashboard() {
       initial_stock: parseInt(document.getElementById('newProdStock').value || '0', 10),
       min_stock_threshold: parseInt(document.getElementById('newProdThreshold').value || '10', 10),
       is_active: parseInt(document.getElementById('newProdStatus').value || '1', 10),
-      description: document.getElementById('newProdDescription').value
+      description: document.getElementById('newProdDescription').value,
+      image
     };
 
     try {
@@ -447,6 +481,7 @@ async function initDashboard() {
     document.getElementById('editProdPrice').value = p.price;
     document.getElementById('editProdThreshold').value = p.min_stock_threshold || 10;
     document.getElementById('editProdDesc').value = p.description || '';
+    document.getElementById('editProdImage').value = '';
 
     const modal = new bootstrap.Modal(document.getElementById('modalEditProduct'));
     modal.show();
@@ -456,6 +491,8 @@ async function initDashboard() {
   document.getElementById('formEditProduct').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('editProdId').value;
+    const image = await readProductImage(document.getElementById('editProdImage'));
+    if (!image) return;
     const payload = {
       action: 'update',
       product_id: parseInt(id, 10),
@@ -463,7 +500,8 @@ async function initDashboard() {
       category_id: parseInt(document.getElementById('editProdCategory').value, 10) || 1,
       price: parseFloat(document.getElementById('editProdPrice').value),
       min_stock_threshold: parseInt(document.getElementById('editProdThreshold').value, 10),
-      description: document.getElementById('editProdDesc').value
+      description: document.getElementById('editProdDesc').value,
+      image
     };
 
     try {
@@ -471,6 +509,7 @@ async function initDashboard() {
         method: 'POST',
         body: JSON.stringify(payload)
       });
+
       bootstrap.Modal.getInstance(document.getElementById('modalEditProduct')).hide();
       CCAdmin.showToast('Product updated successfully.');
       await loadProducts();
