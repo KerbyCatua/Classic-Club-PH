@@ -46,31 +46,52 @@ final class CartService
             throw new RuntimeException('Product or size is not available.');
         }
 
-        $this->carts->addItem(
-            $this->cartId($userId),
-            (int) $variant['variant_size_id'],
-            $quantity,
-            (string) $variant['price']
-        );
+            $cartId = $this->cartId($userId);
+            $available = (int) $variant['quantity_on_hand'];
+            $alreadyInCart = $this->carts->quantityInCart($cartId, (int) $variant['variant_size_id']);
 
-        return $this->view($userId);
-    }
+            if ($alreadyInCart + $quantity > $available) {
+                throw new RuntimeException(
+                    $available > 0
+                        ? "Only $available unit(s) of this item remain in stock."
+                        : 'This item is out of stock.'
+                );
+            }
 
-    public function update(?int $userId, string $catalogKey, string $size, int $quantity): array
-    {
-        $variant = $this->carts->findVariantSize($catalogKey, $size);
-        if ($variant === null) {
-            throw new RuntimeException('Product or size is not available.');
+            $this->carts->addItem(
+                $cartId,
+                (int) $variant['variant_size_id'],
+                $quantity,
+                (string) $variant['price']
+            );
+
+            return $this->view($userId);
         }
 
-        $this->carts->updateItem(
-            $this->cartId($userId),
-            (int) $variant['variant_size_id'],
-            $quantity
-        );
+        public function update(?int $userId, string $catalogKey, string $size, int $quantity): array
+        {
+            $variant = $this->carts->findVariantSize($catalogKey, $size);
+            if ($variant === null) {
+                throw new RuntimeException('Product or size is not available.');
+            }
 
-        return $this->view($userId);
-    }
+            $available = (int) $variant['quantity_on_hand'];
+            if ($quantity > $available) {
+                throw new RuntimeException(
+                    $available > 0
+                        ? "Only $available unit(s) of this item remain in stock."
+                        : 'This item is out of stock.'
+                );
+            }
+
+            $this->carts->updateItem(
+                $this->cartId($userId),
+                (int) $variant['variant_size_id'],
+                $quantity
+            );
+
+            return $this->view($userId);
+        }
 
     public function remove(?int $userId, string $catalogKey, string $size): array
     {

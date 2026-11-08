@@ -48,8 +48,11 @@ const CCStore = (function () {
       categorySlug: item.category_slug || '',
       categoryUrl: `${item.category_slug || 'shop-all'}.html`,
       description: item.description || '',
-      liveCatalogKey: key
-    };
+            liveCatalogKey: key,
+            stockQty: Number(item.stock_qty || 0),
+            productStockQty: Number(item.product_stock_qty ?? item.stock_qty ?? 0),
+            sizeStock: item.size_stock || ''
+          };
   }
 
   function getCart() {
@@ -254,6 +257,34 @@ const CCStore = (function () {
     getLiveCatalogItems: function () {
       return liveCatalogItems.slice();
     },
+        getProductStock: function (productId) {
+          // Product-wide total: matches the admin inventory row.
+          const product = this.getProductById(productId);
+          return product ? Number(product.productStockQty || 0) : 0;
+        },
+        getVariantStock: function (productId) {
+          // Units available for the specific colour variant on the product page.
+          const product = this.getProductById(productId);
+          return product ? Number(product.stockQty || 0) : 0;
+        },
+        getSizeStock: function (productId, size) {
+          const product = this.getProductById(productId);
+          if (!product || !product.sizeStock) return null;
+          const pair = String(product.sizeStock).split(',')
+            .map(entry => entry.split(':'))
+            .find(([code]) => code === String(size));
+          return pair ? Number(pair[1] || 0) : null;
+        },
+        getSizes: function (productId) {
+          const product = this.getProductById(productId);
+          if (!product || !product.sizeStock) return [];
+          return String(product.sizeStock).split(',')
+            .filter(entry => entry.includes(':'))
+            .map(entry => {
+              const [code, qty] = entry.split(':');
+              return { code, stock: Number(qty || 0) };
+            });
+        },
 
     // Cart Methods
     getCart,
@@ -282,20 +313,35 @@ const CCStore = (function () {
 
       const image = item.image || this.getProductImage(item.id) || '';
 
-            if (existing) {
-              existing.quantity += Number(item.quantity || 1);
-              if (image) existing.image = image;
-            } else {
-              cart.push({
-                id: item.id,
-                name: item.name,
-                color: color,
-                size: size,
-                price: Number(item.price),
-                quantity: Number(item.quantity || 1),
-                image: image
-              });
+            const sizeStock = this.getSizeStock(item.id, size);
+            const productStock = this.getProductStock(item.id);
+            const availableStock = sizeStock === null ? productStock : sizeStock;
+            const requestedQty = Number(item.quantity || 1);
+            const currentQty = existing ? Number(existing.quantity) : 0;
+
+            if (typeof availableStock === 'number' && currentQty + requestedQty > availableStock) {
+              window.alert(
+                availableStock > 0
+                  ? `Only ${availableStock} unit(s) of this item are in stock.`
+                  : 'This item is out of stock.'
+              );
+              return false;
             }
+
+                  if (existing) {
+                    existing.quantity += requestedQty;
+                    if (image) existing.image = image;
+                  } else {
+                    cart.push({
+                      id: item.id,
+                      name: item.name,
+                      color: color,
+                      size: size,
+                      price: Number(item.price),
+                      quantity: requestedQty,
+                      image: image
+                    });
+                  }
       saveCart(cart);
       apiRequest('public/api/cart/add.php', {
         method: 'POST',
@@ -306,19 +352,44 @@ const CCStore = (function () {
         })
       }).then(data => {
         saveCart(data.items || []);
-      }).catch(error => {
+            }).catch(async error => {
         console.error('Server cart add failed:', error);
-      });
+              window.alert(error.message || 'Unable to add this item to your bag.');
+              await this.refreshCartFromServer();
+            });
 
-      return true;
-    },
+            return true;
+          },
+
+          refreshCartFromServer: async function () {
+            try {
+              const cartData = await apiRequest('public/api/cart/view.php');
+              saveCart(cartData.items || []);
+            } catch (error) {
+              console.error('Server cart sync failed:', error);
+            }
+          },
 
     updateCartQty: function (id, color, size, newQty) {
       let cart = getCart();
       const target = cart.find(c => c.id === id && c.color === color && c.size === size);
       if (!target) return;
 
-      if (newQty <= 0) {
+          if (Number(newQty) > 0) {
+            const sizeStock = this.getSizeStock(id, size);
+            const productStock = this.getProductStock(id);
+            const availableStock = sizeStock === null ? productStock : sizeStock;
+            if (typeof availableStock === 'number' && Number(newQty) > availableStock) {
+              window.alert(
+                availableStock > 0
+                  ? `Only ${availableStock} unit(s) of this item are in stock.`
+                  : 'This item is out of stock.'
+              );
+              return;
+            }
+          }
+
+          if (newQty <= 0) {
         cart = cart.filter(c => !(c.id === id && c.color === color && c.size === size));
       } else {
         target.quantity = newQty;
@@ -335,8 +406,10 @@ const CCStore = (function () {
         saveCart(data.items || []);
       }).catch(error => {
         console.error('Server cart update failed:', error);
-      });
-    },
+              window.alert(error.message || 'Unable to update your bag.');
+              this.refreshCartFromServer();
+            });
+          },
 
     removeFromCart: function (id, color, size) {
       const cart = getCart().filter(

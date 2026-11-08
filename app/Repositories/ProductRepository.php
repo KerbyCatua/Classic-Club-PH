@@ -52,7 +52,24 @@ final class ProductRepository
                 v.color_name,
                 v.price,
                 v.is_new,
-                image.image_url
+                image.image_url,
+                COALESCE((
+                    SELECT SUM(vs.quantity_on_hand)
+                    FROM variant_sizes vs
+                    WHERE vs.variant_id = v.id
+                ), 0) AS stock_qty,
+                COALESCE((
+                    SELECT SUM(vs2.quantity_on_hand)
+                    FROM product_variants pv2
+                    JOIN variant_sizes vs2 ON vs2.variant_id = pv2.id
+                    WHERE pv2.product_id = p.id
+                ), 0) AS product_stock_qty,
+                COALESCE((
+                    SELECT GROUP_CONCAT(CONCAT(s.code, ':', vs.quantity_on_hand) ORDER BY s.sort_order, s.id)
+                    FROM variant_sizes vs
+                    INNER JOIN sizes s ON s.id = vs.size_id
+                    WHERE vs.variant_id = v.id
+                ), '') AS size_stock
             FROM products p
             INNER JOIN categories c ON c.id = p.category_id
             INNER JOIN product_variants v ON v.product_id = p.id
@@ -98,7 +115,18 @@ final class ProductRepository
                     v.color_name,
                     v.price,
                     v.is_new,
-                    image.image_url
+                image.image_url,
+                COALESCE((
+                    SELECT SUM(vs.quantity_on_hand)
+                    FROM variant_sizes vs
+                    WHERE vs.variant_id = v.id
+                ), 0) AS stock_qty,
+                    COALESCE((
+                        SELECT GROUP_CONCAT(CONCAT(s.code, ':', vs.quantity_on_hand) ORDER BY s.sort_order, s.id)
+                        FROM variant_sizes vs
+                        INNER JOIN sizes s ON s.id = vs.size_id
+                        WHERE vs.variant_id = v.id
+                    ), '') AS size_stock
                 FROM products p
                 INNER JOIN categories c ON c.id = p.category_id
                 INNER JOIN product_variants v ON v.product_id = p.id
@@ -134,9 +162,30 @@ final class ProductRepository
                     'price' => $row['price'],
                     'is_new' => (bool) $row['is_new'],
                     'image_url' => $row['image_url'],
+                    'stock_qty' => (int) $row['stock_qty'],
+                    'sizes' => self::parseSizeStock((string) $row['size_stock']),
                 ],
                 $rows
             ),
         ];
+    }
+
+    /**
+     * Convert "M:12,L:8" size/stock pairs into an ordered map.
+     *
+     * @return array<string,int>
+     */
+    private static function parseSizeStock(string $raw): array
+    {
+        $sizes = [];
+        foreach (explode(',', $raw) as $pair) {
+            if ($pair === '' || !str_contains($pair, ':')) {
+                continue;
+            }
+            [$code, $quantity] = explode(':', $pair, 2);
+            $sizes[$code] = (int) $quantity;
+        }
+
+        return $sizes;
     }
 }

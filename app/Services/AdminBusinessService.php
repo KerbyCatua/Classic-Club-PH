@@ -878,8 +878,10 @@ final class AdminBusinessService
             $newQty = $prevQty + $quantity;
             $primaryVsId = (int)$sizeRows[0]['vs_id'];
 
-            $stmtUpd = $this->pdo->prepare("UPDATE variant_sizes SET quantity_on_hand = quantity_on_hand + :qty WHERE id = :vsid");
-            $stmtUpd->execute(['qty' => $quantity, 'vsid' => $primaryVsId]);
+            // Spread the delivery across every size bucket so per-size
+            // availability stays usable and the product total grows by exactly
+            // the entered quantity.
+            $this->spreadStockIncrease($sizeRows, $quantity);
 
             // Insert inventory movement
             $stmtMov = $this->pdo->prepare(<<<SQL
@@ -939,7 +941,11 @@ final class AdminBusinessService
      */
     public function adjustStock(int $businessId, int $productId, string $type, int $quantity, string $reason, int $adminUserId, string $adminName): array
     {
-        if ($quantity <= 0) {
+        $type = strtolower(trim($type));
+        if ($quantity < 0) {
+            throw new RuntimeException('Stock quantity cannot be negative.');
+        }
+        if ($type !== 'set' && $quantity <= 0) {
             throw new RuntimeException('Adjustment quantity must be greater than zero.');
         }
 
@@ -992,30 +998,21 @@ final class AdminBusinessService
                 $delta = -$quantity;
                 $newQty = $prevQty - $quantity;
                 $actionLabel = 'Manual stock decrease';
-
-                // Remove units from the product's size buckets without ever
-                // pushing an individual bucket below zero.
-                $remaining = $quantity;
-                $stmtDeduct = $this->pdo->prepare("UPDATE variant_sizes SET quantity_on_hand = quantity_on_hand - :deduct WHERE id = :vsid");
-                foreach ($sizeRows as $row) {
-                    if ($remaining <= 0) {
-                        break;
-                    }
-                    $available = (int)$row['quantity_on_hand'];
-                    if ($available <= 0) {
-                        continue;
-                    }
-                    $deduct = min($available, $remaining);
-                    $stmtDeduct->execute(['deduct' => $deduct, 'vsid' => (int)$row['vs_id']]);
-                    $remaining -= $deduct;
-                }
+                $this->reduceStock($sizeRows, $quantity);
             } elseif ($type === 'increase') {
                 $delta = $quantity;
                 $newQty = $prevQty + $quantity;
                 $actionLabel = 'Manual stock increase';
+                $this->spreadStockIncrease($sizeRows, $quantity);
+            } elseif ($type === 'set') {
+                // Manual adjustment corrects stock to the entered quantity.
+                $newQty = $quantity;
+                $delta = $newQty - $prevQty;
+                $actionLabel = 'Manual stock adjustment';
 
-                $stmtUpd = $this->pdo->prepare("UPDATE variant_sizes SET quantity_on_hand = quantity_on_hand + :qty WHERE id = :vsid");
-                $stmtUpd->execute(['qty' => $quantity, 'vsid' => $primaryVsId]);
+                // A recount replaces the product total, so redistribute it
+                // evenly across size buckets instead of draining the first ones.
+                $this->setStockEvenly($sizeRows, $newQty);
             } else {
                 throw new RuntimeException('Invalid adjustment type.');
             }
@@ -1033,7 +1030,7 @@ final class AdminBusinessService
                 'delta' => $delta,
                 'prev' => $prevQty,
                 'new' => $newQty,
-                'notes' => "$actionLabel · " . ($delta > 0 ? "+$delta" : "$delta"),
+                'notes' => "$actionLabel · " . ($delta > 0 ? "+$delta" : "$delta") . " units",
                 'reason' => $reason,
                 'aname' => $adminName,
                 'uid' => $adminUserId,
@@ -1095,6 +1092,107 @@ final class AdminBusinessService
         } catch (Throwable $e) {
             $this->pdo->rollBack();
             throw $e;
+        }
+    }
+
+    /**
+     * Add units to a product's size buckets, in order, so per-size
+     * availability remains usable while the product total grows by exactly
+     * the requested quantity.
+     *
+     * @param array<int,array{vs_id:int|string,quantity_on_hand:int|string}> $sizeRows
+     */
+    private function spreadStockIncrease(array $sizeRows, int $quantity): void
+    {
+        if ($quantity <= 0 || $sizeRows === []) {
+            return;
+        }
+
+        $stmtUpd = $this->pdo->prepare(
+            'UPDATE variant_sizes SET quantity_on_hand = quantity_on_hand + :qty WHERE id = :vsid'
+        );
+
+        $remaining = $quantity;
+        $count = count($sizeRows);
+
+        while ($remaining > 0) {
+            $perBucket = (int) ceil($remaining / $count);
+            foreach ($sizeRows as $row) {
+                if ($remaining <= 0) {
+                    break;
+                }
+                $add = min($perBucket, $remaining);
+                $stmtUpd->execute(['qty' => $add, 'vsid' => (int) $row['vs_id']]);
+                $remaining -= $add;
+            }
+        }
+    }
+
+    /**
+     * Replace a product's stock with an exact total, split evenly across its
+     * size buckets (remainder goes to the first buckets).
+     *
+     * @param array<int,array{vs_id:int|string,quantity_on_hand:int|string}> $sizeRows
+     */
+    private function setStockEvenly(array $sizeRows, int $total): void
+    {
+        if ($sizeRows === []) {
+            return;
+        }
+
+        $total = max(0, $total);
+        $count = count($sizeRows);
+        $base = intdiv($total, $count);
+        $remainder = $total % $count;
+
+        $stmtSet = $this->pdo->prepare(
+            'UPDATE variant_sizes SET quantity_on_hand = :qty WHERE id = :vsid'
+        );
+
+        foreach (array_values($sizeRows) as $index => $row) {
+            $stmtSet->execute([
+                'qty' => $base + ($index < $remainder ? 1 : 0),
+                'vsid' => (int) $row['vs_id'],
+            ]);
+        }
+    }
+
+    /**
+     * Remove units from a product's size buckets without ever pushing an
+     * individual bucket below zero.
+     *
+     * @param array<int,array{vs_id:int|string,quantity_on_hand:int|string}> $sizeRows
+     */
+    private function reduceStock(array $sizeRows, int $quantity): void
+    {
+        if ($quantity <= 0) {
+            return;
+        }
+
+        $stmtDeduct = $this->pdo->prepare(
+            'UPDATE variant_sizes SET quantity_on_hand = quantity_on_hand - :deduct WHERE id = :vsid AND quantity_on_hand >= :deduct2'
+        );
+
+        $remaining = $quantity;
+        foreach ($sizeRows as $row) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $available = (int) $row['quantity_on_hand'];
+            if ($available <= 0) {
+                continue;
+            }
+            $deduct = min($available, $remaining);
+            $stmtDeduct->execute([
+                'deduct' => $deduct,
+                'deduct2' => $deduct,
+                'vsid' => (int) $row['vs_id'],
+            ]);
+            $remaining -= $deduct;
+        }
+
+        if ($remaining > 0) {
+            throw new RuntimeException('Not enough stock to complete this adjustment.');
         }
     }
 

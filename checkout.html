@@ -509,6 +509,7 @@
           paymentMethod: selectedPaymentMethod
         };
 
+        let serverResponded = false;
         try {
           const csrf = await fetch('public/api/auth/csrf.php', {
             credentials: 'same-origin',
@@ -537,6 +538,7 @@
               promotion_code: CCStore.getPromo().code || ''
             })
           });
+          serverResponded = true;
           const result = await response.json();
           if (!response.ok || !result.success) {
             throw new Error(result.error?.message || 'Unable to create the order.');
@@ -567,7 +569,14 @@
 
           window.location.href = 'order-confirmation.html?order_number=' + encodeURIComponent(orderNumber);
         } catch (error) {
-          console.warn('Backend order creation failed, falling back to local history storage:', error);
+          console.warn('Backend order creation failed:', error);
+          // A server rejection (such as insufficient stock) is authoritative:
+          // never create a local order that the inventory did not account for.
+          if (serverResponded) {
+            alert(error.message || 'Unable to create the order.');
+            button.disabled = false;
+            return;
+          }
           if (currentCart.length === 0) {
             alert(error.message || 'Your cart is empty.');
             button.disabled = false;

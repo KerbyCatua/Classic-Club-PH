@@ -657,6 +657,11 @@ async function initDashboard() {
     const qty = parseInt(document.getElementById('adjustQty').value, 10);
     const reason = document.getElementById('adjustReason').value;
 
+    if (!Number.isInteger(qty) || qty < 0 || (type !== 'set' && qty < 1)) {
+      CCAdmin.showToast('Enter a valid stock quantity.', 'error');
+      return;
+    }
+
     try {
       await CCAdmin.apiRequest('public/api/admin/inventory.php', {
         method: 'POST',

@@ -54,13 +54,15 @@ final class CartRepository
             <<<'SQL'
                 SELECT
                     vs.id AS variant_size_id,
-                    v.catalog_key,
-                    v.sku,
-                    v.color_name,
-                    v.price,
-                    p.name,
-                    s.code AS size_code,
-                    image.image_url
+                                    vs.quantity_on_hand,
+                                    v.id AS variant_id,
+                                    v.catalog_key,
+                                    v.sku,
+                                    v.color_name,
+                                    v.price,
+                                    p.name,
+                                    s.code AS size_code,
+                                    image.image_url
                 FROM variant_sizes vs
                 INNER JOIN product_variants v ON v.id = vs.variant_id
                 INNER JOIN products p ON p.id = v.product_id
@@ -147,6 +149,19 @@ final class CartRepository
         ]);
     }
 
+        public function quantityInCart(int $cartId, int $variantSizeId): int
+        {
+            $statement = $this->pdo->prepare(
+                'SELECT quantity FROM cart_items WHERE cart_id = :cart_id AND variant_size_id = :variant_size_id LIMIT 1'
+            );
+            $statement->execute([
+                'cart_id' => $cartId,
+                'variant_size_id' => $variantSizeId,
+            ]);
+
+            return (int) ($statement->fetchColumn() ?: 0);
+        }
+
     public function items(int $cartId): array
     {
         $statement = $this->pdo->prepare(
@@ -161,7 +176,8 @@ final class CartRepository
                     v.color_name AS color,
                     s.code AS size,
                     p.name,
-                    image.image_url AS image
+                                        p.id AS product_id,
+                                        image.image_url AS image
                 FROM cart_items ci
                 INNER JOIN variant_sizes vs ON vs.id = ci.variant_size_id
                 INNER JOIN product_variants v ON v.id = vs.variant_id
