@@ -237,6 +237,40 @@ h1, h2, h3, h4, .font-lora {
   z-index: 1;
 }
 
+/* Product gallery image sits above the placeholder crosshair once loaded. */
+.cc-asset-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  z-index: 0;
+}
+
+.cc-asset-box.cc-has-asset {
+  background-image: none;
+}
+
+.cc-asset-box.cc-has-asset .cc-asset-img {
+  display: block;
+}
+
+.cc-asset-box.cc-has-asset .cc-asset-tl,
+.cc-asset-box.cc-has-asset .cc-asset-center-pill {
+  display: none;
+}
+
+.cc-asset-box.cc-has-asset .cc-asset-bl {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 4px 8px;
+  left: 12px;
+  bottom: 12px;
+  text-shadow: none;
+  z-index: 2;
+}
+
 .cc-asset-icon {
   width: 16.5px;
   height: 16.5px;

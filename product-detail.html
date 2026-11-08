@@ -39,6 +39,12 @@
             <div class="row g-4">
               <div class="col-12 col-sm-6">
                 <div class="cc-asset-box w-100" style="height: 500px;">
+                  <img
+                    src=""
+                    alt=""
+                    data-gallery-image="front"
+                    class="cc-asset-img"
+                  >
                   <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
                   <div class="cc-asset-center-pill">
                     <div class="cc-asset-icon"></div>
@@ -49,6 +55,12 @@
               </div>
               <div class="col-12 col-sm-6">
                 <div class="cc-asset-box w-100" style="height: 500px;">
+                  <img
+                    src=""
+                    alt=""
+                    data-gallery-image="back"
+                    class="cc-asset-img"
+                  >
                   <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
                   <div class="cc-asset-center-pill">
                     <div class="cc-asset-icon"></div>
@@ -63,6 +75,12 @@
             <div class="row g-4">
               <div class="col-12 col-sm-6">
                 <div class="cc-asset-box w-100" style="height: 410px;">
+                  <img
+                    src=""
+                    alt=""
+                    data-gallery-image="on-body"
+                    class="cc-asset-img"
+                  >
                   <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
                   <div class="cc-asset-center-pill">
                     <div class="cc-asset-icon"></div>
@@ -73,6 +91,12 @@
               </div>
               <div class="col-12 col-sm-6">
                 <div class="cc-asset-box w-100" style="height: 410px;">
+                  <img
+                    src=""
+                    alt=""
+                    data-gallery-image="fabric"
+                    class="cc-asset-img"
+                  >
                   <span class="cc-asset-tl">REPLACE WITH ASSET ↗</span>
                   <div class="cc-asset-center-pill">
                     <div class="cc-asset-icon"></div>
@@ -400,8 +424,9 @@
   <!-- Project Scripts -->
    <script src="assets/js/global-loader.js"></script>
   <script src="assets/js/store.js?v=20261107-10"></script>
+  <script src="assets/js/product-gallery.js?v=20261108-1"></script>
   <script src="assets/js/partials.js?v=20261103"></script>
-  <script src="assets/js/main.js?v=20261107-10"></script>
+  <script src="assets/js/main.js?v=20261108-1"></script>
 
   <!-- Product Interactive Logic -->
   <script>
@@ -454,6 +479,11 @@
         size: 'M',
         quantity: 1
       };
+
+      // Show this product's own four preview assets (front, back, on-body, fabric).
+      if (typeof CCProductGallery !== 'undefined') {
+        CCProductGallery.render(loadedProduct);
+      }
 
       // Product pages used to hard-code XS-XXL, but one-size accessories and
       // numeric fits only have their own size row. Use the sizes this product

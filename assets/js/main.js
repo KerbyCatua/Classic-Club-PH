@@ -123,6 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
           detailImage.src = product.srcImage;
           detailImage.alt = product.name + ' / ' + product.color;
         }
+
+        // Swap the four gallery previews to this product's own assets.
+        if (typeof CCProductGallery !== 'undefined') {
+          CCProductGallery.render(product);
+        }
       }
     }
   }
@@ -235,6 +240,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render from local definitions
   hydrateProductDetail();
   hydrateProductCards();
+
+  // Same-document product switches (history navigation or a programmatic
+  // ?id= change) re-render the whole detail view so nothing from the previous
+  // product, including its four previews, can survive the switch.
+  window.addEventListener('popstate', () => {
+    const requestedId = new URLSearchParams(window.location.search).get('id');
+    const renderedId = document.getElementById('add-to-cart-btn')?.getAttribute('data-product-id');
+    if (requestedId && requestedId !== renderedId) {
+      window.location.reload();
+    }
+  });
+  window.addEventListener('cc:productChanged', hydrateProductDetail);
 
   // Sync live database catalog (prices, availability) and re-hydrate
   if (typeof CCStore !== 'undefined' && typeof CCStore.syncCatalogFromApi === 'function') {
