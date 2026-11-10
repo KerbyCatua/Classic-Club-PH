@@ -9,19 +9,25 @@ require_once __DIR__ . '/../../../app/Http/Response.php';
 require_once __DIR__ . '/../../../app/Http/JsonResponse.php';
 require_once __DIR__ . '/../../../app/Auth/SessionManager.php';
 require_once __DIR__ . '/../../../app/Middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../../app/Middleware/CsrfMiddleware.php';
 
 use ClassicClub\Auth\SessionManager;
 use ClassicClub\Http\JsonResponse;
 use ClassicClub\Middleware\AuthMiddleware;
+use ClassicClub\Middleware\CsrfMiddleware;
 
 /**
  * Authenticate the current session and require the super_admin global role.
  * Unlike the business-admin bootstrap, this context is not tied to a single
  * business assignment.
  */
-function getSuperAdminContext(PDO $pdo): array
+function getSuperAdminContext(PDO $pdo, bool $requireCsrf = false): array
 {
     $userId = AuthMiddleware::requireUser();
+
+    if ($requireCsrf) {
+        CsrfMiddleware::require();
+    }
 
     // Release the PHP session lock so parallel dashboard requests can run.
     if (session_status() === PHP_SESSION_ACTIVE) {

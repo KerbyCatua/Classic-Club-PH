@@ -799,21 +799,19 @@
           <input type="text" id="userSearchInput" class="admin-input-filter flex-grow-1" placeholder="Search name or email" style="min-width: 220px;">
           <select id="userRoleFilter" class="admin-select-filter">
             <option value="">Role: All three roles</option>
-            <option value="Super Admin">Super Admin</option>
-            <option value="Admin / Business Owner">Admin / Business Owner</option>
-            <option value="Customer">Customer</option>
+            <option value="super_admin">Super Admin</option>
+            <option value="admin">Admin / Business Owner</option>
+            <option value="customer">Customer</option>
           </select>
           <select id="userStatusFilter" class="admin-select-filter">
             <option value="">Account status: All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Suspended">Suspended</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
+            <option value="pending">Pending</option>
           </select>
           <select id="userDateFilter" class="admin-select-filter">
             <option value="">Registration date: All</option>
-            <option value="2026-09">September 2026</option>
-            <option value="2026-10">October 2026</option>
-            <option value="2026-11">November 2026</option>
           </select>
           <select id="userSortFilter" class="admin-select-filter">
             <option value="role">Sort: Role priority</option>
@@ -841,12 +839,12 @@
               <th style="width: 42px;">
                 <input class="form-check-input" type="checkbox" id="usersSelectAll" aria-label="Select all accounts">
               </th>
-              <th>Name / email · sample</th>
+              <th>Name / email</th>
               <th>Global role</th>
               <th>Account status</th>
               <th>Assigned business</th>
               <th>Registration</th>
-              <th>Last activity · 2026 PHT</th>
+              <th>Last activity · PHT</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -856,46 +854,44 @@
         </table>
       </div>
       <p class="text-muted-cc mb-5" style="font-size: 12px;" id="usersTableNote">
-        8 representative accounts shown from 1,200 demo accounts · Global totals: 1,100 Active / 80 Inactive / 20 Suspended
+        Loading live accounts…
       </p>
 
       <!-- Create User Draft & Edit User -->
       <div class="row g-4 mb-4">
         <div class="col-12 col-xl-6">
           <div class="admin-card h-100" id="createUserCard">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Create user / new account draft</h3>
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Create user / new account</h3>
             <form id="createUserForm" class="d-flex flex-column gap-3">
               <div class="row g-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="newUserName">Full name *</label>
-                  <input type="text" class="admin-input-filter w-100" id="newUserName" value="Bea Ramos · draft" required>
+                  <input type="text" class="admin-input-filter w-100" id="newUserName" placeholder="Enter the user's full name" autocomplete="off" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="newUserEmail">Email address *</label>
-                  <input type="email" class="admin-input-filter w-100" id="newUserEmail" value="bea.ramos@example.com" required>
+                  <input type="email" class="admin-input-filter w-100" id="newUserEmail" placeholder="name@example.com" autocomplete="off" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="newUserRole">Global role *</label>
                   <select class="admin-select-filter w-100" id="newUserRole">
-                    <option value="Customer" selected>Customer</option>
-                    <option value="Admin / Business Owner">Admin / Business Owner</option>
-                    <option value="Super Admin">Super Admin</option>
+                    <option value="customer" selected>Customer</option>
+                    <option value="admin">Admin / Business Owner</option>
+                    <option value="super_admin">Super Admin</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="newUserStatus">Account status *</label>
                   <select class="admin-select-filter w-100" id="newUserStatus">
-                    <option value="Inactive" selected>Inactive until verified</option>
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
+                    <option value="inactive" selected>Inactive until verified</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="newUserBusiness">Assigned business</label>
                   <select class="admin-select-filter w-100" id="newUserBusiness">
-                    <option value="Not applicable" selected>Not applicable for Customer</option>
-                    <option value="Classic Club PH">Classic Club PH</option>
-                    <option value="Inventory staff access">Inventory staff access</option>
+                    <option value="0" selected>Not applicable for Customer</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
@@ -918,11 +914,11 @@
                 </div>
               </div>
 
-              <p class="sa-form-note mb-0">No account is added to the totals until the example creation is confirmed. Never enter a real password for another user.</p>
+              <p class="sa-form-note mb-0">The account is written to the database when confirmed. Never enter a real password for another user; a one-time invitation can be prepared instead.</p>
 
               <div class="d-flex flex-wrap gap-2 pt-1">
                 <button type="button" class="btn-admin-outline" id="btnDiscardCreate">Discard draft</button>
-                <button type="submit" class="btn-admin-primary">Review user creation</button>
+                <button type="submit" class="btn-admin-primary" id="btnSubmitCreateUser">Create user account</button>
               </div>
             </form>
           </div>
@@ -930,56 +926,53 @@
 
         <div class="col-12 col-xl-6">
           <div class="admin-card h-100" id="editUserCard">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Edit user / <span id="editUserHeadingName">Mara Santos</span></h3>
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Edit user / <span id="editUserHeadingName">Select an account</span></h3>
             <form id="editUserForm" class="d-flex flex-column gap-3">
               <div class="row g-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="editUserName">Full name</label>
-                  <input type="text" class="admin-input-filter w-100" id="editUserName" value="Mara Santos" required>
+                  <input type="text" class="admin-input-filter w-100" id="editUserName" placeholder="Select an account from the table" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="editUserEmail">Email address</label>
-                  <input type="email" class="admin-input-filter w-100" id="editUserEmail" value="mara.santos@example.com" required>
+                  <input type="email" class="admin-input-filter w-100" id="editUserEmail" placeholder="name@example.com" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="editUserRole">Global role</label>
                   <select class="admin-select-filter w-100" id="editUserRole">
-                    <option value="Customer">Customer</option>
-                    <option value="Admin / Business Owner" selected>Admin / Business Owner</option>
-                    <option value="Super Admin">Super Admin</option>
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin / Business Owner</option>
+                    <option value="super_admin">Super Admin</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="editUserStatus">Account status</label>
                   <select class="admin-select-filter w-100" id="editUserStatus">
-                    <option value="Active" selected>Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Suspended">Suspended</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="pending">Pending</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="editUserBusiness">Assigned business *</label>
                   <select class="admin-select-filter w-100" id="editUserBusiness">
-                    <option value="Classic Club PH" selected>Classic Club PH</option>
-                    <option value="Inventory staff access">Inventory staff access</option>
-                    <option value="Not business-bound">Not business-bound</option>
+                    <option value="0">Not business-bound</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="editUserPermission">Business permission set</label>
                   <select class="admin-select-filter w-100" id="editUserPermission">
-                    <option value="Business owner · business-bound" selected>Business owner · business-bound</option>
-                    <option value="Inventory manager · business-bound">Inventory manager · business-bound</option>
-                    <option value="Review &amp; reports staff · business-bound">Review &amp; reports staff · business-bound</option>
+                    <option value="">Not applicable for this role</option>
                   </select>
                 </div>
               </div>
 
-              <p class="sa-form-note mb-0">Registered 01 Oct 2026 · Last activity 05 Nov 2026, 14:10 PHT. Business assignment does not grant access to RBAC or global settings.</p>
+              <p class="sa-form-note mb-0" id="editUserMeta">Select an account from the table to review its live registration and activity details.</p>
 
               <div class="d-flex flex-wrap gap-2 pt-1">
                 <button type="button" class="btn-admin-outline" id="btnCancelEditUser">Cancel edits</button>
-                <button type="submit" class="btn-admin-primary">Save user details</button>
+                <button type="submit" class="btn-admin-primary" id="btnSaveUser">Save user details</button>
                 <button type="button" class="btn-admin-outline" id="btnEditResetPassword">Initiate password reset</button>
               </div>
             </form>
@@ -999,23 +992,13 @@
         <div class="col-12 col-xl-5">
           <div class="admin-card h-100">
             <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Selected account activity history</h3>
-            <div class="sa-list-row">
-              <div class="sa-list-title">05 Nov 2026 · 14:10 PHT / Product restock</div>
-              <div class="sa-list-meta">Mara Santos · Classic Club PH · Tee: 64 +20 → 84</div>
+            <div id="selectedAccountHistory">
+              <div class="sa-list-row">
+                <div class="sa-list-title">No account selected</div>
+                <div class="sa-list-meta">Choose an account from the table to load its live audit history.</div>
+              </div>
             </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">05 Nov 2026 · 09:00 PHT / Login</div>
-              <div class="sa-list-meta">Verified example session · Successful</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">04 Nov 2026 · 09:30 PHT / Product edit</div>
-              <div class="sa-list-meta">Tee description updated; price unchanged</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">01 Oct 2026 · 09:00 PHT / Role assignment</div>
-              <div class="sa-list-meta">Customer → Admin / Business Owner · Approved by Julia Dela Cruz</div>
-            </div>
-            <button type="button" class="btn-admin-outline btn-admin-sm mt-3 w-100" data-demo-action="Full account history is illustrative only.">View full account history <i class="bi bi-box-arrow-up-right"></i></button>
+            <button type="button" class="btn-admin-outline btn-admin-sm mt-3 w-100" id="btnViewFullHistory">View full account history <i class="bi bi-box-arrow-up-right"></i></button>
           </div>
         </div>
 
@@ -1034,31 +1017,25 @@
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="roleTargetUser">Target user</label>
                   <select class="admin-select-filter w-100" id="roleTargetUser">
-                    <option value="Mara Santos" selected>Mara Santos</option>
-                    <option value="Nico Cruz">Nico Cruz</option>
-                    <option value="Alex Reyes">Alex Reyes</option>
-                    <option value="Jamie Lim">Jamie Lim</option>
+                    <option value="">Select an account</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="roleProposedRole">Proposed global role</label>
                   <select class="admin-select-filter w-100" id="roleProposedRole">
-                    <option value="Super Admin" selected>Super Admin</option>
-                    <option value="Admin / Business Owner">Admin / Business Owner</option>
-                    <option value="Customer">Customer</option>
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin / Business Owner</option>
+                    <option value="super_admin">Super Admin</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="roleCurrentRole">Current global role</label>
-                  <input type="text" class="admin-input-filter w-100" id="roleCurrentRole" value="Admin / Business Owner" readonly>
+                  <input type="text" class="admin-input-filter w-100" id="roleCurrentRole" value="" readonly>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="roleApprover">Second approver</label>
                   <select class="admin-select-filter w-100" id="roleApprover">
                     <option value="">Choose authorized Super Admin</option>
-                    <option value="Julia Dela Cruz">Julia Dela Cruz</option>
-                    <option value="Paolo Garcia">Paolo Garcia</option>
-                    <option value="Inez Flores">Inez Flores</option>
                   </select>
                 </div>
                 <div class="col-12">
@@ -1085,30 +1062,30 @@
       <div class="sa-danger-panel" id="suspendPanel">
         <h3 class="sa-danger-title">Suspend selected user?</h3>
         <p class="mb-4" style="font-size: 14px; line-height: 22px; color: var(--cc-muted);" id="suspendTargetText">
-          Selected: Alex Reyes / Customer. Scope: this account across the application. Suspension would prevent sign-in while retaining orders and account history. Current example status remains Active; no change has been applied.
+          Select an account and choose Suspend to review the impact before any change is applied.
         </p>
 
         <div class="row g-3 align-items-end">
           <div class="col-12 col-lg-6">
             <label class="form-label text-muted-cc" style="font-size: 12px;" for="suspendPhrase">Type the confirmation phrase</label>
-            <input type="text" class="admin-input-filter w-100" id="suspendPhrase" placeholder="SUSPEND ALEX REYES" autocomplete="off">
+            <input type="text" class="admin-input-filter w-100" id="suspendPhrase" placeholder="SUSPEND FULL NAME" autocomplete="off">
           </div>
           <div class="col-12 col-lg-6">
             <div class="form-check mb-2">
               <input class="form-check-input" type="checkbox" id="suspendConfirmCheck">
-              <label class="form-check-label text-light-cc" for="suspendConfirmCheck" style="font-size: 13px;">I understand the scope and impact of this example action.</label>
+              <label class="form-check-label text-light-cc" for="suspendConfirmCheck" style="font-size: 13px;">I understand the scope and impact of this account action.</label>
             </div>
           </div>
         </div>
 
         <div class="d-flex flex-wrap gap-2 mt-3">
           <button type="button" class="btn-admin-outline" id="btnCancelSuspend">Cancel</button>
-          <button type="button" class="btn-admin-outline" id="btnConfirmSuspend" style="background: #2A1D1D; border-color: #D19A93; color: #f4b4ae;">Confirm suspension · example</button>
+          <button type="button" class="btn-admin-outline" id="btnConfirmSuspend" style="background: #2A1D1D; border-color: #D19A93; color: #f4b4ae;">Confirm suspension</button>
         </div>
       </div>
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
-        <span class="sa-tiny-label">ILLUSTRATIVE DATA · STATIC INTERFACE</span>
+        <span class="sa-tiny-label" id="usersDataFootnote">LIVE DATABASE DATA · MODULE 21.2</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
       </div>
     </section>
@@ -1121,7 +1098,7 @@
       </div>
       <h2 class="admin-section-title mb-2">System maintenance management</h2>
       <p class="admin-section-desc mb-4">
-        Application-wide operations · Authorized Super Admin only. Current simulated status: Available / Maintenance Off. No active maintenance at 05 Nov 2026, 14:30 PHT.
+        Application-wide operations · Authorized Super Admin only. Times are in Philippine Time (PHT).
       </p>
 
       <div class="row g-3 mb-4">
@@ -1129,7 +1106,7 @@
           <div class="admin-card h-100">
             <span class="admin-card-label">Application availability</span>
             <div class="admin-card-stat text-accent" id="maintenanceAvailability">Available</div>
-            <span class="admin-card-sub">Simulated snapshot</span>
+            <span class="admin-card-sub">Live application state</span>
           </div>
         </div>
         <div class="col-12 col-md-4">
@@ -1142,8 +1119,8 @@
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Next scheduled window</span>
-            <div class="admin-card-stat" id="nextWindowValue">08 Nov</div>
-            <span class="admin-card-sub">02:00–02:30 PHT · scheduled</span>
+            <div class="admin-card-stat" id="nextWindowValue">—</div>
+            <span class="admin-card-sub" id="nextWindowSub">No scheduled window</span>
           </div>
         </div>
       </div>
@@ -1171,45 +1148,50 @@
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceState">Schedule state</label>
                   <select class="admin-select-filter w-100" id="maintenanceState">
-                    <option value="Scheduled" selected>Scheduled window / example</option>
-                    <option value="Draft">Draft — not scheduled</option>
+                    <option value="Scheduled">Scheduled window</option>
+                    <option value="Draft" selected>Draft — not scheduled</option>
                     <option value="Cancelled">Cancelled</option>
                   </select>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceStartDate">Start date</label>
-                  <input type="date" class="admin-input-filter w-100" id="maintenanceStartDate" value="2026-11-08">
+                  <input type="date" class="admin-input-filter w-100" id="maintenanceStartDate">
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceStartTime">Start time</label>
-                  <input type="time" class="admin-input-filter w-100" id="maintenanceStartTime" value="02:00">
+                  <input type="time" class="admin-input-filter w-100" id="maintenanceStartTime">
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceEndDate">End date</label>
-                  <input type="date" class="admin-input-filter w-100" id="maintenanceEndDate" value="2026-11-08">
+                  <input type="date" class="admin-input-filter w-100" id="maintenanceEndDate">
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceEndTime">End time</label>
-                  <input type="time" class="admin-input-filter w-100" id="maintenanceEndTime" value="02:30">
+                  <input type="time" class="admin-input-filter w-100" id="maintenanceEndTime">
                 </div>
+              </div>
+
+              <div>
+                <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenancePurpose">Purpose</label>
+                <input type="text" class="admin-input-filter w-100" id="maintenancePurpose" maxlength="160" required>
               </div>
 
               <div class="d-flex flex-column gap-2">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="maintenanceAllowAdmin" checked>
+                  <input class="form-check-input" type="checkbox" id="maintenanceAllowAdmin" checked disabled>
                   <label class="form-check-label text-light-cc" for="maintenanceAllowAdmin" style="font-size: 13px;">Allow authorized Super Admin access during maintenance</label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="maintenanceNotifyUsers" checked>
-                  <label class="form-check-label text-light-cc" for="maintenanceNotifyUsers" style="font-size: 13px;">Notify users before the scheduled window</label>
+                  <input class="form-check-input" type="checkbox" id="maintenanceNotifyUsers">
+                  <label class="form-check-label text-light-cc" for="maintenanceNotifyUsers" style="font-size: 13px;">Show announcement before the scheduled window</label>
                 </div>
               </div>
 
               <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn-admin-outline" id="btnCancelSchedule">Cancel schedule edit</button>
-                <button type="submit" class="btn-admin-primary">Review schedule</button>
+                <button type="submit" class="btn-admin-primary">Save schedule</button>
               </div>
-              <p class="sa-form-note mb-0">Changes are drafts until reviewed and confirmed. Disabling maintenance also requires confirmation and creates an audit record.</p>
+              <p class="sa-form-note mb-0">Saving a scheduled window activates it automatically at its start time. All changes create an audit record.</p>
             </form>
           </div>
         </div>
@@ -1220,11 +1202,11 @@
             <form id="announcementForm" class="d-flex flex-column gap-3">
               <div>
                 <label class="form-label text-muted-cc" style="font-size: 12px;" for="announcementTitle">Announcement title</label>
-                <input type="text" class="admin-input-filter w-100" id="announcementTitle" value="A short pause for a better everyday.">
+                <input type="text" class="admin-input-filter w-100" id="announcementTitle" maxlength="120" required>
               </div>
               <div>
-                <label class="form-label text-muted-cc" style="font-size: 12px;" for="announcementMessage">Public message · editable draft</label>
-                <textarea class="admin-input-filter w-100" id="announcementMessage" rows="4">Classic Club PH will be briefly unavailable on 08 November, 02:00–02:30 PHT for scheduled maintenance. Please return after the window. Thank you for your patience.</textarea>
+                <label class="form-label text-muted-cc" style="font-size: 12px;" for="announcementMessage">Public message</label>
+                <textarea class="admin-input-filter w-100" id="announcementMessage" rows="4" maxlength="1000" required></textarea>
               </div>
               <div>
                 <label class="form-label text-muted-cc" style="font-size: 12px;" for="announcementLocation">Display location</label>
@@ -1238,13 +1220,13 @@
               <div class="admin-callout">
                 <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Announcement preview</span>
                 <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;" id="announcementPreviewText">
-                  Scheduled maintenance · 08 Nov, 02:00–02:30 PHT. Customer and business access may be paused; authorized Super Admin access remains permitted.
+                  No announcement saved.
                 </span>
               </div>
 
               <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn-admin-outline" id="btnPreviewAnnouncement">Preview announcement</button>
-                <button type="submit" class="btn-admin-primary">Save announcement draft</button>
+                <button type="submit" class="btn-admin-primary">Save announcement</button>
               </div>
             </form>
           </div>
@@ -1264,32 +1246,7 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>02:00–02:30</td>
-              <td>Version 2.6.2 update window</td>
-              <td>Entire application</td>
-              <td><span class="sa-badge sa-badge-warning">Scheduled</span></td>
-              <td>Super Admin only</td>
-              <td><button type="button" class="btn btn-link p-0 text-decoration-none text-light-cc" style="font-size: 13px;" data-demo-action="Window edit is an illustrative interaction.">Edit ↗ · Cancel window</button></td>
-            </tr>
-            <tr>
-              <td>02:00–02:15</td>
-              <td>Routine application maintenance</td>
-              <td>Entire application</td>
-              <td><span class="sa-badge sa-badge-neutral">Completed / Off</span></td>
-              <td>Super Admin only</td>
-              <td><button type="button" class="btn btn-link p-0 text-decoration-none text-muted-cc" style="font-size: 13px;" data-demo-action="Maintenance history is illustrative only.">View history ↗</button></td>
-            </tr>
-            <tr>
-              <td>02:00–02:20</td>
-              <td>Post-release checks</td>
-              <td>Entire application</td>
-              <td><span class="sa-badge sa-badge-neutral">Completed / Off</span></td>
-              <td>Super Admin only</td>
-              <td><button type="button" class="btn btn-link p-0 text-decoration-none text-muted-cc" style="font-size: 13px;" data-demo-action="Maintenance history is illustrative only.">View history ↗</button></td>
-            </tr>
-          </tbody>
+          <tbody id="maintenanceHistoryBody"><tr><td colspan="6">Loading maintenance history…</td></tr></tbody>
         </table>
       </div>
 
@@ -1297,7 +1254,7 @@
       <div class="sa-danger-panel" id="enableMaintenancePanel">
         <h3 class="sa-danger-title">Enable application-wide maintenance?</h3>
         <p class="mb-4" style="font-size: 14px; line-height: 22px; color: var(--cc-muted);">
-          Scope: Entire application, all customer and business accounts. Impact: customer shopping, checkout and business administration would be paused now. Authorized Super Admin access remains allowed. This is an unapplied example; current Maintenance mode is still Off. Cancel returns without any change.
+          Scope: Entire application, all customer and business accounts. Customer shopping, checkout and business administration will be paused now. Authorized Super Admin access remains available.
         </p>
 
         <div class="row g-3 align-items-end">
@@ -1308,19 +1265,19 @@
           <div class="col-12 col-lg-6">
             <div class="form-check mb-2">
               <input class="form-check-input" type="checkbox" id="enableMaintenanceCheck">
-              <label class="form-check-label text-light-cc" for="enableMaintenanceCheck" style="font-size: 13px;">I understand the scope and impact of this example action.</label>
+              <label class="form-check-label text-light-cc" for="enableMaintenanceCheck" style="font-size: 13px;">I understand the scope and impact of this action.</label>
             </div>
           </div>
         </div>
 
         <div class="d-flex flex-wrap gap-2 mt-3">
           <button type="button" class="btn-admin-outline" id="btnCancelEnableMaintenance">Cancel</button>
-          <button type="button" class="btn-admin-outline" id="btnConfirmEnableMaintenance" style="background: #2A1D1D; border-color: #D19A93; color: #f4b4ae;">Confirm enable · example</button>
+          <button type="button" class="btn-admin-outline" id="btnConfirmEnableMaintenance" style="background: #2A1D1D; border-color: #D19A93; color: #f4b4ae;">Confirm enable</button>
         </div>
       </div>
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
-        <span class="sa-tiny-label">ILLUSTRATIVE DATA · STATIC INTERFACE</span>
+        <span class="sa-tiny-label">LIVE MAINTENANCE DATA</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
       </div>
     </section>
@@ -2637,24 +2594,21 @@ payload: [redacted] · credentials: [redacted]</div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/scroll-reveal.js"></script>
+  <script src="assets/js/maintenance.js"></script>
   <script>
     (function () {
       'use strict';
 
       /* ============================================================
-         Mock / illustrative state (front-end only, no API calls)
+         Shared state. Module 21.2 hydrates its accounts from the API.
          ============================================================ */
       const state = {
-        users: [
-          { name: 'Julia Dela Cruz', email: 'julia.dc@example.com', role: 'Super Admin', status: 'Active', business: 'Not business-bound', reg: '01 Sep 2026', regKey: '2026-09', last: '05 Nov · 14:30', lastOrder: 5051430 },
-          { name: 'Paolo Garcia', email: 'paolo.g@example.com', role: 'Super Admin', status: 'Active', business: 'Not business-bound', reg: '01 Sep 2026', regKey: '2026-09', last: '05 Nov · 14:15', lastOrder: 5051415 },
-          { name: 'Inez Flores', email: 'inez.f@example.com', role: 'Super Admin', status: 'Active', business: 'Not business-bound', reg: '04 Sep 2026', regKey: '2026-09', last: '05 Nov · 11:00', lastOrder: 5051100 },
-          { name: 'Mara Santos', email: 'mara.santos@example.com', role: 'Admin / Business Owner', status: 'Active', business: 'Classic Club PH', reg: '01 Oct 2026', regKey: '2026-10', last: '05 Nov · 14:10', lastOrder: 5051410 },
-          { name: 'Nico Cruz', email: 'nico.cruz@example.com', role: 'Admin / Business Owner', status: 'Active', business: 'Inventory staff access', reg: '08 Oct 2026', regKey: '2026-10', last: '05 Nov · 13:40', lastOrder: 5051340 },
-          { name: 'Alex Reyes', email: 'alex.reyes@example.com', role: 'Customer', status: 'Active', business: '—', reg: '10 Oct 2026', regKey: '2026-10', last: '05 Nov · 10:50', lastOrder: 5051050 },
-          { name: 'Jamie Lim', email: 'jamie.l@example.com', role: 'Customer', status: 'Inactive', business: '—', reg: '11 Oct 2026', regKey: '2026-10', last: '29 Oct · 16:20', lastOrder: 4291620 },
-          { name: 'Sam Chua', email: 'sam.c@example.com', role: 'Customer', status: 'Suspended', business: '—', reg: '12 Oct 2026', regKey: '2026-10', last: '04 Nov · 18:20', lastOrder: 5041820 }
-        ],
+        users: [],
+        userOptions: [],
+        userFilters: null,
+        userSummary: null,
+        usersLoaded: false,
+        usersLoading: false,
         selectedUsers: new Set(),
         errors: [
           {
@@ -2772,8 +2726,7 @@ payload: [redacted] · credentials: [redacted]</div>
             response: 'Closed · Resolution confirmed · Example ticket archived'
           }
         ],
-        selectedTicket: 'T-208',
-        maintenanceOn: false
+        selectedTicket: 'T-208'
       };
 
       /* ============================================================
@@ -3190,9 +3143,8 @@ payload: [redacted] · credentials: [redacted]</div>
 
         verifySuperAdminSession().then(function (auth) {
           initDirectory();
-          renderUsers();
-          initUserEvents();
-          initMaintenanceEvents();
+          initUserManagement();
+          window.initLiveMaintenance({ byId, showToast, escapeHtml, getCsrfToken, refreshOverview: loadOverview });
           renderErrors();
           initErrorEvents();
           renderTickets();
@@ -3240,61 +3192,334 @@ payload: [redacted] · credentials: [redacted]</div>
       }
 
       /* ============================================================
-         21.2 — Global user management
+         21.2 — Global user management (live database data)
          ============================================================ */
+      let selectedUserId = null;
+      let suspendTargetId = null;
+      let userSearchTimer = null;
+      let csrfTokenCache = null;
+      let userActionInFlight = false;
+      let userRequestSeq = 0;
+
+      function userStatusBadge(value, key) {
+        const variants = { active: 'success', inactive: 'warning', suspended: 'danger', pending: 'info' };
+        return '<span class="sa-badge sa-badge-' + (variants[key] || 'neutral') + '">' + escapeHtml(value) + '</span>';
+      }
+
+      async function getCsrfToken(force) {
+        if (csrfTokenCache && !force) return csrfTokenCache;
+
+        const response = await fetch('public/api/auth/csrf.php', {
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        const payload = await response.json().catch(function () { return {}; });
+        csrfTokenCache = payload && payload.data ? payload.data.token : '';
+        return csrfTokenCache;
+      }
+
+      function buildUserQuery(params) {
+        const query = new URLSearchParams();
+        Object.keys(params || {}).forEach(function (key) {
+          const value = params[key];
+          if (value !== undefined && value !== null && String(value) !== '') query.set(key, String(value));
+        });
+        const text = query.toString();
+        return text ? '?' + text : '';
+      }
+
+      async function apiGetUsers(params) {
+        const response = await fetch('public/api/super-admin/users.php' + buildUserQuery(params), {
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        const payload = await response.json().catch(function () { return {}; });
+
+        if (!response.ok || !payload.success || !payload.data) {
+          const error = new Error((payload.error && payload.error.message) || 'Unable to load the user accounts.');
+          error.fields = payload.error ? payload.error.fields : null;
+          error.status = response.status;
+          throw error;
+        }
+
+        return payload.data;
+      }
+
+      async function apiPostUsers(action, payload, retried) {
+        try {
+          const token = await getCsrfToken();
+          const response = await fetch('public/api/super-admin/users.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': token || ''
+            },
+            body: JSON.stringify(Object.assign({ action: action }, payload || {}))
+          });
+
+          const body = await response.json().catch(function () { return {}; });
+
+          if (!response.ok || !body.success) {
+            if (response.status === 403 && !retried) {
+              csrfTokenCache = null;
+              return apiPostUsers(action, payload, true);
+            }
+
+            const error = new Error((body.error && body.error.message) || 'Unable to complete the user management request.');
+            error.fields = body.error ? body.error.fields : null;
+            error.status = response.status;
+            throw error;
+          }
+
+          return body.data;
+        } catch (error) {
+          if (error && error.status === 403 && !retried) {
+            csrfTokenCache = null;
+            return apiPostUsers(action, payload, true);
+          }
+          throw error;
+        }
+      }
+
+      function currentUserFilters() {
+        return {
+          search: byId('userSearchInput') ? byId('userSearchInput').value.trim() : '',
+          role: byId('userRoleFilter') ? byId('userRoleFilter').value : '',
+          status: byId('userStatusFilter') ? byId('userStatusFilter').value : '',
+          month: byId('userDateFilter') ? byId('userDateFilter').value : '',
+          sort: byId('userSortFilter') ? byId('userSortFilter').value : 'role'
+        };
+      }
+
+      function findUserById(userId) {
+        const id = Number(userId);
+        return (state.users || []).find(function (user) { return Number(user.id) === id; }) || null;
+      }
+
+      function renderUsersLoading() {
+        const body = byId('usersTableBody');
+        if (body) {
+          body.innerHTML = '<tr><td colspan="8" class="text-muted-cc text-center py-4">Loading live accounts…</td></tr>';
+        }
+        const note = byId('usersTableNote');
+        if (note) note.textContent = 'Loading live accounts from the database…';
+      }
+
+      function renderUsersError(message) {
+        const body = byId('usersTableBody');
+        if (body) {
+          body.innerHTML = '<tr><td colspan="8" class="text-danger text-center py-4">' + escapeHtml(message) + '</td></tr>';
+        }
+        const note = byId('usersTableNote');
+        if (note) note.textContent = 'Live accounts could not be loaded. Adjust the filters or reload the page.';
+      }
+
       function renderUsers() {
         const body = byId('usersTableBody');
         if (!body) return;
 
-        const query = (byId('userSearchInput') ? byId('userSearchInput').value : '').trim().toLowerCase();
-        const role = byId('userRoleFilter') ? byId('userRoleFilter').value : '';
-        const status = byId('userStatusFilter') ? byId('userStatusFilter').value : '';
-        const date = byId('userDateFilter') ? byId('userDateFilter').value : '';
-        const sort = byId('userSortFilter') ? byId('userSortFilter').value : 'role';
+        if (!state.usersLoaded) {
+          renderUsersLoading();
+          return;
+        }
 
-        let list = state.users.filter(function (user) {
-          const text = (user.name + ' ' + user.email + ' ' + user.role + ' ' + user.business).toLowerCase();
-          return (!query || text.indexOf(query) !== -1) &&
-            (!role || user.role === role) &&
-            (!status || user.status === status) &&
-            (!date || user.regKey === date);
-        });
-
-        const roleOrder = { 'Super Admin': 0, 'Admin / Business Owner': 1, 'Customer': 2 };
-        list = list.slice().sort(function (a, b) {
-          if (sort === 'name') return a.name.localeCompare(b.name);
-          if (sort === 'recent') return b.lastOrder - a.lastOrder;
-          return (roleOrder[a.role] - roleOrder[b.role]) || a.name.localeCompare(b.name);
-        });
+        const list = state.users || [];
 
         if (!list.length) {
           body.innerHTML = '<tr><td colspan="8" class="text-muted-cc text-center py-4">No accounts match the current filters.</td></tr>';
         } else {
           body.innerHTML = list.map(function (user) {
-            const checked = state.selectedUsers.has(user.email) ? ' checked' : '';
-            const selected = user.email === lastSelectedUserEmail() ? ' sa-selected-row' : '';
+            const id = String(user.id);
+            const checked = state.selectedUsers.has(id) ? ' checked' : '';
+            const selected = Number(selectedUserId) === Number(user.id) ? ' sa-selected-row' : '';
             return '<tr class="' + selected.trim() + '">' +
-              '<td><input class="form-check-input sa-user-check" type="checkbox" value="' + escapeHtml(user.email) + '" aria-label="Select ' + escapeHtml(user.name) + '"' + checked + '></td>' +
+              '<td><input class="form-check-input sa-user-check" type="checkbox" value="' + escapeHtml(id) + '" aria-label="Select ' + escapeHtml(user.name) + '"' + checked + '></td>' +
               '<td><div class="fw-medium text-light-cc">' + escapeHtml(user.name) + '</div><div class="text-muted-cc" style="font-size: 12px;">' + escapeHtml(user.email) + '</div></td>' +
               '<td>' + escapeHtml(user.role) + '</td>' +
-              '<td>' + statusBadge(user.status) + '</td>' +
+              '<td>' + userStatusBadge(user.status, user.status_key) + '</td>' +
               '<td>' + escapeHtml(user.business) + '</td>' +
-              '<td>' + escapeHtml(user.reg) + '</td>' +
-              '<td>' + escapeHtml(user.last) + '</td>' +
-              '<td><button type="button" class="btn btn-link p-0 text-decoration-none text-accent sa-user-edit" data-email="' + escapeHtml(user.email) + '" style="font-size: 13px;">Edit / History ↗</button></td>' +
+              '<td>' + escapeHtml(user.registered) + '</td>' +
+              '<td>' + escapeHtml(user.last_activity) + '</td>' +
+              '<td><button type="button" class="btn btn-link p-0 text-decoration-none text-accent sa-user-edit" data-id="' + escapeHtml(id) + '" style="font-size: 13px;">Edit / History ↗</button></td>' +
               '</tr>';
           }).join('');
         }
 
         const note = byId('usersTableNote');
         if (note) {
-          note.textContent = list.length + ' representative accounts shown from 1,200 demo accounts · Global totals: 1,100 Active / 80 Inactive / 20 Suspended';
+          const summary = state.userSummary || {};
+          const totalLine = Number(summary.total || 0);
+          const pending = Number(summary.pending || 0);
+          note.textContent = list.length + ' account' + (list.length === 1 ? '' : 's') + ' shown · Global totals: ' +
+            Number(summary.active || 0) + ' Active / ' +
+            Number(summary.inactive || 0) + ' Inactive / ' +
+            Number(summary.suspended || 0) + ' Suspended' +
+            (pending > 0 ? ' / ' + pending + ' Pending' : '') +
+            ' · ' + totalLine + ' registered account' + (totalLine === 1 ? '' : 's');
         }
+
         syncSelectAll();
       }
 
-      let selectedUserEmail = 'alex.reyes@example.com';
-      function lastSelectedUserEmail() { return selectedUserEmail; }
+      function updateUsersFootnote(meta) {
+        const footnote = byId('usersDataFootnote');
+        if (footnote && meta && meta.generated_at_label) {
+          footnote.textContent = 'LIVE DATABASE DATA · UPDATED ' + meta.generated_at_label.toUpperCase();
+        }
+      }
+
+      function fillUserSelect(select, options, placeholder) {
+        if (!select) return;
+        const current = select.value;
+        select.innerHTML = '<option value="">' + escapeHtml(placeholder) + '</option>' +
+          (options || []).map(function (option) {
+            return '<option value="' + escapeHtml(option.value) + '">' + escapeHtml(option.label) + '</option>';
+          }).join('');
+
+        if (current && Array.prototype.some.call(select.options, function (option) { return option.value === current; })) {
+          select.value = current;
+        }
+      }
+
+      function populateUserFilterOptions() {
+        const filters = state.userFilters || {};
+
+        fillUserSelect(byId('userRoleFilter'), filters.role_options, 'Role: All three roles');
+        fillUserSelect(byId('userStatusFilter'), filters.status_options, 'Account status: All');
+
+        const dateSelect = byId('userDateFilter');
+        if (dateSelect) {
+          const current = dateSelect.value;
+          const months = (filters.months || []).map(function (month) {
+            return { value: month.value, label: month.label };
+          });
+          fillUserSelect(dateSelect, months, 'Registration date: All');
+          if (current && Array.prototype.some.call(dateSelect.options, function (option) { return option.value === current; })) {
+            dateSelect.value = current;
+          }
+        }
+      }
+
+      function populateBusinessOptions() {
+        const filters = state.userFilters || {};
+        const businesses = filters.businesses || [];
+
+        const createSelect = byId('newUserBusiness');
+        if (createSelect) {
+          const current = createSelect.value || '0';
+          createSelect.innerHTML = '<option value="0">Not applicable for Customer</option>' +
+            businesses.map(function (business) {
+              return '<option value="' + escapeHtml(String(business.id)) + '">' + escapeHtml(business.name) + '</option>';
+            }).join('');
+          createSelect.value = Array.prototype.some.call(createSelect.options, function (option) { return option.value === current; })
+            ? current
+            : '0';
+        }
+
+        const editSelect = byId('editUserBusiness');
+        if (editSelect) {
+          const current = editSelect.value || '0';
+          editSelect.innerHTML = '<option value="0">Not business-bound</option>' +
+            businesses.map(function (business) {
+              return '<option value="' + escapeHtml(String(business.id)) + '">' + escapeHtml(business.name) + '</option>';
+            }).join('');
+          editSelect.value = Array.prototype.some.call(editSelect.options, function (option) { return option.value === current; })
+            ? current
+            : '0';
+        }
+
+        toggleRoleBusinessFields('newUserRole', 'newUserBusiness', null);
+        toggleRoleBusinessFields('editUserRole', 'editUserBusiness', 'editUserPermission');
+      }
+
+      function populatePermissionOptions() {
+        const filters = state.userFilters || {};
+        const select = byId('editUserPermission');
+        if (!select) return;
+
+        const current = select.value;
+        select.innerHTML = '<option value="">Not applicable for this role</option>' +
+          (filters.permission_sets || []).map(function (option) {
+            return '<option value="' + escapeHtml(option.value) + '">' + escapeHtml(option.label) + '</option>';
+          }).join('');
+
+        if (current && Array.prototype.some.call(select.options, function (option) { return option.value === current; })) {
+          select.value = current;
+        }
+      }
+
+      function populateRoleTargets() {
+        const select = byId('roleTargetUser');
+        if (!select) return;
+
+        const current = select.value;
+        select.innerHTML = '<option value="">Select an account</option>' +
+          (state.userOptions || []).map(function (user) {
+            return '<option value="' + escapeHtml(String(user.id)) + '">' + escapeHtml(user.name + ' · ' + user.email) + '</option>';
+          }).join('');
+
+        if (current && Array.prototype.some.call(select.options, function (option) { return option.value === current; })) {
+          select.value = current;
+        }
+      }
+
+      function populateApprovers() {
+        const select = byId('roleApprover');
+        if (!select) return;
+
+        const filters = state.userFilters || {};
+        const targetId = Number((byId('roleTargetUser') || {}).value || 0);
+        const actorId = authenticatedIdentity && authenticatedIdentity.id ? Number(authenticatedIdentity.id) : 0;
+        const available = (filters.approvers || []).filter(function (approver) {
+          return Number(approver.id) !== actorId && Number(approver.id) !== targetId;
+        });
+
+        const current = select.value;
+        let html = '<option value="">Choose authorized Super Admin</option>';
+        if (!available.length) {
+          html = '<option value="">No second authorized Super Admin available</option>';
+        } else {
+          html += available.map(function (approver) {
+            return '<option value="' + escapeHtml(String(approver.id)) + '">' + escapeHtml(approver.name) + '</option>';
+          }).join('');
+        }
+
+        select.innerHTML = html;
+        if (current && Array.prototype.some.call(select.options, function (option) { return option.value === current; })) {
+          select.value = current;
+        }
+      }
+
+      function toggleRoleBusinessFields(roleSelectId, businessSelectId, permissionSelectId) {
+        const roleSelect = byId(roleSelectId);
+        const businessSelect = byId(businessSelectId);
+        const permissionSelect = permissionSelectId ? byId(permissionSelectId) : null;
+        const isAdmin = roleSelect && roleSelect.value === 'admin';
+
+        if (businessSelect) {
+          businessSelect.required = !!isAdmin;
+          if (!isAdmin) {
+            businessSelect.value = '0';
+          } else if (businessSelect.value === '0') {
+            const firstBusiness = businessSelect.options.length > 1 ? businessSelect.options[1].value : '0';
+            businessSelect.value = firstBusiness;
+          }
+        }
+
+        if (permissionSelect) {
+          permissionSelect.disabled = !isAdmin;
+          if (!isAdmin) {
+            permissionSelect.value = '';
+          } else if (!permissionSelect.value) {
+            permissionSelect.value = 'owner';
+          }
+        }
+      }
 
       function syncSelectAll() {
         const all = byId('usersSelectAll');
@@ -3306,39 +3531,239 @@ payload: [redacted] · credentials: [redacted]</div>
 
       function getSelectedUser() {
         const checked = document.querySelector('.sa-user-check:checked');
-        const email = checked ? checked.value : selectedUserEmail;
-        return state.users.find(function (user) { return user.email === email; }) || null;
+        if (checked) {
+          const checkedId = Number(checked.value);
+          selectedUserId = checkedId;
+          const checkedUser = findUserById(checkedId);
+          if (checkedUser) return checkedUser;
+        }
+
+        return findUserById(selectedUserId);
       }
 
-      function populateEditUser(user) {
+      function renderUserHistory(history, total) {
+        const container = byId('selectedAccountHistory');
+        if (!container) return;
+
+        if (!history || !history.length) {
+          container.innerHTML = '<div class="sa-list-row">' +
+            '<div class="sa-list-title">No account history recorded</div>' +
+            '<div class="sa-list-meta">Sign-ins, role changes and account edits will appear here.</div>' +
+            '</div>';
+          return;
+        }
+
+        container.innerHTML = history.map(function (entry) {
+          const detail = entry.detail ? ' · ' + entry.detail : '';
+          return '<div class="sa-list-row">' +
+            '<div class="sa-list-title">' + escapeHtml(entry.time_label + ' / ' + entry.label) + '</div>' +
+            '<div class="sa-list-meta">' + escapeHtml(entry.actor + detail) + '</div>' +
+            '</div>';
+        }).join('') +
+          (Number(total || 0) > history.length
+            ? '<div class="sa-list-meta pt-2">' + Number(total) + ' audit entries recorded for this account.</div>'
+            : '');
+      }
+
+      function loadUserDetail(userId, limit) {
+        const id = Number(userId || 0);
+        if (!id) return Promise.resolve();
+
+        const container = byId('selectedAccountHistory');
+        if (container) {
+          container.innerHTML = '<div class="sa-list-row">' +
+            '<div class="sa-list-title">Loading live account history…</div>' +
+            '</div>';
+        }
+
+        return apiGetUsers({ id: id, history: limit || 6 }).then(function (data) {
+          renderUserHistory(data.history || [], data.history_total || 0);
+        }).catch(function (error) {
+          if (container) {
+            container.innerHTML = '<div class="sa-list-row">' +
+              '<div class="sa-list-title">Account history unavailable</div>' +
+              '<div class="sa-list-meta">' + escapeHtml(error.message) + '</div>' +
+              '</div>';
+          }
+        });
+      }
+
+      function populateEditUser(user, skipHistory) {
         if (!user) return;
-        selectedUserEmail = user.email;
+
+        selectedUserId = Number(user.id);
         byId('editUserHeadingName').textContent = user.name;
         byId('editUserName').value = user.name;
         byId('editUserEmail').value = user.email;
-        byId('editUserRole').value = user.role;
-        byId('editUserStatus').value = user.status;
-        byId('editUserBusiness').value = user.business === '—' || user.business === 'Not business-bound' ? 'Not business-bound' : user.business;
+        byId('editUserRole').value = user.role_key;
+        byId('editUserStatus').value = user.status_key;
+
+        const businessSelect = byId('editUserBusiness');
+        if (businessSelect) {
+          const businessValue = user.role_key === 'admin' && Number(user.business_id) > 0
+            ? String(user.business_id)
+            : '0';
+          if (!Array.prototype.some.call(businessSelect.options, function (option) { return option.value === businessValue; })) {
+            if (businessValue !== '0') {
+              const option = document.createElement('option');
+              option.value = businessValue;
+              option.textContent = user.business || 'Assigned business';
+              businessSelect.appendChild(option);
+            }
+          }
+          businessSelect.value = businessValue;
+        }
+
+        const permissionSelect = byId('editUserPermission');
+        if (permissionSelect) {
+          const permissionValue = user.permission_set || '';
+          if (permissionValue && !Array.prototype.some.call(permissionSelect.options, function (option) { return option.value === permissionValue; })) {
+            const option = document.createElement('option');
+            option.value = permissionValue;
+            option.textContent = user.permission_set_label || permissionValue;
+            permissionSelect.appendChild(option);
+          }
+          permissionSelect.value = permissionValue;
+        }
+
+        const meta = byId('editUserMeta');
+        if (meta) {
+          meta.textContent = 'Registered ' + (user.registered || '—') + ' · Last activity ' + (user.last_activity || 'Never') +
+            '. Business assignment does not grant access to RBAC or global settings.';
+        }
+
+        toggleRoleBusinessFields('editUserRole', 'editUserBusiness', 'editUserPermission');
         renderUsers();
+
+        if (!skipHistory) loadUserDetail(selectedUserId, 6);
       }
 
-      function applyStatusToSelected(newStatus) {
+      async function refreshUsersKeepingSelection(userId) {
+        if (userId) selectedUserId = Number(userId);
+        await loadUsers();
+        const user = findUserById(selectedUserId);
+        if (user) populateEditUser(user, true);
+        return user;
+      }
+
+      async function loadUsers() {
+        const requestSeq = ++userRequestSeq;
+
+        state.usersLoading = true;
+        if (!state.usersLoaded) renderUsers();
+
+        try {
+          const data = await apiGetUsers(currentUserFilters());
+          if (requestSeq !== userRequestSeq) return;
+
+          state.users = Array.isArray(data.users) ? data.users : [];
+          state.userFilters = data.filters || {};
+          state.userOptions = (data.filters && data.filters.user_options) ? data.filters.user_options : [];
+          state.userSummary = data.summary || {};
+          state.usersLoaded = true;
+
+          populateUserFilterOptions();
+          populateBusinessOptions();
+          populatePermissionOptions();
+          populateRoleTargets();
+          populateApprovers();
+
+          if (!selectedUserId && state.users.length) {
+            selectedUserId = Number(state.users[0].id);
+          }
+
+          renderUsers();
+          updateUsersFootnote(data.meta || {});
+
+          const selected = findUserById(selectedUserId);
+          if (selected) {
+            populateEditUser(selected);
+          } else if (state.users.length) {
+            selectedUserId = Number(state.users[0].id);
+            populateEditUser(state.users[0]);
+          }
+        } catch (error) {
+          if (requestSeq !== userRequestSeq) return;
+
+          state.usersLoaded = true;
+          renderUsersError(error.message);
+          showToast(error.message, 'error');
+        } finally {
+          if (requestSeq === userRequestSeq) state.usersLoading = false;
+        }
+      }
+
+      async function applyStatusToSelected(statusKey) {
         const user = getSelectedUser();
         if (!user) {
           showToast('Select an account first using the row checkbox.', 'warning');
           return;
         }
-        user.status = newStatus;
-        renderUsers();
-        showToast('Example update: ' + user.name + ' is now ' + newStatus + ' (local only).');
+
+        if (userActionInFlight) return;
+        userActionInFlight = true;
+
+        try {
+          const result = await apiPostUsers('set_status', { user_id: user.id, status: statusKey });
+          showToast(result.message || (user.name + ' was updated.'), 'success');
+          await refreshUsersKeepingSelection(user.id);
+        } catch (error) {
+          showToast(error.message || 'Unable to update the account status.', 'error');
+        } finally {
+          userActionInFlight = false;
+        }
       }
 
-      function initUserEvents() {
+      async function requestPasswordResetFor(user) {
+        if (!user) {
+          showToast('Select an account first using the row checkbox.', 'warning');
+          return;
+        }
+
+        if (!window.confirm('Initiate a one-time password-reset request for ' + user.name + '?')) {
+          return;
+        }
+
+        if (userActionInFlight) return;
+        userActionInFlight = true;
+
+        try {
+          const result = await apiPostUsers('request_password_reset', { user_id: user.id });
+          showToast(result.message || ('Password-reset request recorded for ' + user.name + '.'), 'success');
+          await loadUserDetail(user.id, 8);
+        } catch (error) {
+          showToast(error.message || 'Unable to initiate the password reset.', 'error');
+        } finally {
+          userActionInFlight = false;
+        }
+      }
+
+      function updateRoleCurrentRole() {
+        const select = byId('roleTargetUser');
+        const current = byId('roleCurrentRole');
+        if (!select || !current) return;
+
+        const option = (state.userOptions || []).find(function (user) {
+          return Number(user.id) === Number(select.value);
+        });
+        current.value = option ? option.role : '';
+        populateApprovers();
+      }
+
+      function initUserManagement() {
         const search = byId('userSearchInput');
-        if (search) search.addEventListener('input', renderUsers);
+        if (search) {
+          search.addEventListener('input', function () {
+            if (userSearchTimer) window.clearTimeout(userSearchTimer);
+            userSearchTimer = window.setTimeout(function () {
+              loadUsers();
+            }, 280);
+          });
+        }
+
         ['userRoleFilter', 'userStatusFilter', 'userDateFilter', 'userSortFilter'].forEach(function (id) {
-          const el = byId(id);
-          if (el) el.addEventListener('change', renderUsers);
+          const element = byId(id);
+          if (element) element.addEventListener('change', loadUsers);
         });
 
         const selectAll = byId('usersSelectAll');
@@ -3358,19 +3783,28 @@ payload: [redacted] · credentials: [redacted]</div>
           tbody.addEventListener('change', function (event) {
             if (!event.target.classList.contains('sa-user-check')) return;
             if (event.target.checked) state.selectedUsers.add(event.target.value); else state.selectedUsers.delete(event.target.value);
-            selectedUserEmail = event.target.value;
+            selectedUserId = Number(event.target.value);
             syncSelectAll();
+            const user = findUserById(selectedUserId);
+            if (user) {
+              populateEditUser(user);
+              loadUserDetail(selectedUserId, 6);
+            }
           });
 
           tbody.addEventListener('click', function (event) {
-            const editBtn = event.target.closest('.sa-user-edit');
-            if (!editBtn) return;
-            const user = state.users.find(function (item) { return item.email === editBtn.getAttribute('data-email'); });
-            if (user) {
-              populateEditUser(user);
-              byId('editUserCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-              showToast('Loaded ' + user.name + ' into the edit form.');
-            }
+            const editButton = event.target.closest('.sa-user-edit');
+            if (!editButton) return;
+
+            const user = findUserById(editButton.getAttribute('data-id'));
+            if (!user) return;
+
+            selectedUserId = Number(user.id);
+            state.selectedUsers.add(String(user.id));
+            populateEditUser(user);
+            renderUsers();
+            byId('editUserCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showToast('Loaded ' + user.name + ' into the edit form.', 'success');
           });
         }
 
@@ -3382,7 +3816,9 @@ payload: [redacted] · credentials: [redacted]</div>
               showToast('Select an account first using the row checkbox.', 'warning');
               return;
             }
+            state.selectedUsers.add(String(user.id));
             populateEditUser(user);
+            renderUsers();
             byId('editUserCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
           });
         }
@@ -3393,17 +3829,21 @@ payload: [redacted] · credentials: [redacted]</div>
           });
         });
 
-        const suspendBtn = byId('btnSuspendUser');
-        if (suspendBtn) {
-          suspendBtn.addEventListener('click', function () {
+        const suspendButton = byId('btnSuspendUser');
+        if (suspendButton) {
+          suspendButton.addEventListener('click', function () {
             const user = getSelectedUser();
             if (!user) {
               showToast('Select an account first using the row checkbox.', 'warning');
               return;
             }
-            selectedUserEmail = user.email;
+
+            selectedUserId = Number(user.id);
+            suspendTargetId = Number(user.id);
             renderUsers();
-            byId('suspendTargetText').textContent = 'Selected: ' + user.name + ' / ' + user.role + '. Scope: this account across the application. Suspension would prevent sign-in while retaining orders and account history. Current example status remains ' + user.status + '; no change has been applied.';
+
+            byId('suspendTargetText').textContent = 'Selected: ' + user.name + ' / ' + user.role +
+              '. Scope: this account across the application. Suspension would prevent sign-in while retaining orders and account history. Current status: ' + user.status + '.';
             byId('suspendPhrase').placeholder = 'SUSPEND ' + user.name.toUpperCase();
             byId('suspendPhrase').value = '';
             byId('suspendConfirmCheck').checked = false;
@@ -3411,133 +3851,254 @@ payload: [redacted] · credentials: [redacted]</div>
           });
         }
 
-        const resetBtn = byId('btnResetPassword');
-        if (resetBtn) resetBtn.addEventListener('click', function () {
-          const user = getSelectedUser();
-          showToast('Example password-reset request prepared' + (user ? ' for ' + user.name : '') + '. No message was sent.');
-        });
+        const resetButton = byId('btnResetPassword');
+        if (resetButton) {
+          resetButton.addEventListener('click', function () {
+            requestPasswordResetFor(getSelectedUser());
+          });
+        }
 
-        const changeRoleBtn = byId('btnChangeRole');
-        if (changeRoleBtn) {
-          changeRoleBtn.addEventListener('click', function () {
+        const editReset = byId('btnEditResetPassword');
+        if (editReset) {
+          editReset.addEventListener('click', function () {
+            requestPasswordResetFor(findUserById(selectedUserId));
+          });
+        }
+
+        const viewHistory = byId('btnViewFullHistory');
+        if (viewHistory) {
+          viewHistory.addEventListener('click', function () {
+            const user = findUserById(selectedUserId);
+            if (!user) {
+              showToast('Select an account first using the row checkbox.', 'warning');
+              return;
+            }
+            loadUserDetail(user.id, 50);
+            showToast('Loaded the latest 50 audit entries for ' + user.name + '.', 'success');
+          });
+        }
+
+        const changeRoleButton = byId('btnChangeRole');
+        if (changeRoleButton) {
+          changeRoleButton.addEventListener('click', function () {
             const user = getSelectedUser();
             if (!user) {
               showToast('Select an account first using the row checkbox.', 'warning');
               return;
             }
+
             const target = byId('roleTargetUser');
-            if (target && !Array.prototype.some.call(target.options, function (option) { return option.value === user.name; })) {
-              const option = document.createElement('option');
-              option.value = user.name;
-              option.textContent = user.name;
-              target.appendChild(option);
-            }
-            if (target) target.value = user.name;
-            byId('roleCurrentRole').value = user.role;
+            if (target) target.value = String(user.id);
+            updateRoleCurrentRole();
             byId('roleReviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
           });
         }
 
+        const roleTarget = byId('roleTargetUser');
+        if (roleTarget) roleTarget.addEventListener('change', updateRoleCurrentRole);
+
         const createForm = byId('createUserForm');
         if (createForm) {
-          createForm.addEventListener('submit', function (event) {
+          createForm.addEventListener('submit', async function (event) {
             event.preventDefault();
-            const name = byId('newUserName').value.replace(/\s*·\s*draft\s*$/i, '').trim();
+            if (userActionInFlight) return;
+
+            const submitButton = byId('btnSubmitCreateUser');
+            const name = byId('newUserName').value.trim();
             const email = byId('newUserEmail').value.trim();
-            if (!name || !email) {
-              showToast('Enter a name and email to review this draft.', 'warning');
-              return;
-            }
-            if (state.users.some(function (user) { return user.email.toLowerCase() === email.toLowerCase(); })) {
-              showToast('That example email already exists in the sample table.', 'warning');
-              return;
-            }
             const role = byId('newUserRole').value;
-            const newUser = {
-              name: name,
-              email: email,
-              role: role,
-              status: byId('newUserStatus').value,
-              business: byId('newUserBusiness').value,
-              reg: '05 Nov 2026',
-              regKey: '2026-11',
-              last: '05 Nov · 14:35',
-              lastOrder: 5051435
-            };
-            state.users.push(newUser);
-            selectedUserEmail = email;
-            renderUsers();
-            const total = byId('statTotalUsers');
-            if (total) total.textContent = '1,201';
-            showToast('Example user created locally: ' + name + '. No account was actually provisioned.');
-            createForm.reset();
-            byId('newUserName').value = 'Bea Ramos · draft';
-            byId('newUserEmail').value = 'bea.ramos@example.com';
+            const businessId = Number(byId('newUserBusiness').value || 0);
+
+            if (!name || !email) {
+              showToast('Enter a full name and email address to create the account.', 'warning');
+              return;
+            }
+
+            if (role === 'admin' && businessId < 1) {
+              showToast('Select an active business for this Admin / Business Owner account.', 'warning');
+              byId('newUserBusiness').focus();
+              return;
+            }
+
+            userActionInFlight = true;
+            if (submitButton) submitButton.disabled = true;
+
+            try {
+              const result = await apiPostUsers('create', {
+                name: name,
+                email: email,
+                role: role,
+                status: byId('newUserStatus').value,
+                business_id: role === 'admin' ? businessId : 0,
+                permission_set: role === 'admin' ? 'owner' : '',
+                require_email_verification: byId('createRequireEmail').checked,
+                send_invitation: byId('newUserInvite').value !== 'Do not send invitation'
+              });
+
+              showToast(result.message || ('Account created for ' + email + '.'), 'success');
+
+              createForm.reset();
+              byId('newUserRole').value = 'customer';
+              byId('newUserStatus').value = 'inactive';
+              byId('newUserBusiness').value = '0';
+              byId('newUserInvite').value = 'Send verification invitation';
+              byId('createRequireEmail').checked = true;
+              byId('createRequirePassword').checked = true;
+              toggleRoleBusinessFields('newUserRole', 'newUserBusiness', null);
+
+              if (result.user) {
+                selectedUserId = Number(result.user.id);
+                await loadUsers();
+              }
+            } catch (error) {
+              showToast(error.message || 'Unable to create the user account.', 'error');
+            } finally {
+              userActionInFlight = false;
+              if (submitButton) submitButton.disabled = false;
+            }
           });
         }
 
         const discardCreate = byId('btnDiscardCreate');
         if (discardCreate) {
           discardCreate.addEventListener('click', function () {
-            byId('createUserForm').reset();
-            byId('newUserName').value = 'Bea Ramos · draft';
-            byId('newUserEmail').value = 'bea.ramos@example.com';
+            const form = byId('createUserForm');
+            if (form) form.reset();
+            byId('newUserRole').value = 'customer';
+            byId('newUserStatus').value = 'inactive';
+            byId('newUserBusiness').value = '0';
+            byId('newUserInvite').value = 'Send verification invitation';
+            byId('createRequireEmail').checked = true;
+            byId('createRequirePassword').checked = true;
+            toggleRoleBusinessFields('newUserRole', 'newUserBusiness', null);
             showToast('Draft discarded. No account was added.', 'warning');
+          });
+        }
+
+        const newRoleSelect = byId('newUserRole');
+        if (newRoleSelect) {
+          newRoleSelect.addEventListener('change', function () {
+            toggleRoleBusinessFields('newUserRole', 'newUserBusiness', null);
+          });
+        }
+
+        const editRoleSelect = byId('editUserRole');
+        if (editRoleSelect) {
+          editRoleSelect.addEventListener('change', function () {
+            toggleRoleBusinessFields('editUserRole', 'editUserBusiness', 'editUserPermission');
           });
         }
 
         const editForm = byId('editUserForm');
         if (editForm) {
-          editForm.addEventListener('submit', function (event) {
+          editForm.addEventListener('submit', async function (event) {
             event.preventDefault();
-            const user = state.users.find(function (item) { return item.email === selectedUserEmail; }) || getSelectedUser();
+            if (userActionInFlight) return;
+
+            const user = findUserById(selectedUserId);
             if (!user) {
               showToast('Choose an account from the table first.', 'warning');
               return;
             }
-            user.name = byId('editUserName').value.trim() || user.name;
-            user.email = byId('editUserEmail').value.trim() || user.email;
-            user.role = byId('editUserRole').value;
-            user.status = byId('editUserStatus').value;
-            user.business = byId('editUserBusiness').value;
-            selectedUserEmail = user.email;
-            byId('editUserHeadingName').textContent = user.name;
-            renderUsers();
-            showToast('Example user details saved for ' + user.name + ' (local only).');
+
+            const submitButton = byId('btnSaveUser');
+            const role = byId('editUserRole').value;
+            const businessId = Number(byId('editUserBusiness').value || 0);
+            const permissionSet = byId('editUserPermission').value || '';
+
+            if (role === 'admin' && businessId < 1) {
+              showToast('Select an active business for this Admin / Business Owner account.', 'warning');
+              byId('editUserBusiness').focus();
+              return;
+            }
+
+            userActionInFlight = true;
+            if (submitButton) submitButton.disabled = true;
+
+            try {
+              const result = await apiPostUsers('update', {
+                user_id: user.id,
+                name: byId('editUserName').value.trim(),
+                email: byId('editUserEmail').value.trim(),
+                role: role,
+                status: byId('editUserStatus').value,
+                business_id: role === 'admin' ? businessId : 0,
+                permission_set: role === 'admin' ? (permissionSet || 'owner') : ''
+              });
+
+              showToast(result.message || ('Account details saved for ' + user.name + '.'), 'success');
+              selectedUserId = result.user ? Number(result.user.id) : Number(user.id);
+              await loadUsers();
+            } catch (error) {
+              showToast(error.message || 'Unable to save the account details.', 'error');
+            } finally {
+              userActionInFlight = false;
+              if (submitButton) submitButton.disabled = false;
+            }
           });
         }
 
         const cancelEdit = byId('btnCancelEditUser');
         if (cancelEdit) {
           cancelEdit.addEventListener('click', function () {
-            const user = state.users.find(function (item) { return item.email === selectedUserEmail; });
+            const user = findUserById(selectedUserId);
             if (user) populateEditUser(user);
-            showToast('Edits cancelled. Original sample values restored.', 'warning');
+            showToast('Edits cancelled. Current database values restored.', 'warning');
           });
         }
 
-        const editReset = byId('btnEditResetPassword');
-        if (editReset) editReset.addEventListener('click', function () {
-          showToast('One-time reset message prepared for the verified example email. No password is revealed.');
-        });
-
         const roleForm = byId('roleReviewForm');
         if (roleForm) {
-          roleForm.addEventListener('submit', function (event) {
+          roleForm.addEventListener('submit', async function (event) {
             event.preventDefault();
-            if (!byId('roleApprover').value) {
-              showToast('Choose a second authorized Super Admin approver.', 'warning');
+            if (userActionInFlight) return;
+
+            const targetId = Number(byId('roleTargetUser').value || 0);
+            const proposedRole = byId('roleProposedRole').value;
+            const currentRole = byId('roleCurrentRole').value;
+            const approverId = Number(byId('roleApprover').value || 0);
+            const justification = byId('roleJustification').value.trim();
+            const privileged = currentRole === 'Super Admin' || proposedRole === 'super_admin';
+
+            if (targetId < 1) {
+              showToast('Select a target account for the role review.', 'warning');
               return;
             }
-            if (!byId('roleJustification').value.trim()) {
-              showToast('Enter a justification before requesting approval.', 'warning');
+            if (!justification) {
+              showToast('Enter an authorization and business justification.', 'warning');
+              return;
+            }
+            if (privileged && approverId < 1) {
+              showToast('Choose a second authorized Super Admin approver.', 'warning');
               return;
             }
             if (!byId('roleAuthorizationCheck').checked) {
               showToast('Confirm identity and privileged-access authorization.', 'warning');
               return;
             }
-            showToast('Privileged approval request recorded for ' + byId('roleTargetUser').value + ' (example only).');
+
+            userActionInFlight = true;
+
+            try {
+              const result = await apiPostUsers('change_role', {
+                user_id: targetId,
+                role: proposedRole,
+                approver_id: approverId,
+                justification: justification,
+                authorization_confirmed: true
+              });
+
+              showToast(result.message || 'Global role updated.', 'success');
+              byId('roleJustification').value = '';
+              byId('roleAuthorizationCheck').checked = false;
+              selectedUserId = result.user ? Number(result.user.id) : selectedUserId;
+              await loadUsers();
+              updateRoleCurrentRole();
+            } catch (error) {
+              showToast(error.message || 'Unable to change the global role.', 'error');
+            } finally {
+              userActionInFlight = false;
+            }
           });
         }
 
@@ -3547,7 +4108,7 @@ payload: [redacted] · credentials: [redacted]</div>
             byId('roleApprover').value = '';
             byId('roleJustification').value = '';
             byId('roleAuthorizationCheck').checked = false;
-            showToast('Role-change review cleared. No approval was requested.', 'warning');
+            showToast('Role-change review cleared. No change was applied.', 'warning');
           });
         }
 
@@ -3556,17 +4117,25 @@ payload: [redacted] · credentials: [redacted]</div>
           cancelSuspend.addEventListener('click', function () {
             byId('suspendPhrase').value = '';
             byId('suspendConfirmCheck').checked = false;
+            suspendTargetId = null;
             showToast('Suspension cancelled. No account state changed.', 'warning');
           });
         }
 
         const confirmSuspend = byId('btnConfirmSuspend');
         if (confirmSuspend) {
-          confirmSuspend.addEventListener('click', function () {
-            const user = state.users.find(function (item) { return item.email === selectedUserEmail; });
-            if (!user) return;
+          confirmSuspend.addEventListener('click', async function () {
+            const user = findUserById(suspendTargetId || selectedUserId);
+            if (!user) {
+              showToast('Select an account before confirming suspension.', 'warning');
+              return;
+            }
+            if (userActionInFlight) return;
+
             const expected = ('SUSPEND ' + user.name).toUpperCase();
-            if (byId('suspendPhrase').value.trim().toUpperCase() !== expected) {
+            const phrase = byId('suspendPhrase').value.trim();
+
+            if (phrase.toUpperCase() !== expected) {
               showToast('Type the exact confirmation phrase: ' + expected, 'error');
               return;
             }
@@ -3574,173 +4143,33 @@ payload: [redacted] · credentials: [redacted]</div>
               showToast('Tick the confirmation checkbox before continuing.', 'warning');
               return;
             }
-            user.status = 'Suspended';
-            renderUsers();
-            byId('suspendPhrase').value = '';
-            byId('suspendConfirmCheck').checked = false;
-            showToast('Example suspension applied locally to ' + user.name + '. No real account was changed.');
-          });
-        }
-      }
 
-      /* ============================================================
-         21.4 — System maintenance
-         ============================================================ */
-      function updateMaintenanceUI() {
-        const on = state.maintenanceOn;
-        const mode = byId('maintenanceModeValue');
-        if (mode) {
-          mode.textContent = on ? 'On' : 'Off';
-          mode.classList.toggle('text-warning', on);
-          mode.classList.toggle('text-accent', !on);
-        }
-        const sub = byId('maintenanceModeSub');
-        if (sub) sub.textContent = on ? 'Application-wide restriction active' : 'No current restriction';
-        const badge = byId('maintenanceEditorBadge');
-        if (badge) {
-          badge.textContent = 'Current: ' + (on ? 'On' : 'Off');
-          badge.className = 'sa-badge ' + (on ? 'sa-badge-warning' : 'sa-badge-neutral');
-        }
-        const disableBtn = byId('btnDisableMaintenance');
-        if (disableBtn) disableBtn.textContent = 'Disable maintenance · current ' + (on ? 'On' : 'Off');
-        const availability = byId('maintenanceAvailability');
-        if (availability) {
-          availability.textContent = on ? 'Maintenance' : 'Available';
-          availability.classList.toggle('text-warning', on);
-          availability.classList.toggle('text-accent', !on);
-        }
-        const overview = byId('overviewMaintenanceValue');
-        if (overview) overview.textContent = on ? 'Active · example restriction' : 'Next scheduled: 08 Nov';
-        const monitor = byId('monitorMaintenanceValue');
-        if (monitor) monitor.textContent = on ? 'Active' : 'None';
-        const monitorSub = byId('monitorMaintenanceSub');
-        if (monitorSub) monitorSub.textContent = on ? 'On · example restriction active' : 'Off · Next scheduled 08 Nov';
-        const configMode = byId('configMaintenanceMode');
-        if (configMode) configMode.value = on ? 'On · example' : 'Off · manage in Maintenance';
-      }
+            userActionInFlight = true;
+            confirmSuspend.disabled = true;
 
-      function syncNextWindow() {
-        const startDate = byId('maintenanceStartDate').value;
-        const startTime = byId('maintenanceStartTime').value;
-        const endTime = byId('maintenanceEndTime').value;
-        if (!startDate) return;
-        const date = new Date(startDate + 'T00:00:00');
-        const label = isNaN(date.getTime()) ? startDate : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }).replace(',', '');
-        const nextValue = byId('nextWindowValue');
-        if (nextValue) nextValue.textContent = label;
-        const cardSub = nextValue ? nextValue.parentElement.querySelector('.admin-card-sub') : null;
-        if (cardSub) cardSub.textContent = startTime + '–' + endTime + ' PHT · scheduled';
-        const monitorSub = byId('monitorMaintenanceSub');
-        if (monitorSub && !state.maintenanceOn) monitorSub.textContent = 'Off · Next scheduled ' + label;
-        const overview = byId('overviewMaintenanceValue');
-        if (overview && !state.maintenanceOn) overview.textContent = 'Next scheduled: ' + label;
-      }
+            try {
+              const result = await apiPostUsers('set_status', {
+                user_id: user.id,
+                status: 'suspended',
+                confirmation: phrase
+              });
 
-      function initMaintenanceEvents() {
-        updateMaintenanceUI();
-
-        const enableBtn = byId('btnEnableMaintenance');
-        if (enableBtn) {
-          enableBtn.addEventListener('click', function () {
-            byId('enableMaintenancePhrase').value = '';
-            byId('enableMaintenanceCheck').checked = false;
-            byId('enableMaintenancePanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
-        }
-
-        const disableBtn = byId('btnDisableMaintenance');
-        if (disableBtn) {
-          disableBtn.addEventListener('click', function () {
-            if (!state.maintenanceOn) {
-              showToast('Maintenance mode is already Off.', 'warning');
-              return;
+              showToast(result.message || (user.name + ' was suspended.'), 'success');
+              byId('suspendPhrase').value = '';
+              byId('suspendConfirmCheck').checked = false;
+              selectedUserId = Number(user.id);
+              suspendTargetId = null;
+              await loadUsers();
+            } catch (error) {
+              showToast(error.message || 'Unable to suspend the account.', 'error');
+            } finally {
+              userActionInFlight = false;
+              confirmSuspend.disabled = false;
             }
-            state.maintenanceOn = false;
-            updateMaintenanceUI();
-            showToast('Example maintenance disabled locally. No application state was changed.');
           });
         }
 
-        const editSchedule = byId('btnEditSchedule');
-        if (editSchedule) editSchedule.addEventListener('click', function () {
-          byId('maintenanceStartDate').focus();
-          showToast('Schedule fields are ready for an example edit.');
-        });
-
-        const maintenanceForm = byId('maintenanceForm');
-        if (maintenanceForm) {
-          maintenanceForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            if (!byId('maintenanceStartDate').value || !byId('maintenanceEndDate').value) {
-              showToast('Choose both a start and end date.', 'warning');
-              return;
-            }
-            if (byId('maintenanceStartDate').value > byId('maintenanceEndDate').value) {
-              showToast('The end date cannot precede the start date.', 'error');
-              return;
-            }
-            syncNextWindow();
-            showToast('Maintenance schedule reviewed as a draft. No window was scheduled.');
-          });
-        }
-
-        const cancelSchedule = byId('btnCancelSchedule');
-        if (cancelSchedule) {
-          cancelSchedule.addEventListener('click', function () {
-            byId('maintenanceStartDate').value = '2026-11-08';
-            byId('maintenanceStartTime').value = '02:00';
-            byId('maintenanceEndDate').value = '2026-11-08';
-            byId('maintenanceEndTime').value = '02:30';
-            byId('maintenanceState').value = 'Scheduled';
-            syncNextWindow();
-            showToast('Schedule edit cancelled. Example window restored.', 'warning');
-          });
-        }
-
-        const announcementForm = byId('announcementForm');
-        const previewBtn = byId('btnPreviewAnnouncement');
-        if (previewBtn) {
-          previewBtn.addEventListener('click', function () {
-            const title = byId('announcementTitle').value.trim() || 'Scheduled maintenance';
-            const message = byId('announcementMessage').value.trim() || 'Maintenance announcement draft.';
-            byId('announcementPreviewText').textContent = title + ' — ' + message;
-            showToast('Announcement preview updated locally.');
-          });
-        }
-        if (announcementForm) {
-          announcementForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            showToast('Maintenance announcement saved as an example draft. It was not published.');
-          });
-        }
-
-        const cancelEnable = byId('btnCancelEnableMaintenance');
-        if (cancelEnable) {
-          cancelEnable.addEventListener('click', function () {
-            byId('enableMaintenancePhrase').value = '';
-            byId('enableMaintenanceCheck').checked = false;
-            showToast('Enable-maintenance action cancelled. Mode remains Off.', 'warning');
-          });
-        }
-
-        const confirmEnable = byId('btnConfirmEnableMaintenance');
-        if (confirmEnable) {
-          confirmEnable.addEventListener('click', function () {
-            if (byId('enableMaintenancePhrase').value.trim().toUpperCase() !== 'ENABLE MAINTENANCE / ENTIRE APPLICATION') {
-              showToast('Type the exact confirmation phrase shown in the field.', 'error');
-              return;
-            }
-            if (!byId('enableMaintenanceCheck').checked) {
-              showToast('Tick the confirmation checkbox before continuing.', 'warning');
-              return;
-            }
-            state.maintenanceOn = true;
-            updateMaintenanceUI();
-            byId('enableMaintenancePhrase').value = '';
-            byId('enableMaintenanceCheck').checked = false;
-            showToast('Example maintenance enabled locally. No real application was restricted.');
-          });
-        }
+        loadUsers();
       }
 
       /* ============================================================

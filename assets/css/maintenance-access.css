@@ -1,0 +1,90 @@
+#cc-maintenance-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 24px;
+  background: rgba(10, 12, 12, .86);
+  color: #f4f1ec;
+  font-family: Arial, sans-serif;
+}
+
+.cc-maintenance-dialog {
+  box-sizing: border-box;
+  width: min(100%, 480px);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid #454b49;
+  border-radius: 10px;
+  background: #1b201f;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .45);
+}
+
+.cc-maintenance-eyebrow {
+  color: #8ed7cb;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.cc-maintenance-dialog h1 {
+  margin: 20px 0 12px;
+  color: #fff;
+  font-size: clamp(27px, 5vw, 34px);
+  line-height: 1.15;
+}
+
+.cc-maintenance-dialog h2 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 20px;
+}
+
+.cc-maintenance-dialog p {
+  margin: 0;
+  color: #d0d5d2;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cc-maintenance-divider {
+  height: 1px;
+  margin: 26px 0;
+  background: #414744;
+}
+
+.cc-maintenance-dialog .cc-maintenance-help { margin-bottom: 18px; }
+
+#cc-maintenance-login { display: grid; gap: 9px; }
+#cc-maintenance-login label { color: #f4f1ec; font-size: 13px; }
+#cc-maintenance-login input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 9px;
+  padding: 10px 12px;
+  border: 1px solid #6b7470;
+  border-radius: 4px;
+  outline-color: #8ed7cb;
+  background: #111615;
+  color: #fff;
+  font: inherit;
+}
+
+#cc-maintenance-login button {
+  min-height: 46px;
+  margin-top: 5px;
+  border: 0;
+  border-radius: 4px;
+  background: #83c9bd;
+  color: #10201d;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#cc-maintenance-login button:disabled { opacity: .65; cursor: wait; }
+#cc-maintenance-error { color: #ffbab1 !important; }

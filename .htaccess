@@ -4,6 +4,11 @@
   # Route the Super Admin page through the PHP role gate so the static file
   # can never be served to an unauthenticated or non-super-admin visitor.
   RewriteRule ^super-admin-dashboard\.html$ super-admin-gate.php [L,QSA,NC]
+
+  # Apply Maintenance to application pages and API requests.
+  RewriteRule ^maintenance-gate\.php$ - [END]
+  RewriteRule ^$ maintenance-gate.php?resource=index.html [QSA,END]
+  RewriteRule ^(.+\.(?:html|php))$ maintenance-gate.php?resource=$1 [QSA,END]
 </IfModule>
 
 # Fail closed: when mod_rewrite is unavailable, never serve the raw page.
