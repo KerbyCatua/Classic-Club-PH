@@ -97,6 +97,12 @@
             <div class="d-flex flex-column gap-4">
               <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">02. Shipping address</h2>
               <p class="cc-xs-text m-0">This address is saved with the order and shown on your confirmation.</p>
+              <div id="checkout-address-book" hidden>
+                <label for="checkout-saved-address" class="cc-xs-text text-light-cc mb-2">Saved delivery address</label>
+                <select id="checkout-saved-address" class="form-select cc-input bg-cc-surface mb-3" disabled><option value="">New address</option></select>
+                <button type="button" id="checkout-save-address" class="btn btn-outline-light rounded-0 cc-xs-text" disabled>Save address to my account</button>
+                <p id="checkout-address-status" class="cc-xs-text mt-2 mb-0" role="status" aria-live="polite"></p>
+              </div>
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
@@ -122,6 +128,11 @@
               </div>
 
               <div class="d-flex flex-column gap-2">
+                <label for="checkout-region" class="cc-xs-text text-light-cc">Region (required to save to your account)</label>
+                <input type="text" id="checkout-region" class="form-control cc-input bg-cc-surface" maxlength="120" autocomplete="address-level1">
+              </div>
+
+              <div class="d-flex flex-column gap-2">
                 <label for="checkout-street" class="cc-xs-text text-light-cc">Street address *</label>
                 <input type="text" id="checkout-street" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
               </div>
@@ -130,6 +141,11 @@
                 <label for="checkout-apt" class="cc-xs-text text-light-cc">Apartment, suite or landmark (optional)</label>
                 <input type="text" id="checkout-apt" class="form-control cc-input bg-cc-surface" style="height: 50px;">
               </div>
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-instructions" class="cc-xs-text text-light-cc">Landmark / delivery instructions (optional)</label>
+                <input type="text" id="checkout-instructions" class="form-control cc-input bg-cc-surface" maxlength="500">
+              </div>
+
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
@@ -145,12 +161,7 @@
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-province" class="cc-xs-text text-light-cc">Province / region *</label>
-                  <select id="checkout-province" class="form-select cc-input bg-cc-surface" style="height: 50px;">
-                    <option value="Metro Manila" selected>Metro Manila</option>
-                    <option value="Pampanga">Pampanga</option>
-                    <option value="Cebu">Cebu</option>
-                    <option value="Davao del Sur">Davao del Sur</option>
-                  </select>
+                  <input type="text" id="checkout-province" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="120" required>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-postal" class="cc-xs-text text-light-cc">Postal code *</label>
@@ -348,6 +359,8 @@
   <script src="assets/js/partials.js?v=20261103"></script>
   <script src="assets/js/main.js?v=20261108-1"></script>
 
+  <script src="assets/js/addresses.js"></script>
+  <script src="assets/js/checkout-addresses.js"></script>
   <!-- Checkout Interactive Logic -->
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -370,6 +383,7 @@
           fill('checkout-lname', user.last_name);
           fill('checkout-mobile', user.mobile);
           fill('checkout-card-name', [user.first_name, user.last_name].filter(Boolean).join(' '));
+          await CCCheckoutAddresses.init(user);
         }
       } catch (error) {
         console.error('Unable to load the signed-in account:', error);
@@ -509,7 +523,6 @@
           paymentMethod: selectedPaymentMethod
         };
 
-        let serverResponded = false;
         try {
           const csrf = await fetch('public/api/auth/csrf.php', {
             credentials: 'same-origin',
@@ -535,10 +548,11 @@
               city,
               province,
               postal_code: postalCode,
+              region: document.getElementById('checkout-region').value,
+              instructions: document.getElementById('checkout-instructions').value,
               promotion_code: CCStore.getPromo().code || ''
             })
           });
-          serverResponded = true;
           const result = await response.json();
           if (!response.ok || !result.success) {
             throw new Error(result.error?.message || 'Unable to create the order.');
@@ -570,39 +584,8 @@
           window.location.href = 'order-confirmation.html?order_number=' + encodeURIComponent(orderNumber);
         } catch (error) {
           console.warn('Backend order creation failed:', error);
-          // A server rejection (such as insufficient stock) is authoritative:
-          // never create a local order that the inventory did not account for.
-          if (serverResponded) {
-            alert(error.message || 'Unable to create the order.');
-            button.disabled = false;
-            return;
-          }
-          if (currentCart.length === 0) {
-            alert(error.message || 'Your cart is empty.');
-            button.disabled = false;
-            return;
-          }
-          const localOrderNumber = 'CC-' + Math.floor(100000 + Math.random() * 900000);
-          const localOrder = {
-            orderNumber: localOrderNumber,
-            placedOn: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-            status: 'Confirmed',
-            items: [...currentCart],
-            totals: {
-              totalItems: currentTotals.totalItems,
-              subtotal: currentTotals.subtotal,
-              shipping: currentTotals.shipping,
-              discount: currentTotals.discount,
-              total: currentTotals.total
-            },
-            customer: customerInfo
-          };
-
-          // Append new order to the existing history array
-          CCStore.appendOrder(localOrder);
-          CCStore.clearCart();
-
-          window.location.href = 'order-confirmation.html?order_number=' + encodeURIComponent(localOrderNumber);
+          alert(error.message || 'Unable to reach the server. Please retry.');
+          button.disabled = false;
         }
       });
       renderCheckoutSummary();

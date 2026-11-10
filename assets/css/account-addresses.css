@@ -1,0 +1,27 @@
+body.cc-address-modal-open > :not(#manage-address-modal):not(.modal-backdrop):not(script) {
+  filter: blur(5px);
+}
+.cc-address-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+#manage-address-modal .modal-dialog { max-width: 1120px; }
+#manage-address-modal .modal-content { background: var(--cc-surface); border: 1px solid var(--cc-border); border-radius: 0; padding: 32px; }
+#manage-address-modal .modal-header, #manage-address-modal .modal-body, #manage-address-modal .modal-footer { padding: 0; border: 0; }
+#manage-address-modal .modal-body { margin-top: 28px; }
+#manage-address-modal .modal-body > .row { margin-left: 0; margin-right: 0; }
+#manage-address-modal .modal-footer { border-top: 1px solid var(--cc-border); margin-top: 28px; padding-top: 20px; }
+#manage-address-modal .cc-address-title { font-size: clamp(26px, 4vw, 34px); }
+#manage-address-modal .form-label { font-size: 10px; color: var(--cc-muted); text-transform: uppercase; margin-bottom: 6px; }
+#manage-address-modal .cc-input { font-size: 12px; min-height: 44px; background-color: var(--cc-bg); }
+#manage-address-modal .form-check-input { border-radius: 0; }
+#manage-address-modal .form-check-input:checked { background-color: var(--cc-accent); border-color: var(--cc-accent); }
+.cc-address-button { background: transparent; border: 1px solid var(--cc-border); color: var(--cc-text); padding: 13px 20px; font-size: 12px; }
+.cc-address-button:hover, .cc-address-button:focus-visible { border-color: var(--cc-accent); }
+.cc-address-button-primary { background: var(--cc-accent); border-color: var(--cc-accent); }
+.cc-address-card { padding: 20px; border: 1px solid var(--cc-border); overflow-wrap: anywhere; }
+.cc-address-card.is-selected { background: #112B2E; border-color: var(--cc-accent); }
+.cc-address-card button { color: var(--cc-text); background: none; border: 0; padding: 0; font-size: 12px; text-decoration: underline; }
+.cc-address-lines { white-space: pre-line; }
+@media (max-width: 575.98px) {
+  #manage-address-modal .modal-content { padding: 20px; }
+  #manage-address-modal .modal-footer { gap: 12px; }
+  #manage-address-modal .modal-footer > p { flex-basis: 100%; }
+}

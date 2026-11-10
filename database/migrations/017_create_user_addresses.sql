@@ -1,0 +1,29 @@
+USE classic_club_ph;
+
+CREATE TABLE IF NOT EXISTS user_addresses (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    mobile VARCHAR(40) NOT NULL,
+    label VARCHAR(80) NOT NULL DEFAULT '',
+    country VARCHAR(80) NOT NULL,
+    region VARCHAR(120) NOT NULL DEFAULT '',
+    province VARCHAR(120) NOT NULL,
+    city VARCHAR(120) NOT NULL,
+    barangay VARCHAR(120) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    street_address VARCHAR(255) NOT NULL,
+    apartment VARCHAR(255) NOT NULL DEFAULT '',
+    instructions VARCHAR(500) NOT NULL DEFAULT '',
+    is_default_shipping TINYINT(1) NOT NULL DEFAULT 0,
+    is_default_billing TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_addresses_user (user_id),
+    CONSTRAINT fk_user_addresses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+ALTER TABLE order_addresses
+    ADD COLUMN IF NOT EXISTS region VARCHAR(120) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS instructions VARCHAR(500) NOT NULL DEFAULT '';

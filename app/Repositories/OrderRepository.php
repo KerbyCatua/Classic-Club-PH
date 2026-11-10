@@ -89,10 +89,10 @@ final class OrderRepository
             <<<'SQL'
                 INSERT INTO order_addresses
                     (order_id, recipient_first_name, recipient_last_name, mobile,
-                     country, street_address, apartment, barangay, city, province, postal_code)
+                     country, street_address, apartment, barangay, city, province, postal_code, region, instructions)
                 VALUES
                     (:order_id, :first_name, :last_name, :mobile, :country, :street,
-                     :apartment, :barangay, :city, :province, :postal_code)
+                     :apartment, :barangay, :city, :province, :postal_code, :region, :instructions)
             SQL
         );
         $statement->execute([
@@ -107,6 +107,8 @@ final class OrderRepository
             'city' => $address['city'],
             'province' => $address['province'],
             'postal_code' => $address['postal_code'],
+            'region' => $address['region'] ?? '',
+            'instructions' => $address['instructions'] ?? '',
         ]);
     }
 
@@ -122,7 +124,7 @@ final class OrderRepository
                     o.subtotal, o.shipping_amount, o.discount_amount, o.total_amount,
                     o.guest_email, a.recipient_first_name, a.recipient_last_name,
                     a.mobile, a.country, a.street_address, a.apartment,
-                    a.barangay, a.city, a.province, a.postal_code
+                    a.barangay, a.city, a.province, a.postal_code, a.region, a.instructions
                 FROM orders o
                 LEFT JOIN order_addresses a ON a.order_id = o.id
                 WHERE o.order_number = :order_number

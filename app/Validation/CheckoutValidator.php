@@ -8,6 +8,11 @@ final class CheckoutValidator
 {
     public function validate(array $data): array
     {
+        foreach (['region', 'instructions'] as $field) {
+            if (isset($data[$field]) && !is_string($data[$field])) {
+                throw new ValidationException('Please correct the checkout fields.', [$field => 'Enter text.']);
+            }
+        }
         $fields = [
             'email' => trim((string) ($data['email'] ?? '')),
             'first_name' => trim((string) ($data['first_name'] ?? '')),
@@ -20,10 +25,14 @@ final class CheckoutValidator
             'city' => trim((string) ($data['city'] ?? '')),
             'province' => trim((string) ($data['province'] ?? '')),
             'postal_code' => trim((string) ($data['postal_code'] ?? '')),
+            'region' => trim((string) ($data['region'] ?? '')),
+            'instructions' => trim((string) ($data['instructions'] ?? '')),
             'promotion_code' => strtoupper(trim((string) ($data['promotion_code'] ?? ''))),
         ];
 
         $errors = [];
+        if (mb_strlen($fields['region']) > 120) $errors['region'] = 'Use 120 characters or fewer.';
+        if (mb_strlen($fields['instructions']) > 500) $errors['instructions'] = 'Use 500 characters or fewer.';
         if (!filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'A valid email is required.';
         }
