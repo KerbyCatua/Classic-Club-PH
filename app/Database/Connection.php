@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../Support/ErrorTracker.php';
+\ClassicClub\Support\ErrorTracker::start();
+
 $config = require __DIR__ . '/../Config/database.php';
 
 $dsn = sprintf(

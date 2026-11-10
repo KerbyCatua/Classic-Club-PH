@@ -1355,230 +1355,50 @@
     </section>
     <!-- SECTION 21.6: ERROR & DEBUG MANAGEMENT -->
     <section id="module-errors" class="admin-section px-4 px-lg-5">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <span class="admin-section-eyebrow">21.6 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
-      </div>
+      <span class="admin-section-eyebrow">21.6 / CLASSIC CLUB PH</span>
       <h2 class="admin-section-title mb-2">Error &amp; debug management</h2>
-      <p class="admin-section-desc mb-4">
-        Restricted sensitive details · Authorized Super Admin only. Searchable exception groups, failed operations and API log records; secrets and customer payloads are redacted.
-      </p>
-
+      <p class="admin-section-desc mb-4">Super Admin only. Recorded HTTP failures, PHP warnings and fatal errors. Request bodies, query values, exception messages and credentials are excluded from telemetry.</p>
       <div class="d-flex flex-wrap gap-2 mb-3">
-        <input type="text" id="errorSearchInput" class="admin-input-filter flex-grow-1" placeholder="Search error, exception or request" style="min-width: 240px;">
-        <select id="errorSeverityFilter" class="admin-select-filter">
-          <option value="">Severity: All</option>
-          <option value="Critical">Critical</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-          <option value="Informational">Informational</option>
-        </select>
-        <select id="errorDateFilter" class="admin-select-filter">
-          <option value="">Date: 03–05 Nov 2026</option>
-          <option value="2026-11-05">05 Nov 2026</option>
-          <option value="2026-11-04">04 Nov 2026</option>
-          <option value="2026-11-03">03 Nov 2026</option>
-        </select>
-        <select id="errorModuleFilter" class="admin-select-filter">
-          <option value="">Module: All</option>
-          <option value="Checkout / API">Checkout / API</option>
-          <option value="Catalog / API">Catalog / API</option>
-          <option value="Account interface">Account interface</option>
-          <option value="Application startup">Application startup</option>
-          <option value="Notification service">Notification service</option>
-        </select>
-        <select id="errorStateFilter" class="admin-select-filter">
-          <option value="">State: All</option>
-          <option value="Unresolved">Unresolved</option>
-          <option value="Resolved">Resolved</option>
-        </select>
-        <select id="errorRecurringFilter" class="admin-select-filter">
-          <option value="">Recurring: All</option>
-          <option value="Recurring">Recurring groups</option>
-          <option value="Single">Single occurrence</option>
-        </select>
+        <input id="errorSearchInput" class="admin-input-filter flex-grow-1" placeholder="Search group, endpoint, request ID or source" aria-label="Search errors" maxlength="255">
+        <select id="errorSeverityFilter" class="admin-select-filter" aria-label="Severity"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Informational</option></select>
+        <input type="date" id="errorDateFilter" class="admin-input-filter" aria-label="Occurrence date in PHT">
+        <select id="errorModuleFilter" class="admin-select-filter" aria-label="Module"><option value="">All modules</option></select>
+        <select id="errorStateFilter" class="admin-select-filter" aria-label="State"><option value="">All states</option><option>Unresolved</option><option>Resolved</option></select>
+        <select id="errorRecurringFilter" class="admin-select-filter" aria-label="Recurrence"><option value="">All occurrences</option><option>Recurring</option><option>Single</option></select>
+        <button id="errorRefresh" class="btn-admin-outline" type="button">Refresh</button>
       </div>
-      <p class="text-muted-cc mb-3" style="font-size: 12px;">
-        Severity choices: Critical / High / Medium / Low / Informational. States: Unresolved / Resolved. Two unresolved groups account for 9 failed requests in the latest 24-hour example window.
-      </p>
-
-      <div class="admin-table-container mb-2">
-        <table class="admin-table sa-table-wide" id="errorGroupsTable">
-          <thead>
-            <tr>
-              <th>Error / recurring indicator</th>
-              <th>Severity</th>
-              <th>Module</th>
-              <th>Latest event · PHT</th>
-              <th>State</th>
-              <th>Exception / failed operation</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="errorGroupsTableBody">
-            <!-- Rendered by page script -->
-          </tbody>
-        </table>
+      <p id="errorSummary" class="text-muted-cc" role="status">Loading recorded failures...</p>
+      <div class="admin-table-container mb-2"><table class="admin-table sa-table-wide"><thead><tr><th>Error / occurrences</th><th>Severity</th><th>Module</th><th>Latest event &middot; PHT</th><th>State</th><th>Failure</th><th>Action</th></tr></thead><tbody id="errorGroupsTableBody"></tbody></table></div>
+      <div class="d-flex gap-2 align-items-center mb-4"><button type="button" id="errorPrev" class="btn-admin-outline">Previous</button><span id="errorTableNote" class="text-muted-cc" role="status"></span><button type="button" id="errorNext" class="btn-admin-outline">Next</button></div>
+      <p id="errorDetailStatus" class="text-muted-cc" role="status">Select an error group to inspect its source and request records.</p>
+      <div id="errorDetailPanel" class="row g-4 mb-4 d-none" hidden>
+        <div class="col-12 col-xl-7"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc">Error detail / <span id="errorDetailCode"></span></h3>
+          <p id="errorDetailMeta" class="text-muted-cc"></p><p id="errorDetailEndpoint" class="text-light-cc"></p>
+          <p id="errorDetailContext" class="text-muted-cc"></p>
+          <div class="sa-code-block" id="errorDetailStack"></div>
+          <p class="text-muted-cc mt-3">Source frames omit arguments and machine paths. HTTP records identify the response location; they do not contain the caught exception trace. Resolve after investigating the source. A new occurrence reopens the group and clears its review flag.</p>
+          <h4 class="font-lora text-light-cc mt-4">Triage history</h4><div id="errorHistory"></div>
+        </div></div>
+        <div class="col-12 col-xl-5"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc">Triage / internal notes</h3>
+          <form id="errorTriageForm" class="d-flex flex-column gap-3"><div class="row g-3">
+          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorSeverity">Severity</label><select id="errorSeverity" class="admin-select-filter w-100"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Informational</option></select></div>
+          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorState">State</label><select id="errorState" class="admin-select-filter w-100"><option>Unresolved</option><option>Resolved</option></select></div>
+          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorReviewer">Assigned reviewer</label><select id="errorReviewer" class="admin-select-filter w-100"></select></div><div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorIncident">Linked failed health check</label><select id="errorIncident" class="admin-select-filter w-100"></select></div>
+          </div><label for="errorNote" class="text-muted-cc">New internal note &middot; Do not include secrets or customer data</label>
+          <textarea id="errorNote" class="admin-input-filter w-100" rows="4" maxlength="4000"></textarea>
+          <label class="text-light-cc"><input type="checkbox" id="errorReviewedCheck"> Mark group as reviewed</label>
+          <button type="submit" class="btn-admin-primary">Save triage</button><div class="d-flex gap-2"><button type="button" id="btnMarkResolved" class="btn-admin-outline">Mark resolved</button><button type="button" id="btnReopenError" class="btn-admin-outline">Reopen error</button></div>
+          </form>
+        </div></div>
+        <div class="col-12"><h3 class="font-lora text-light-cc">Request records for this group</h3>
+        <div class="admin-table-container"><table class="admin-table sa-table-wide"><thead><tr><th>Request ID</th><th>Timestamp &middot; PHT</th><th>Endpoint</th><th>HTTP status</th><th>Duration</th><th>Source</th></tr></thead><tbody id="errorRequestsBody"></tbody></table></div>
+        <div class="d-flex gap-2 align-items-center mt-3"><button id="errorEventPrev" type="button" class="btn-admin-outline">Previous records</button><span id="errorEventNote" class="text-muted-cc"></span><button id="errorEventNext" type="button" class="btn-admin-outline">Next records</button></div></div>
       </div>
-      <p class="text-muted-cc mb-4" style="font-size: 12px;" id="errorTableNote">
-        5 error groups shown · 2 Unresolved / 3 Resolved · Recurrence refers to occurrences, not unique users
-      </p>
-
-      <div class="row g-4 mb-4">
-        <div class="col-12 col-xl-7">
-          <div class="admin-card h-100">
-            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-              <h3 class="font-lora text-light-cc mb-1" style="font-size: 24px;">Error detail / <span id="errorDetailCode">ERR-104</span></h3>
-              <div id="errorDetailBadges"></div>
-            </div>
-
-            <div class="admin-callout mb-3">
-              <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Authorized Super Admin only / sensitive example</span>
-              <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">
-                Internal stack details are available only to verified Super Admin accounts. All identifiers and payload fields below are synthetic or redacted.
-              </span>
-            </div>
-
-            <div class="sa-list-row">
-              <div class="sa-list-title" id="errorDetailMeta">High / Unresolved / Recurring ×6</div>
-              <div class="sa-list-meta" id="errorDetailEndpoint">Checkout / POST /checkout / HTTP 503 · Latest 05 Nov 2026, 13:55 PHT</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Associated failed operation</div>
-              <div class="sa-list-meta" id="errorDetailOperation">Checkout submission unavailable in an illustrative session. No payment record was created by this example log.</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Example crash context</div>
-              <div class="sa-list-meta" id="errorDetailContext">Request DEMO-REQ-104 · Release 2.6.1 · Incident INC-14 · Customer reference [redacted]</div>
-            </div>
-
-            <div class="sa-code-block mt-3" id="errorDetailStack">EXAMPLE STACK TRACE / REDACTED
-payload: [redacted] · credentials: [redacted]</div>
-          </div>
-        </div>
-
-        <div class="col-12 col-xl-5">
-          <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Triage / internal notes</h3>
-            <form id="errorTriageForm" class="d-flex flex-column gap-3">
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="errorSeverity">Severity</label>
-                  <select class="admin-select-filter w-100" id="errorSeverity">
-                    <option value="Critical">Critical</option>
-                    <option value="High" selected>High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                    <option value="Informational">Informational</option>
-                  </select>
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="errorState">State</label>
-                  <select class="admin-select-filter w-100" id="errorState">
-                    <option value="Unresolved" selected>Unresolved</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="errorReviewer">Assigned reviewer</label>
-                  <select class="admin-select-filter w-100" id="errorReviewer">
-                    <option value="Paolo Garcia" selected>Paolo Garcia</option>
-                    <option value="Julia Dela Cruz">Julia Dela Cruz</option>
-                    <option value="Inez Flores">Inez Flores</option>
-                  </select>
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="errorIncident">Linked incident</label>
-                  <select class="admin-select-filter w-100" id="errorIncident">
-                    <option value="INC-14" selected>INC-14</option>
-                    <option value="INC-13">INC-13</option>
-                    <option value="None">None</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="form-label text-muted-cc" style="font-size: 12px;" for="errorNote">Internal note · Super Admin only</label>
-                <textarea class="admin-input-filter w-100" id="errorNote" rows="4">Example investigation in progress. Six checkout failures were grouped under this exception. No sensitive payload is retained in the visible log.</textarea>
-              </div>
-
-              <div class="d-flex flex-column gap-2">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="errorReviewedCheck">
-                  <label class="form-check-label text-light-cc" for="errorReviewedCheck" style="font-size: 13px;">Mark recurring group as reviewed</label>
-                </div>
-                <button type="submit" class="btn-admin-primary">Save internal note</button>
-                <div class="d-flex flex-wrap gap-2">
-                  <button type="button" class="btn-admin-outline" id="btnMarkResolved">Mark resolved</button>
-                  <button type="button" class="btn-admin-outline" id="btnReopenError">Reopen error</button>
-                </div>
-              </div>
-            </form>
-
-            <div class="mt-4 pt-3 border-top border-cc">
-              <div class="sa-list-row">
-                <div class="sa-list-title">Paolo Garcia · 05 Nov, 14:15 PHT</div>
-                <div class="sa-list-meta">Assigned error group to review queue; state remains Unresolved.</div>
-              </div>
-              <div class="sa-list-row">
-                <div class="sa-list-title">System example record · 05 Nov, 13:55</div>
-                <div class="sa-list-meta">Recurring group updated from 5 to 6 occurrences.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Failed API request records</h3>
-      <div class="admin-table-container mb-2">
-        <table class="admin-table sa-table-wide">
-          <thead>
-            <tr>
-              <th>Example request</th>
-              <th>Timestamp · PHT</th>
-              <th>Endpoint / operation</th>
-              <th>HTTP status</th>
-              <th>Duration</th>
-              <th>Linked error / redaction</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="sa-mono">DEMO-REQ-104</td>
-              <td>05 Nov 2026 · 13:55</td>
-              <td>POST /checkout</td>
-              <td><span class="sa-badge sa-badge-danger">503</span></td>
-              <td>1,240 ms</td>
-              <td>ERR-104 · Payload redacted</td>
-            </tr>
-            <tr>
-              <td class="sa-mono">DEMO-REQ-103</td>
-              <td>05 Nov 2026 · 11:20</td>
-              <td>GET /products</td>
-              <td><span class="sa-badge sa-badge-warning">504</span></td>
-              <td>2,000 ms</td>
-              <td>ERR-103 · Query values redacted</td>
-            </tr>
-            <tr>
-              <td class="sa-mono">DEMO-REQ-099</td>
-              <td>05 Nov 2026 · 10:05</td>
-              <td>POST /checkout</td>
-              <td><span class="sa-badge sa-badge-danger">503</span></td>
-              <td>1,100 ms</td>
-              <td>ERR-104 · Account redacted</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="text-muted-cc mb-4" style="font-size: 12px;">3 representative request records shown / 9 failed requests in the 24-hour demo window</p>
-
-      <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-2 border-top border-cc">
-        <span class="sa-tiny-label">ILLUSTRATIVE DATA · STATIC INTERFACE</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
-      </div>
+      <p class="text-muted-cc">Capture starts with this installation; historical PHP log text is not imported. HTTP validation and authorization failures are included. Visible error lists refresh every 30 seconds. Recorded health checks can be linked without changing monitoring data.</p>
+      <a href="#module-directory" class="text-muted-cc cc-underline-link">Module directory &uarr;</a>
     </section>
-
     <!-- SECTION 21.8: SUPPORT TICKET MANAGEMENT -->
     <section id="module-tickets" class="admin-section px-4 px-lg-5">
       <div class="d-flex justify-content-between align-items-start mb-2">
@@ -2374,6 +2194,7 @@ payload: [redacted] · credentials: [redacted]</div>
     </footer>
   </main>
 
+  <script src="assets/js/super-admin-errors.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/scroll-reveal.js"></script>
   <script src="assets/js/maintenance.js"></script>
@@ -2393,64 +2214,6 @@ payload: [redacted] · credentials: [redacted]</div>
         usersLoaded: false,
         usersLoading: false,
         selectedUsers: new Set(),
-        errors: [
-          {
-            code: 'ERR-104', indicator: 'Recurring ×6', recurrence: 'Recurring', severity: 'High', module: 'Checkout / API',
-            latest: '05 Nov · 13:55', date: '2026-11-05', state: 'Unresolved', summary: 'POST /checkout · 503 · 6 failed requests',
-            meta: 'High / Unresolved / Recurring ×6',
-            endpoint: 'Checkout / POST /checkout / HTTP 503 · Latest 05 Nov 2026, 13:55 PHT',
-            operation: 'Checkout submission unavailable in an illustrative session. No payment record was created by this example log.',
-            context: 'Request DEMO-REQ-104 · Release 2.6.1 · Incident INC-14 · Customer reference [redacted]',
-            stack: 'EXAMPLE STACK TRACE / REDACTED\npayload: [redacted] · credentials: [redacted]',
-            reviewer: 'Paolo Garcia', incident: 'INC-14',
-            note: 'Example investigation in progress. Six checkout failures were grouped under this exception. No sensitive payload is retained in the visible log.'
-          },
-          {
-            code: 'ERR-103', indicator: 'Recurring ×3', recurrence: 'Recurring', severity: 'Medium', module: 'Catalog / API',
-            latest: '05 Nov · 11:20', date: '2026-11-05', state: 'Unresolved', summary: 'GET /products · 504 · 3 failed requests',
-            meta: 'Medium / Unresolved / Recurring ×3',
-            endpoint: 'Catalog / GET /products / HTTP 504 · Latest 05 Nov 2026, 11:20 PHT',
-            operation: 'Catalog query timed out in an illustrative request. Product data was not modified by this example log.',
-            context: 'Request DEMO-REQ-103 · Release 2.6.1 · Incident INC-13 · Query values [redacted]',
-            stack: 'EXAMPLE STACK TRACE / REDACTED\nquery: [redacted] · connection: [redacted]',
-            reviewer: 'Inez Flores', incident: 'INC-13',
-            note: 'Catalog timeout grouped under this exception. No sensitive query values are retained in the visible log.'
-          },
-          {
-            code: 'ERR-102', indicator: 'Single', recurrence: 'Single', severity: 'Low', module: 'Account interface',
-            latest: '04 Nov · 16:40', date: '2026-11-04', state: 'Resolved', summary: 'Preference label did not render',
-            meta: 'Low / Resolved / Single occurrence',
-            endpoint: 'Account interface / GET /account/preferences · Latest 04 Nov 2026, 16:40 PHT',
-            operation: 'A preference label did not render in an illustrative account view. The record was resolved.',
-            context: 'Request DEMO-REQ-102 · Release 2.6.1 · No linked incident · Account reference [redacted]',
-            stack: 'EXAMPLE STACK TRACE / REDACTED\ncomponent: preferences · field: [redacted]',
-            reviewer: 'Paolo Garcia', incident: 'None',
-            note: 'Example label rendering issue reviewed and resolved. No account data is retained in this static record.'
-          },
-          {
-            code: 'ERR-101', indicator: 'Single', recurrence: 'Single', severity: 'Critical', module: 'Application startup',
-            latest: '04 Nov · 02:10', date: '2026-11-04', state: 'Resolved', summary: 'Update validation failed; prior version retained',
-            meta: 'Critical / Resolved / Single occurrence',
-            endpoint: 'Application startup / POST /release/validate · Latest 04 Nov 2026, 02:10 PHT',
-            operation: 'Update validation failed in the example release check; previous application version 2.6.1 was retained.',
-            context: 'Request DEMO-REQ-101 · Release 2.6.1 · Incident INC-12 · Deployment values [redacted]',
-            stack: 'EXAMPLE STACK TRACE / REDACTED\nrelease: [redacted] · checksum: [redacted]',
-            reviewer: 'Julia Dela Cruz', incident: 'INC-12',
-            note: 'Example update validation reviewed. Prior version was retained and service recovered.'
-          },
-          {
-            code: 'ERR-100', indicator: 'Single', recurrence: 'Single', severity: 'Informational', module: 'Notification service',
-            latest: '03 Nov · 09:00', date: '2026-11-03', state: 'Resolved', summary: 'Example delivery retry recorded',
-            meta: 'Informational / Resolved / Single occurrence',
-            endpoint: 'Notification service / POST /notifications/deliver · Latest 03 Nov 2026, 09:00 PHT',
-            operation: 'An example notification delivery retry was recorded and completed successfully.',
-            context: 'Request DEMO-REQ-100 · Release 2.6.1 · No linked incident · Recipient [redacted]',
-            stack: 'EXAMPLE STACK TRACE / REDACTED\nchannel: [redacted] · delivery: retried',
-            reviewer: 'Inez Flores', incident: 'None',
-            note: 'Informational delivery retry recorded. No recipient identifiers are visible in this static example.'
-          }
-        ],
-        selectedError: 'ERR-104',
         tickets: [
           {
             id: 'T-208', requester: 'Alex Reyes', role: 'Customer', email: 'alex.reyes@example.com',
@@ -2928,8 +2691,7 @@ payload: [redacted] · credentials: [redacted]</div>
           initDirectory();
           initUserManagement();
           window.initLiveMaintenance({ byId, showToast, escapeHtml, getCsrfToken, refreshOverview: loadOverview });
-          renderErrors();
-          initErrorEvents();
+          window.initErrorManagement({ byId, showToast, escapeHtml, getCsrfToken });
           renderTickets();
           initTicketEvents();
           initConfigEvents();
@@ -3959,155 +3721,6 @@ payload: [redacted] · credentials: [redacted]</div>
       /* ============================================================
          21.6 — Error & debug management
          ============================================================ */
-      function renderErrors() {
-        const body = byId('errorGroupsTableBody');
-        if (!body) return;
-
-        const query = (byId('errorSearchInput') ? byId('errorSearchInput').value : '').trim().toLowerCase();
-        const severity = byId('errorSeverityFilter') ? byId('errorSeverityFilter').value : '';
-        const date = byId('errorDateFilter') ? byId('errorDateFilter').value : '';
-        const moduleName = byId('errorModuleFilter') ? byId('errorModuleFilter').value : '';
-        const errorState = byId('errorStateFilter') ? byId('errorStateFilter').value : '';
-        const recurring = byId('errorRecurringFilter') ? byId('errorRecurringFilter').value : '';
-
-        const list = state.errors.filter(function (error) {
-          const text = [error.code, error.module, error.summary, error.state, error.severity].join(' ').toLowerCase();
-          return (!query || text.indexOf(query) !== -1) &&
-            (!severity || error.severity === severity) &&
-            (!date || error.date === date) &&
-            (!moduleName || error.module === moduleName) &&
-            (!errorState || error.state === errorState) &&
-            (!recurring || error.recurrence === recurring);
-        });
-
-        if (!list.length) {
-          body.innerHTML = '<tr><td colspan="7" class="text-muted-cc text-center py-4">No error groups match the current filters.</td></tr>';
-        } else {
-          body.innerHTML = list.map(function (error) {
-            const selected = error.code === state.selectedError ? ' sa-selected-row' : '';
-            return '<tr class="' + selected.trim() + '">' +
-              '<td><div class="fw-medium text-light-cc sa-mono">' + escapeHtml(error.code) + '</div><div class="text-muted-cc" style="font-size: 12px;">' + escapeHtml(error.indicator) + '</div></td>' +
-              '<td>' + severityBadge(error.severity) + '</td>' +
-              '<td>' + escapeHtml(error.module) + '</td>' +
-              '<td>' + escapeHtml(error.latest) + '</td>' +
-              '<td>' + statusBadge(error.state) + '</td>' +
-              '<td>' + escapeHtml(error.summary) + '</td>' +
-              '<td><button type="button" class="btn btn-link p-0 text-decoration-none text-accent sa-error-detail" data-code="' + escapeHtml(error.code) + '" style="font-size: 13px;">Details ↗</button></td>' +
-              '</tr>';
-          }).join('');
-        }
-
-        const note = byId('errorTableNote');
-        if (note) {
-          const unresolved = state.errors.filter(function (error) { return error.state === 'Unresolved'; }).length;
-          note.textContent = state.errors.length + ' error groups shown · ' + unresolved + ' Unresolved / ' + (state.errors.length - unresolved) + ' Resolved · Recurrence refers to occurrences, not unique users';
-        }
-      }
-
-      function renderErrorDetail() {
-        const error = state.errors.find(function (item) { return item.code === state.selectedError; }) || state.errors[0];
-        if (!error) return;
-        byId('errorDetailCode').textContent = error.code;
-        byId('errorDetailBadges').innerHTML = severityBadge(error.severity) + ' ' + statusBadge(error.state);
-        byId('errorDetailMeta').textContent = error.meta;
-        byId('errorDetailEndpoint').textContent = error.endpoint;
-        byId('errorDetailOperation').textContent = error.operation;
-        byId('errorDetailContext').textContent = error.context;
-        byId('errorDetailStack').textContent = error.stack;
-
-        const severitySelect = byId('errorSeverity');
-        if (severitySelect) severitySelect.value = error.severity;
-        const stateSelect = byId('errorState');
-        if (stateSelect) stateSelect.value = error.state;
-        const reviewer = byId('errorReviewer');
-        if (reviewer) reviewer.value = error.reviewer;
-        const incident = byId('errorIncident');
-        if (incident) incident.value = error.incident;
-        const note = byId('errorNote');
-        if (note) note.value = error.note;
-        const reviewed = byId('errorReviewedCheck');
-        if (reviewed) reviewed.checked = false;
-      }
-
-      function selectError(code, scroll) {
-        state.selectedError = code;
-        renderErrors();
-        renderErrorDetail();
-        if (scroll) {
-          byId('errorDetailCode').closest('.admin-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-
-      function initErrorEvents() {
-        const search = byId('errorSearchInput');
-        if (search) search.addEventListener('input', renderErrors);
-        ['errorSeverityFilter', 'errorDateFilter', 'errorModuleFilter', 'errorStateFilter', 'errorRecurringFilter'].forEach(function (id) {
-          const el = byId(id);
-          if (el) el.addEventListener('change', renderErrors);
-        });
-
-        const tbody = byId('errorGroupsTableBody');
-        if (tbody) {
-          tbody.addEventListener('click', function (event) {
-            const button = event.target.closest('.sa-error-detail');
-            if (!button) return;
-            selectError(button.getAttribute('data-code'), true);
-            showToast('Loaded details for ' + button.getAttribute('data-code') + '.');
-          });
-        }
-
-        const triageForm = byId('errorTriageForm');
-        if (triageForm) {
-          triageForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const error = state.errors.find(function (item) { return item.code === state.selectedError; });
-            if (!error) return;
-            error.severity = byId('errorSeverity').value;
-            error.state = byId('errorState').value;
-            error.reviewer = byId('errorReviewer').value;
-            error.incident = byId('errorIncident').value;
-            error.note = byId('errorNote').value;
-            error.meta = error.severity + ' / ' + error.state + ' / ' + (error.recurrence === 'Recurring' ? error.indicator : 'Single occurrence');
-            renderErrors();
-            renderErrorDetail();
-            showToast('Internal note saved for ' + error.code + ' (example only).');
-          });
-        }
-
-        const resolveBtn = byId('btnMarkResolved');
-        if (resolveBtn) {
-          resolveBtn.addEventListener('click', function () {
-            const error = state.errors.find(function (item) { return item.code === state.selectedError; });
-            if (!error) return;
-            error.state = 'Resolved';
-            error.meta = error.severity + ' / Resolved / ' + (error.recurrence === 'Recurring' ? error.indicator : 'Single occurrence');
-            renderErrors();
-            renderErrorDetail();
-            showToast(error.code + ' marked Resolved locally.');
-          });
-        }
-
-        const reopenBtn = byId('btnReopenError');
-        if (reopenBtn) {
-          reopenBtn.addEventListener('click', function () {
-            const error = state.errors.find(function (item) { return item.code === state.selectedError; });
-            if (!error) return;
-            error.state = 'Unresolved';
-            error.meta = error.severity + ' / Unresolved / ' + (error.recurrence === 'Recurring' ? error.indicator : 'Single occurrence');
-            renderErrors();
-            renderErrorDetail();
-            showToast(error.code + ' reopened locally.');
-          });
-        }
-
-        const reviewed = byId('errorReviewedCheck');
-        if (reviewed) reviewed.addEventListener('change', function () {
-          if (reviewed.checked) showToast('Recurring group marked as reviewed in this example view.');
-        });
-
-        renderErrorDetail();
-      }
-
       /* ============================================================
          21.8 — Support tickets
          ============================================================ */

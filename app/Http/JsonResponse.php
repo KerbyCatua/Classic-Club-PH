@@ -36,6 +36,9 @@ final class JsonResponse extends Response
         int $status = 400,
         array $errors = []
     ): self {
+        if ($status >= 400 && class_exists(\ClassicClub\Support\ErrorTracker::class, false)) {
+            \ClassicClub\Support\ErrorTracker::responseFailure();
+        }
         return new self([
             'success' => false,
             'error' => [
