@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Club PH | Edit Profile</title>
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Global Project Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/scroll-reveal.css">
+</head>
+<body id="top" class="bg-cc-dark">
+
+  <!-- Reusable Header Partial (Injected via partials.js) -->
+  <div id="header-partial"></div>
+
+  <div id="account-load-status" class="cc-section-px py-4 cc-xs-text" role="status" aria-live="polite">Loading your account… <button type="button" id="retry-profile-btn" class="btn-cc-outline ms-3" hidden>Retry</button></div>
+  <noscript><p class="cc-section-px cc-xs-text">Enable JavaScript to edit your account.</p></noscript>
+  <main id="account-main" hidden>
+    <!-- Page Header Section -->
+    <section class="cc-section-px pt-4 pb-5">
+      <div class="d-flex flex-column gap-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="cc-eyebrow text-transform-none" style="text-transform: none;">
+          <a href="index.html" class="text-muted-cc text-decoration-none">Home</a>
+          <span class="mx-1">/</span>
+          <a href="account-dashboard.html" class="text-muted-cc text-decoration-none">My account</a>
+          <span class="mx-1">/</span>
+          <span class="text-muted-cc">Edit profile</span>
+        </nav>
+
+        <!-- Title & Description -->
+        <div class="row align-items-end gy-4 justify-content-between">
+          <div class="col-12 col-lg-7">
+            <div class="d-flex flex-column gap-3">
+              <span class="cc-eyebrow">22 / YOUR ACCOUNT / CLASSIC CLUB PH</span>
+              <h1 class="font-lora text-light-cc mb-0" style="font-size: clamp(2.25rem, 4.5vw, 56px); line-height: 1.18;">
+                Your details, refined.
+              </h1>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5 d-lg-flex justify-content-lg-end">
+            <p class="cc-body-text mb-0" style="max-width: 440px;">
+              Keep your personal details and preferences up to date. A few considered changes, all in one place.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Account Edit Profile Main Layout -->
+    <section class="cc-section-px pb-5 mb-5">
+      <div class="row gx-4 gx-lg-5 gy-5 align-items-start">
+        
+        <!-- Left Sidebar Navigation -->
+        <div class="col-12 col-lg-3 col-xl-2">
+          <div class="d-flex flex-column gap-4 sticky-top" style="top: 100px;">
+            
+            <!-- User Profile Snapshot -->
+            <div class="d-flex flex-column gap-3">
+              <div class="d-inline-flex align-items-center justify-content-center bg-cc-surface border border-cc" style="width: 56px; height: 56px;">
+                <span class="text-light-cc fw-medium customer-initials" style="font-size: 18px;">—</span>
+              </div>
+              <div class="d-flex flex-column gap-1">
+                <span class="text-light-cc" style="font-size: 14px;">
+                  <span class="customer-fname">—</span> <span class="customer-lname">—</span>
+                </span>
+                <span class="cc-xs-text customer-email" style="overflow-wrap: anywhere;">—</span>
+              </div>
+            </div>
+
+            <hr class="border-cc m-0 opacity-100">
+
+            <!-- Sidebar Links -->
+            <div class="d-flex flex-column">
+              <a href="account-dashboard.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Overview &amp; orders</a>
+              <a href="shop-all.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Saved wishlist (<span id="wishlist-sidebar-count">0</span>)</a>
+              <a href="account-dashboard.html#dashboard-shipping-address" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Addresses</a>
+              <a href="account-edit-profile.html" class="p-3 text-light-cc text-decoration-none" style="background: #112B2E; border-left: 2px solid var(--cc-accent); font-size: 12px;">Profile &amp; preferences</a>
+              <button type="button" id="sign-out-btn" class="p-3 text-start text-muted-cc border-0" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Sign out</button>
+            </div>
+
+            <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+              Your account details.<br>Manage your personal information securely.
+            </p>
+
+          </div>
+        </div>
+
+        <!-- Right Main Content Area -->
+        <div class="col-12 col-lg-9 col-xl-10">
+          <div class="d-flex flex-column gap-4 px-lg-4">
+            
+            <!-- Back Navigation Link -->
+            <div>
+              <a href="account-dashboard.html" class="text-light-cc cc-xs-text text-decoration-none">
+                ← Back to my account
+              </a>
+            </div>
+
+            <!-- Personal Information Form Block -->
+            <form id="profile-info-form" class="bg-cc-surface p-4 p-md-5 d-flex flex-column gap-4">
+              <div class="d-flex flex-column gap-2">
+                <h2 class="font-lora text-light-cc mb-0" style="font-size: 26px; line-height: 41.6px;">Personal information</h2>
+                <p class="cc-xs-text text-muted-cc mb-0">Your contact details help us keep you informed about your orders.</p>
+              </div>
+
+              <!-- First & Last Name Fields -->
+              <div class="row g-4">
+                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                  <label for="first-name" class="cc-eyebrow m-0">FIRST NAME *</label>
+                  <input type="text" id="first-name" name="first_name" maxlength="100" autocomplete="given-name" class="form-control cc-input" value="" required>
+                </div>
+                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                  <label for="last-name" class="cc-eyebrow m-0">LAST NAME *</label>
+                  <input type="text" id="last-name" name="last_name" maxlength="100" autocomplete="family-name" class="form-control cc-input" value="" required>
+                </div>
+              </div>
+
+              <!-- Email & Mobile Number Fields -->
+              <div class="row g-4">
+                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                  <label for="email-address" class="cc-eyebrow m-0">EMAIL ADDRESS *</label>
+                  <input type="email" id="email-address" name="email" maxlength="190" autocomplete="email" class="form-control cc-input" value="" required>
+                  <span class="cc-eyebrow text-transform-none m-0" style="text-transform: none;">Confirm your current password below when changing your email.</span>
+                </div>
+                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                  <label for="mobile-number" class="cc-eyebrow m-0">MOBILE NUMBER</label>
+                  <input type="tel" id="mobile-number" name="mobile" maxlength="40" autocomplete="tel" class="form-control cc-input" value="">
+                  <span class="cc-eyebrow text-transform-none m-0" style="text-transform: none;">Used only for order and delivery updates.</span>
+                </div>
+              </div>
+
+              <div id="email-confirmation" class="flex-column gap-2" hidden>
+                <label for="email-current-password" class="cc-eyebrow m-0">CURRENT PASSWORD TO CHANGE EMAIL</label>
+                <input type="password" id="email-current-password" name="current_password" autocomplete="current-password" class="form-control cc-input" maxlength="4096">
+              </div>
+              <p id="profile-status" class="cc-xs-text m-0" role="status" aria-live="polite" hidden></p>
+              <span class="cc-eyebrow text-transform-none m-0 pt-2" style="text-transform: none;">* Required fields</span>
+            </form>
+
+            <!-- Preferences Form Block -->
+            <div class="bg-cc-surface p-4 p-md-5 d-flex flex-column gap-4">
+              <div class="d-flex flex-column gap-2">
+                <h2 class="font-lora text-light-cc mb-0" style="font-size: 26px; line-height: 41.6px;">Your preferences</h2>
+                <p class="cc-xs-text text-muted-cc mb-0">Choose what you hear from the Club.</p>
+              </div>
+
+              <label class="d-flex align-items-center gap-3 m-0" style="cursor: pointer;">
+                <input type="checkbox" id="newsletter-check" name="newsletter" form="profile-info-form" class="visually-hidden cc-custom-check">
+                <span class="cc-check-box d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 18px; height: 18px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 12px;">✓</span>
+                <span class="cc-xs-text text-light-cc">Receive the Club Letter for new collections and editorial stories.</span>
+              </label>
+
+              <p class="cc-xs-text text-muted-cc m-0">
+                Order confirmations and shipping updates are sent separately from marketing emails. You can unsubscribe from the Club Letter at any time.
+              </p>
+            </div>
+
+            <!-- Profile Action Buttons -->
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <button type="submit" form="profile-info-form" id="save-profile-btn" class="btn-cc-teal">
+                <span>Save changes</span>
+              </button>
+              <a href="account-dashboard.html" class="btn-cc-outline">
+                <span>Cancel</span>
+              </a>
+            </div>
+
+            <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none;">
+              Your personal information stays private. Changes are saved securely to your account.
+            </p>
+
+            <!-- Password & Security Block -->
+            <form id="password-security-form" class="bg-cc-surface p-4 p-md-5 d-flex flex-column gap-4">
+              <div class="d-flex flex-column gap-2">
+                <h2 class="font-lora text-light-cc mb-0" style="font-size: 26px; line-height: 41.6px;">Password &amp; security</h2>
+                <p class="cc-xs-text text-muted-cc mb-0">Keep access to your account secure. Update your password separately from your profile.</p>
+              </div>
+
+              <p id="password-status" class="cc-xs-text m-0" role="status" aria-live="polite" hidden></p>
+              <!-- Current Password -->
+              <div class="d-flex flex-column gap-2">
+                <label for="current-password" class="cc-eyebrow m-0">CURRENT PASSWORD</label>
+                <input type="password" id="current-password" name="current_password" autocomplete="current-password" required maxlength="4096" class="form-control cc-input" placeholder="Enter current password">
+              </div>
+
+              <!-- New Password & Confirm -->
+              <div class="row g-4">
+                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                  <label for="new-password" class="cc-eyebrow m-0">NEW PASSWORD</label>
+                  <input type="password" id="new-password" name="new_password" autocomplete="new-password" required maxlength="72" class="form-control cc-input" placeholder="Enter new password">
+                </div>
+                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                  <label for="confirm-password" class="cc-eyebrow m-0">CONFIRM NEW PASSWORD</label>
+                  <input type="password" id="confirm-password" name="confirm_password" autocomplete="new-password" required maxlength="72" class="form-control cc-input" placeholder="Re-enter new password">
+                </div>
+              </div>
+
+              <span class="cc-eyebrow text-transform-none m-0" style="text-transform: none;">Use at least <span id="password-minimum">12</span> characters, including a letter and a number. Maximum 72 bytes.</span>
+
+              <div>
+                <button type="submit" id="update-password-btn" class="btn-cc-outline">
+                  <span>Update password</span>
+                </button>
+              </div>
+            </form>
+
+            <!-- Support Footer Text -->
+            <div>
+              <p class="cc-xs-text text-muted-cc m-0">Need a hand with your account? Our client services team is here to help.</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Reusable Footer Partial (Injected via partials.js) -->
+  <div id="footer-partial"></div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="assets/js/global-loader.js"></script>
+  <script src="assets/js/store.js?v=20261107-10"></script>
+  <script src="assets/js/partials.js?v=20261103"></script>
+  <script src="assets/js/main.js?v=20261108-1"></script>
+
+  <script src="assets/js/account-profile.js?v=20261110-1"></script>
+  <script src="assets/js/scroll-reveal.js"></script>
+</body>
+</html>
