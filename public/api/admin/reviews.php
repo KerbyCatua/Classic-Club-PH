@@ -28,6 +28,8 @@ try {
         $reviewId = (int)($body['review_id'] ?? 0);
 
         if ($action === 'reply') {
+            require_once __DIR__ . '/../../../app/Services/SystemConfigurationService.php';
+            \ClassicClub\Services\SystemConfigurationService::requireFeature('reviews_enabled');
             $replyText = trim((string)($body['reply_text'] ?? ''));
             if ($replyText === '') {
                 JsonResponse::error('Reply text cannot be empty.', 422)->send();

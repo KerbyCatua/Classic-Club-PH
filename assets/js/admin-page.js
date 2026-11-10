@@ -10,7 +10,7 @@ async function initDashboard() {
   let currentProducts = [];
   let currentInventory = [];
   let currentReports = null;
-  let currentReportPeriod = 'monthly';
+  let currentReportPeriod = null;
   let adminPermissions = {};
   const can = (permission) => adminPermissions[permission] === true;
 
@@ -175,7 +175,7 @@ async function initDashboard() {
       loadProducts(),
       loadInventory(),
       loadMovements(),
-      loadReports('monthly'),
+      loadReports(),
       loadReviews(),
       loadNotifications(),
       loadStaff(),
@@ -730,10 +730,17 @@ async function initDashboard() {
   // ==========================================
   // SECTION 20.4: SALES REPORTS & ANALYTICS
   // ==========================================
-  async function loadReports(period = 'monthly') {
+  async function loadReports(period = currentReportPeriod) {
     try {
-      const data = await CCAdmin.apiRequest(`public/api/admin/reports.php?period=${period}`);
+      const data = await CCAdmin.apiRequest('public/api/admin/reports.php' + (period ? `?period=${encodeURIComponent(period)}` : ''));
       currentReports = data;
+      period = currentReportPeriod = data.period;
+      document.querySelectorAll('.report-period-btn').forEach(btn => {
+        const active = btn.dataset.period === period;
+        btn.classList.toggle('btn-admin-primary', active);
+        btn.classList.toggle('active', active);
+        btn.classList.toggle('btn-admin-outline', !active);
+      });
 
       // Render Summary Table
       const reportViews = data.report_views || [];

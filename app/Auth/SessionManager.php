@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace ClassicClub\Auth;
 
+require_once __DIR__ . '/../Services/SystemConfigurationService.php';
+use ClassicClub\Services\SystemConfigurationService;
+
 final class SessionManager
 {
     public static function start(): void
@@ -12,6 +15,7 @@ final class SessionManager
             return;
         }
 
+        ini_set('session.gc_maxlifetime', (string) (SystemConfigurationService::value('session_duration_hours') * 3600));
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
@@ -32,6 +36,8 @@ final class SessionManager
         session_regenerate_id(true);
         $_SESSION['user_id'] = $userId;
         $_SESSION['logged_in_at'] = time();
+        $_SESSION['last_activity_at'] = time();
+        $_SESSION['password_fingerprint'] = self::passwordFingerprint($userId);
 
         // Login rotates the session ID and clears the session payload. Issue a
         // fresh CSRF secret immediately so the token fetched before login is
@@ -47,7 +53,33 @@ final class SessionManager
             return null;
         }
 
+        $now = time();
+        $expired = $now - (int) ($_SESSION['last_activity_at'] ?? $_SESSION['logged_in_at'] ?? 0)
+            >= SystemConfigurationService::value('idle_timeout_minutes') * 60
+            || $now - (int) ($_SESSION['logged_in_at'] ?? 0)
+            >= SystemConfigurationService::value('session_duration_hours') * 3600;
+        if (SystemConfigurationService::value('invalidate_sessions')) {
+            $fingerprint = self::passwordFingerprint((int) $_SESSION['user_id']);
+            if (isset($_SESSION['password_fingerprint']) && $_SESSION['password_fingerprint'] !== $fingerprint) $expired = true;
+            $_SESSION['password_fingerprint'] = $fingerprint;
+        }
+        if ($expired) {
+            self::logout();
+            return null;
+        }
+        $_SESSION['last_activity_at'] = $now;
+
         return (int) $_SESSION['user_id'];
+    }
+
+    private static function passwordFingerprint(int $userId): ?string
+    {
+        global $pdo;
+        if (!$pdo instanceof \PDO) return null;
+        $q = $pdo->prepare('SELECT password_hash FROM users WHERE id = ? AND deleted_at IS NULL');
+        $q->execute([$userId]);
+        $hash = $q->fetchColumn();
+        return $hash === false ? null : hash('sha256', $hash);
     }
 
     public static function logout(): void

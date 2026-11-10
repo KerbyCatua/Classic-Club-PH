@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ClassicClub\Services;
 
+require_once __DIR__ . '/SystemConfigurationService.php';
+
 use ClassicClub\Auth\SessionManager;
 use ClassicClub\Repositories\UserRepository;
 use ClassicClub\Support\AuditLogger;
@@ -19,6 +21,9 @@ final class AuthService
 
     public function register(array $data): array
     {
+        if (!SystemConfigurationService::value('registration_enabled')) {
+            throw new RuntimeException('Public account registration is currently disabled.');
+        }
         if ($this->users->findByEmail($data['email']) !== null) {
             throw new RuntimeException('An account already exists for this email.');
         }
@@ -56,12 +61,21 @@ final class AuthService
 
     public function login(array $data): array
     {
+        global $pdo;
+        if ($pdo instanceof \PDO) {
+            $q = $pdo->prepare("SELECT COUNT(*) FROM audit_logs WHERE action = 'auth.login_failed' AND created_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.email')) = ?");
+            $q->execute([$data['email']]);
+            if ((int) $q->fetchColumn() >= SystemConfigurationService::value('failed_login_limit')) {
+                throw new RuntimeException('Too many failed sign-in attempts. Please try again in 15 minutes.');
+            }
+        }
         $user = $this->users->findByEmail($data['email']);
 
         if (
             $user === null ||
             !password_verify($data['password'], $user['password_hash'])
         ) {
+            $this->auditLogger->record('auth.login_failed', null, null, null, ['email' => $data['email']]);
             throw new RuntimeException('Invalid email or password.');
         }
 

@@ -23,6 +23,8 @@ try {
     if ($request->method() === 'POST') {
         $ctx = getAdminContext($pdo, true);
         requireAdminPermission($ctx, 'can_manage_staff');
+        require_once __DIR__ . '/../../../app/Services/SystemConfigurationService.php';
+        \ClassicClub\Services\SystemConfigurationService::requireFeature('staff_management_enabled');
         $body = $request->json();
         $action = $body['action'] ?? 'invite';
 

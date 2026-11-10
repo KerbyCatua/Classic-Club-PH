@@ -28,6 +28,7 @@ try {
     }
 
     $body = $request->json();
+    \ClassicClub\Services\SystemConfigurationService::requireFeature('reviews_enabled');
 
     $orderNumber = trim((string) ($body['order_number'] ?? ''));
     $variantId = (int) ($body['variant_id'] ?? 0);

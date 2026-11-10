@@ -2210,8 +2210,10 @@ final class AdminBusinessService
             throw new RuntimeException('Current password does not match our records.');
         }
 
-        if (strlen($newPassword) < 8) {
-            throw new RuntimeException('New password must be at least 8 characters long.');
+        require_once __DIR__ . '/SystemConfigurationService.php';
+        $minimum = SystemConfigurationService::value('password_min_length');
+        if (strlen($newPassword) < $minimum) {
+            throw new RuntimeException('New password must be at least ' . $minimum . ' characters long.');
         }
         if (!preg_match('/[A-Za-z]/', $newPassword) || !preg_match('/\d/', $newPassword)) {
             throw new RuntimeException('New password must contain at least one letter and one number.');
@@ -2220,5 +2222,12 @@ final class AdminBusinessService
         $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
         $stmtUpd = $this->pdo->prepare("UPDATE users SET password_hash = :hash WHERE id = :uid");
         $stmtUpd->execute(['hash' => $newHash, 'uid' => $userId]);
+        // Keep the session that performed the password change; other sessions
+        // are rejected by SessionManager on their next authenticated request.
+        if ((int) ($_SESSION['user_id'] ?? 0) === $userId) {
+            \ClassicClub\Auth\SessionManager::start();
+            $_SESSION['password_fingerprint'] = hash('sha256', $newHash);
+            session_write_close();
+        }
     }
 }

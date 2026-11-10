@@ -12,9 +12,11 @@ try {
     $ctx = getAdminContext($pdo, false);
     requireAdminPermission($ctx, 'can_view_reports');
     $format = $request->queryString('format');
+    require_once __DIR__ . '/../../../app/Services/SystemConfigurationService.php';
+    if ($format === 'csv') \ClassicClub\Services\SystemConfigurationService::requireFeature('report_exports_enabled');
 
     $filters = [
-        'period' => $request->queryString('period') ?? 'monthly',
+        'period' => $request->queryString('period') ?: \ClassicClub\Services\SystemConfigurationService::value('report_period'),
         'from' => $request->queryString('from') ?? '',
         'to' => $request->queryString('to') ?? '',
     ];

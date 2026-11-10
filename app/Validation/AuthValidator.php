@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ClassicClub\Validation;
 
+require_once __DIR__ . '/../Services/SystemConfigurationService.php';
+
 final class AuthValidator
 {
     public function registration(array $data): array
@@ -28,8 +30,9 @@ final class AuthValidator
             $errors['email'] = 'Enter a valid email address.';
         }
 
-        if (strlen($password) < 12) {
-            $errors['password'] = 'Password must be at least 12 characters.';
+        $minimum = \ClassicClub\Services\SystemConfigurationService::value('password_min_length');
+        if (strlen($password) < $minimum) {
+            $errors['password'] = 'Password must be at least ' . $minimum . ' characters.';
         }
 
         if ($password !== $passwordConfirmation) {
