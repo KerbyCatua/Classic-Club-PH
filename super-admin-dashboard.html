@@ -1461,18 +1461,20 @@
       </div>
       <h2 class="admin-section-title mb-2">Super Admin account settings</h2>
       <p class="admin-section-desc mb-4">
-        Your privileged account · Julia Dela Cruz. Personal settings are separate from application-wide security policies. Authorized Super Admin access is verified for this example workspace.
+        Manage your signed-in Super Admin account. Personal settings are separate from application-wide security policies.
       </p>
 
+      <p class="sa-form-note" id="accountStatus" role="status">Loading your account...</p>
+      <button type="button" class="btn-admin-outline mb-3" id="btnReloadAccount">Reload account</button>
       <div class="row g-4 mb-4">
         <!-- Profile -->
         <div class="col-12 col-xl-7">
           <div class="admin-card h-100">
             <div class="d-flex align-items-center gap-3 mb-3">
-              <div class="sa-avatar" id="accountAvatar" style="width: 56px; height: 56px; flex-basis: 56px; font-size: 17px;">JD</div>
+              <div class="sa-avatar" id="accountAvatar" style="width: 56px; height: 56px; flex-basis: 56px; font-size: 17px;"></div>
               <div>
                 <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Profile display / edit</h3>
-                <div class="sa-tiny-label mt-1">JULIA DELA CRUZ / SUPER ADMIN</div>
+                <div class="sa-tiny-label mt-1">SUPER ADMIN</div>
               </div>
             </div>
 
@@ -1480,30 +1482,27 @@
               <div class="row g-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountFirstName">First name</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountFirstName" value="Julia" required>
+                  <input type="text" class="admin-input-filter w-100" id="accountFirstName" maxlength="100" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountLastName">Last name</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountLastName" value="Dela Cruz" required>
+                  <input type="text" class="admin-input-filter w-100" id="accountLastName" maxlength="100" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountEmail">Email address</label>
-                  <input type="email" class="admin-input-filter w-100" id="accountEmail" value="julia.dc@example.com" required>
+                  <input type="email" class="admin-input-filter w-100" id="accountEmail" maxlength="190" required>
                 </div>
                 <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountMobile">Mobile · example</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountMobile" value="+63 917 000 0121">
+                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountMobile">Mobile</label>
+                  <input type="text" class="admin-input-filter w-100" id="accountMobile" maxlength="40">
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountGlobalRole">Global role</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountGlobalRole" value="Super Admin · read only" readonly>
+                  <input type="text" class="admin-input-filter w-100" id="accountGlobalRole" value="Super Admin" readonly>
                 </div>
                 <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountTimezone">Personal time zone</label>
-                  <select class="admin-select-filter w-100" id="accountTimezone">
-                    <option value="Asia/Manila · PHT" selected>Asia/Manila · PHT</option>
-                    <option value="UTC">UTC</option>
-                  </select>
+                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountTimezone">Display time zone</label>
+                  <input type="text" class="admin-input-filter w-100" id="accountTimezone" value="Asia/Manila (display only)" readonly>
                 </div>
               </div>
 
@@ -1529,22 +1528,22 @@
             <form id="credentialsForm" class="d-flex flex-column gap-3">
               <div>
                 <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialCurrent">Current password *</label>
-                <input type="password" class="admin-input-filter w-100" id="credentialCurrent" placeholder="••••••••••••" required>
+                <input type="password" class="admin-input-filter w-100" id="credentialCurrent" autocomplete="current-password" required>
               </div>
               <div class="row g-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialNew">New password *</label>
-                  <input type="password" class="admin-input-filter w-100" id="credentialNew" placeholder="Enter new password" minlength="12" required>
+                  <input type="password" class="admin-input-filter w-100" id="credentialNew" placeholder="Enter new password" autocomplete="new-password" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialConfirm">Confirm new password *</label>
-                  <input type="password" class="admin-input-filter w-100" id="credentialConfirm" placeholder="Repeat new password" minlength="12" required>
+                  <input type="password" class="admin-input-filter w-100" id="credentialConfirm" placeholder="Repeat new password" autocomplete="new-password" required>
                 </div>
               </div>
-              <p class="sa-form-note mb-0">At least 12 characters under the saved global policy. Re-authentication is required for this privileged account. No real credentials should be entered in this static interface.</p>
+              <p class="sa-form-note mb-0" id="accountPasswordPolicy">Loading saved password policy...</p>
               <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn-admin-outline" id="btnCancelCredentials">Cancel update</button>
-                <button type="submit" class="btn-admin-primary">Review credential update</button>
+                <button type="submit" class="btn-admin-primary">Change password</button>
               </div>
             </form>
           </div>
@@ -1557,26 +1556,27 @@
           <div class="admin-card h-100">
             <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Security settings / personal account</h3>
             <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="accountNotifySignIns" checked>
+              <input class="form-check-input" type="checkbox" id="accountNotifySignIns" disabled>
               <label class="form-check-label text-light-cc" for="accountNotifySignIns" style="font-size: 13px;">Notify me about new sign-ins and sensitive actions</label>
             </div>
 
+            <p class="sa-form-note">Personal sign-in and sensitive-action notifications are unavailable: this application has no notification delivery or personal notification preferences.</p>
             <div class="sa-list-row">
               <div class="sa-list-title">Recovery methods</div>
-              <div class="sa-list-meta">Authenticator enrolled · Recovery codes masked · Last reviewed 01 Nov 2026</div>
+              <div class="sa-list-meta" id="accountRecovery">Loading recovery status...</div>
+              <p class="sa-form-note mt-2">Recovery uses the existing administrative password-reset request workflow. Email delivery and self-service reset completion are unavailable. MFA is not required; authenticator and recovery-code enrollment are unavailable.</p>
             </div>
             <div class="sa-list-row">
-              <div class="sa-list-title">Current example session</div>
-              <div class="sa-list-meta">Desktop / Makati / 05 Nov 2026, 09:00 PHT / Verified MFA</div>
+              <div class="sa-list-title">Current session</div>
+              <div class="sa-list-meta" id="accountCurrentSession">Loading session...</div>
             </div>
             <div class="sa-list-row">
-              <div class="sa-list-title">Other example sessions</div>
-              <div class="sa-list-meta">1 session / Last active 04 Nov 2026, 17:30 PHT</div>
+              <div class="sa-list-title">Other active sessions</div>
+              <div class="sa-list-meta">Other-session listing and sign-out are unavailable in the existing account system. The password policy below the credential fields explains when a password change signs out other sessions.</div>
             </div>
-
             <div class="d-flex flex-wrap gap-2 mt-3">
-              <button type="button" class="btn-admin-outline" data-demo-action="Recovery method review is an example interface only.">Review recovery methods</button>
-              <button type="button" class="btn-admin-outline" id="btnSignOutOthers">Sign out other sessions</button>
+              <button type="button" class="btn-admin-outline" id="btnReviewRecovery">Review recovery methods</button>
+              <button type="button" class="btn-admin-outline" id="btnSignOutOthers" disabled title="Unavailable in the existing session infrastructure">Sign out other sessions</button>
             </div>
           </div>
         </div>
@@ -1585,42 +1585,8 @@
         <div class="col-12 col-xl-5">
           <div class="admin-card h-100">
             <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Personal administrative activity history</h3>
-            <div class="sa-activity-item">
-              <span class="sa-activity-dot"></span>
-              <div>
-                <div class="sa-list-title">05 Nov 2026 · 09:00 PHT</div>
-                <div class="sa-list-meta">Successful Super Admin login · MFA verified</div>
-              </div>
-            </div>
-            <div class="sa-activity-item">
-              <span class="sa-activity-dot"></span>
-              <div>
-                <div class="sa-list-title">04 Nov 2026 · 18:25 PHT</div>
-                <div class="sa-list-meta">Changed Sam Chua account: Active → Suspended</div>
-              </div>
-            </div>
-            <div class="sa-activity-item">
-              <span class="sa-activity-dot"></span>
-              <div>
-                <div class="sa-list-title">04 Nov 2026 · 15:20 PHT</div>
-                <div class="sa-list-meta">Approved business report export permission change</div>
-              </div>
-            </div>
-            <div class="sa-activity-item">
-              <span class="sa-activity-dot"></span>
-              <div>
-                <div class="sa-list-title">03 Nov 2026 · 10:00 PHT</div>
-                <div class="sa-list-meta">Saved global session idle timeout: 45 → 30 minutes</div>
-              </div>
-            </div>
-            <div class="sa-activity-item">
-              <span class="sa-activity-dot"></span>
-              <div>
-                <div class="sa-list-title">01 Oct 2026 · 09:00 PHT</div>
-                <div class="sa-list-meta">Assigned Mara Santos: Admin / Business Owner / Classic Club PH</div>
-              </div>
-            </div>
-            <button type="button" class="btn-admin-outline btn-admin-sm mt-3 w-100" data-demo-action="Personal audit history is illustrative only.">View my audit history ↗</button>
+            <div id="accountActivity" aria-live="polite">Loading your activity...</div>
+            <button type="button" class="btn-admin-outline btn-admin-sm mt-3 w-100" id="btnAccountHistory">View my audit history</button>
           </div>
         </div>
       </div>
@@ -1628,15 +1594,34 @@
       <div class="admin-callout">
         <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">End of global workspace</span>
         <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">
-          All 08 modules are visible on this page. Demo data only; no real account, configuration, maintenance, deployment or infrastructure operation has been performed.
+          Personal account changes are saved to your account and recorded in administrative audit history.
         </span>
       </div>
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
-        <span class="sa-tiny-label">ILLUSTRATIVE DATA · STATIC INTERFACE</span>
+        <span class="sa-tiny-label">PERSONAL SUPER ADMIN ACCOUNT</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
       </div>
     </section>
+    <div class="modal fade" id="accountRecoveryModal" tabindex="-1" aria-labelledby="accountRecoveryTitle" aria-hidden="true">
+      <div class="modal-dialog"><div class="modal-content bg-dark text-light"><div class="modal-header">
+        <h3 class="modal-title fs-5" id="accountRecoveryTitle">Recovery methods</h3>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div><div class="modal-body">
+        <p id="accountRecoveryDetail"></p>
+        <p>Record a password-reset request using the existing administrative workflow. The request is valid for 60 minutes. No reset email is sent; completion requires administrative support.</p>
+        <button type="button" class="btn-admin-primary" id="btnRequestAccountRecovery">Record recovery request</button>
+      </div></div></div>
+    </div>
+    <div class="modal fade" id="accountHistoryModal" tabindex="-1" aria-labelledby="accountHistoryTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg"><div class="modal-content bg-dark text-light"><div class="modal-header">
+        <h3 class="modal-title fs-5" id="accountHistoryTitle">My administrative audit history</h3>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div><div class="modal-body">
+        <div id="accountHistoryItems" aria-live="polite"></div>
+        <button type="button" class="btn-admin-outline mt-3" id="btnAccountHistoryMore" hidden>Load more</button>
+      </div></div></div>
+    </div>
 
     <!-- Footer -->
     <footer class="admin-section px-4 px-lg-5 py-4 d-flex flex-wrap justify-content-between align-items-center gap-2 text-muted-cc" style="font-size: 11px;">
@@ -1648,6 +1633,7 @@
   <script src="assets/js/super-admin-errors.js"></script>
   <script src="assets/js/super-admin-tickets.js"></script>
   <script src="assets/js/system-configuration.js"></script>
+  <script src="assets/js/super-admin-account.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/scroll-reveal.js"></script>
   <script src="assets/js/maintenance.js"></script>
@@ -3143,80 +3129,10 @@
       }
 
       function initAccountEvents() {
-        const profileForm = byId('accountProfileForm');
-        if (profileForm) {
-          profileForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const first = byId('accountFirstName').value.trim();
-            const last = byId('accountLastName').value.trim();
-            if (!first || !last) {
-              showToast('Enter both a first and last name.', 'warning');
-              return;
-            }
-            updateHeaderIdentity(first, last);
-            showToast('Example profile saved locally for ' + first + ' ' + last + '.');
-          });
-        }
-
-        const cancelProfile = byId('btnCancelProfile');
-        if (cancelProfile) {
-          cancelProfile.addEventListener('click', function () {
-            const identity = authenticatedIdentity || { first_name: '', last_name: '', email: '', mobile: '' };
-            byId('accountFirstName').value = identity.first_name || '';
-            byId('accountLastName').value = identity.last_name || '';
-            byId('accountEmail').value = identity.email || '';
-            byId('accountMobile').value = identity.mobile || '';
-            byId('accountTimezone').value = 'Asia/Manila · PHT';
-            updateHeaderIdentity(identity.first_name || '', identity.last_name || '');
-            showToast('Profile edits cancelled. Current account values restored.', 'warning');
-          });
-        }
-
-        const credentialsForm = byId('credentialsForm');
-        if (credentialsForm) {
-          credentialsForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const current = byId('credentialCurrent').value;
-            const next = byId('credentialNew').value;
-            const confirm = byId('credentialConfirm').value;
-            if (!current) {
-              showToast('Enter the current example password first.', 'warning');
-              return;
-            }
-            if (next.length < 12) {
-              showToast('The new password must be at least 12 characters.', 'error');
-              return;
-            }
-            if (next !== confirm) {
-              showToast('The new password and confirmation do not match.', 'error');
-              return;
-            }
-            credentialsForm.reset();
-            showToast('Credential update reviewed. No real password was changed.');
-          });
-        }
-
-        const cancelCredentials = byId('btnCancelCredentials');
-        if (cancelCredentials) {
-          cancelCredentials.addEventListener('click', function () {
-            byId('credentialsForm').reset();
-            showToast('Credential update cancelled.', 'warning');
-          });
-        }
-
-        const signOut = byId('btnSignOutOthers');
-        if (signOut) {
-          signOut.addEventListener('click', function () {
-            showToast('Example action: other sessions would be signed out. No session was changed.');
-          });
-        }
-
-        const notify = byId('accountNotifySignIns');
-        if (notify) {
-          notify.addEventListener('change', function () {
-            showToast('Personal sign-in notifications ' + (notify.checked ? 'enabled' : 'disabled') + ' in this example view.');
-          });
-        }
+        window.initSuperAdminAccount({ byId, showToast, getCsrfToken, updateIdentity: function (profile) {
+          authenticatedIdentity = profile;
+          updateHeaderIdentity(profile.first_name, profile.last_name);
+        } });
 
         const logout = byId('saLogoutBtn');
         if (logout) {
