@@ -1283,294 +1283,76 @@
     </section>
 
     <!-- SECTION 21.5: SYSTEM MONITORING & HEALTH -->
-    <section id="module-monitoring" class="admin-section px-4 px-lg-5">
+    <section id="module-monitoring" class="admin-section px-4 px-lg-5" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.5 / CLASSIC CLUB PH</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">System monitoring &amp; health</h2>
-      <p class="admin-section-desc mb-4">
-        Simulated monitoring · Not connected to infrastructure. Snapshot 05 Nov 2026, 14:30 PHT · Performance range 30 Oct–05 Nov 2026. All values are examples.
-      </p>
-
-      <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="admin-card h-100">
-            <span class="admin-card-label">Availability / 30 days</span>
-            <div class="admin-card-stat text-accent">99.91%</div>
-            <span class="admin-card-sub">Includes maintenance · process uptime 27d 08h</span>
+      <p class="admin-section-desc mb-2" id="monitorSnapshot">Loading live health checks…</p>
+      <p class="text-muted-cc mb-4" id="monitorStatus" role="status" aria-live="polite">Connecting to monitoring.</p>
+      <div class="admin-card mb-4">
+        <div class="d-flex flex-wrap gap-3 align-items-end">
+          <div><label class="sa-tiny-label mb-1" for="monitorRange">Range</label>
+            <select id="monitorRange" class="admin-select-filter"><option value="7d">Last 7 days</option><option value="24h">Last 24 hours</option><option value="30d">Last 30 days</option></select>
           </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="admin-card h-100">
-            <span class="admin-card-label">API response / p95</span>
-            <div class="admin-card-stat">420 ms</div>
-            <span class="admin-card-sub">Median 180 ms · simulated</span>
+          <div><label class="sa-tiny-label mb-1" for="monitorService">Service</label>
+            <select id="monitorService" class="admin-select-filter"><option value="all">All services</option><option value="application">Application</option><option value="api">Catalog API</option><option value="database">Database</option><option value="server">PHP runtime</option></select>
           </div>
+          <button type="button" class="btn-admin-outline" id="btnRefreshMonitoring">Refresh health checks</button>
+          <button type="button" class="btn-admin-outline" id="btnMonitoringHistory">View performance history</button>
+          <button type="button" class="btn-admin-outline" id="btnExportMonitoring" disabled>Export history CSV</button>
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="admin-card h-100">
-            <span class="admin-card-label">Failed requests / 24 h</span>
-            <div class="admin-card-stat">9 / 10,000</div>
-            <span class="admin-card-sub">0.09% example error rate</span>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="admin-card h-100">
-            <span class="admin-card-label">Active maintenance</span>
-            <div class="admin-card-stat" id="monitorMaintenanceValue">None</div>
-            <span class="admin-card-sub" id="monitorMaintenanceSub">Off · Next scheduled 08 Nov</span>
-          </div>
-        </div>
+        <div class="text-muted-cc mt-3" style="font-size: 12px;">Environment: <span id="monitorEnvironment">Current application</span></div>
       </div>
-
-      <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Example service checks</h3>
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
+          <span class="admin-card-label">Observed availability / selected range</span><div class="admin-card-stat text-accent" id="monitorAvailability">—</div><span class="admin-card-sub" id="monitorCoverage">Waiting for measured checks</span>
+        </div></div>
+        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
+          <span class="admin-card-label">Catalog API probe / p95</span><div class="admin-card-stat" id="monitorLatency">—</div><span class="admin-card-sub" id="monitorMedian">Waiting for measured checks</span>
+        </div></div>
+        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
+          <span class="admin-card-label">Failed health checks / 24 h</span><div class="admin-card-stat" id="monitorFailures">—</div><span class="admin-card-sub" id="monitorFailureRate">Waiting for measured checks</span>
+        </div></div>
+        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
+          <span class="admin-card-label">Active maintenance</span><div class="admin-card-stat" id="monitorMaintenanceValue">—</div><span class="admin-card-sub" id="monitorMaintenanceSub">Loading maintenance state</span>
+        </div></div>
+      </div>
+      <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Service checks</h3>
       <div class="admin-table-container mb-4">
-        <table class="admin-table sa-table-wide">
-          <thead>
-            <tr>
-              <th>Example service</th>
-              <th>Status</th>
-              <th>Response / latency</th>
-              <th>Resource usage</th>
-              <th>Checked at · PHT</th>
-              <th>Context</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="fw-medium">Application</td>
-              <td><span class="sa-badge sa-badge-success">Available</span></td>
-              <td>API median 180 ms</td>
-              <td>10,000 requests / 24 h</td>
-              <td class="sa-checked-at">14:30</td>
-              <td>Illustrative only</td>
-            </tr>
-            <tr>
-              <td class="fw-medium">Server</td>
-              <td><span class="sa-badge sa-badge-success">Healthy</span></td>
-              <td>42 ms example response</td>
-              <td>CPU 38% / Memory 62%</td>
-              <td class="sa-checked-at">14:30</td>
-              <td>No infrastructure connection</td>
-            </tr>
-            <tr>
-              <td class="fw-medium">Database connection</td>
-              <td><span class="sa-badge sa-badge-success">Connected</span></td>
-              <td>18 ms query latency</td>
-              <td>Connections 12 / 100</td>
-              <td class="sa-checked-at">14:30</td>
-              <td>Redacted resource identifiers</td>
-            </tr>
-            <tr>
-              <td class="fw-medium">API / checkout</td>
-              <td><span class="sa-badge sa-badge-warning">Degraded example group</span></td>
-              <td>p95 420 ms</td>
-              <td>6 failed / 24 h</td>
-              <td class="sa-checked-at">14:30</td>
-              <td>ERR-104 · Unresolved</td>
-            </tr>
-            <tr>
-              <td class="fw-medium">API / catalog</td>
-              <td><span class="sa-badge sa-badge-warning">Available with errors</span></td>
-              <td>p95 290 ms</td>
-              <td>3 failed / 24 h</td>
-              <td class="sa-checked-at">14:30</td>
-              <td>ERR-103 · Unresolved</td>
-            </tr>
-          </tbody>
+        <table class="admin-table sa-table-wide"><thead><tr><th>Service</th><th>Status</th><th>Response / latency</th><th>Resource usage</th><th>Checked at · PHT</th><th>Context</th></tr></thead>
+          <tbody id="monitorServices"><tr><td colspan="6">Loading health checks…</td></tr></tbody>
         </table>
       </div>
-
+      <div id="monitorHistory" class="row g-4 mb-4">
+        <div class="col-12 col-xl-6"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-2" style="font-size: 24px;">API performance history</h3>
+          <p class="text-muted-cc" style="font-size: 12px;">Catalog GET probe p95 · milliseconds · selected range · PHT</p>
+          <div class="sa-chart-scroll" id="monitorApiChart" role="img" aria-label="Catalog API latency history">No samples loaded.</div>
+        </div></div>
+        <div class="col-12 col-xl-6"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-2" style="font-size: 24px;">Resource usage history</h3>
+          <p class="text-muted-cc" style="font-size: 12px;">Monitoring PHP request peak memory · mean MiB · selected range · PHT</p>
+          <div class="sa-chart-scroll" id="monitorResourceChart" role="img" aria-label="PHP monitoring request peak memory history">No samples loaded.</div>
+        </div></div>
+      </div>
       <div class="row g-4 mb-4">
-        <div class="col-12 col-xl-6">
-          <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-2" style="font-size: 24px;">API performance history</h3>
-            <div class="text-light-cc mb-1" style="font-size: 14px;">API p95 response / 30 Oct–05 Nov 2026</div>
-            <div class="text-muted-cc mb-2" style="font-size: 11px;">Response time · milliseconds · illustrative series</div>
-            <div class="sa-chart-scroll">
-              <div class="sa-chart">
-                <div class="sa-chart-y">
-                  <span>600</span><span>450</span><span>300</span><span>150</span><span>0</span>
-                </div>
-                <div class="sa-chart-main">
-                  <div class="sa-chart-plot" aria-label="API p95 response chart">
-                    <div class="sa-chart-bar" style="height: 51.67%;"></div>
-                    <div class="sa-chart-bar" style="height: 55%;"></div>
-                    <div class="sa-chart-bar" style="height: 58.33%;"></div>
-                    <div class="sa-chart-bar" style="height: 50%;"></div>
-                    <div class="sa-chart-bar" style="height: 53.33%;"></div>
-                    <div class="sa-chart-bar" style="height: 76.67%;"></div>
-                    <div class="sa-chart-bar" style="height: 70%;"></div>
-                  </div>
-                  <div class="sa-chart-labels">
-                    <div>30 Oct<b>310</b></div>
-                    <div>31 Oct<b>330</b></div>
-                    <div>01 Nov<b>350</b></div>
-                    <div>02 Nov<b>300</b></div>
-                    <div>03 Nov<b>320</b></div>
-                    <div>04 Nov<b>460</b></div>
-                    <div>05 Nov<b>420</b></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="sa-scroll-hint mt-2 d-sm-none">Swipe chart to view all 7 days →</div>
-          </div>
-        </div>
-
-        <div class="col-12 col-xl-6">
-          <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-2" style="font-size: 24px;">Resource usage history</h3>
-            <div class="text-light-cc mb-1" style="font-size: 14px;">CPU usage / 30 Oct–05 Nov 2026</div>
-            <div class="text-muted-cc mb-2" style="font-size: 11px;">CPU utilization · % · illustrative series</div>
-            <div class="sa-chart-scroll">
-              <div class="sa-chart">
-                <div class="sa-chart-y">
-                  <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
-                </div>
-                <div class="sa-chart-main">
-                  <div class="sa-chart-plot" aria-label="CPU usage chart">
-                    <div class="sa-chart-bar" style="height: 30%;"></div>
-                    <div class="sa-chart-bar" style="height: 32%;"></div>
-                    <div class="sa-chart-bar" style="height: 26%;"></div>
-                    <div class="sa-chart-bar" style="height: 31%;"></div>
-                    <div class="sa-chart-bar" style="height: 35%;"></div>
-                    <div class="sa-chart-bar" style="height: 52%;"></div>
-                    <div class="sa-chart-bar" style="height: 38%;"></div>
-                  </div>
-                  <div class="sa-chart-labels">
-                    <div>30 Oct<b>30</b></div>
-                    <div>31 Oct<b>32</b></div>
-                    <div>01 Nov<b>26</b></div>
-                    <div>02 Nov<b>31</b></div>
-                    <div>03 Nov<b>35</b></div>
-                    <div>04 Nov<b>52</b></div>
-                    <div>05 Nov<b>38</b></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="sa-scroll-hint mt-2 d-sm-none">Swipe chart to view all 7 days →</div>
-            <div class="text-muted-cc mt-3" style="font-size: 12px; line-height: 19px;">
-              Memory at snapshot: 62% / 8 GB allocation (4.96 GB). No resource action is connected to these values.
-            </div>
-          </div>
-        </div>
+        <div class="col-12 col-xl-6"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Failed health check history</h3>
+          <div class="admin-table-container" style="max-height: 400px; overflow: auto;"><table class="admin-table"><thead><tr><th>Period · PHT</th><th>Failed / checks</th><th>Failure rate</th></tr></thead><tbody id="monitorFailureHistory"><tr><td colspan="3">Loading history…</td></tr></tbody></table></div>
+        </div></div>
+        <div class="col-12 col-xl-6"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Recent failed checks</h3><div id="monitorIncidents">Loading recorded failures…</div>
+        </div></div>
       </div>
-
-      <div class="row g-4 mb-4">
-        <div class="col-12 col-xl-7">
-          <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Failed requests / error history</h3>
-            <div class="admin-table-container">
-              <table class="admin-table sa-table-medium">
-                <thead>
-                  <tr>
-                    <th>Period · PHT</th>
-                    <th>Failed / requests</th>
-                    <th>Error rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>03 Nov · 00:00–23:59</td>
-                    <td>4 / 10,000</td>
-                    <td>0.04%</td>
-                  </tr>
-                  <tr>
-                    <td>04 Nov · 00:00–23:59</td>
-                    <td>12 / 10,000</td>
-                    <td>0.12%</td>
-                  </tr>
-                  <tr>
-                    <td>05 Nov · rolling 24 h</td>
-                    <td>9 / 10,000</td>
-                    <td>0.09%</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 col-xl-5">
-          <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Recent incidents / maintenance</h3>
-            <div class="sa-list-row">
-              <div class="d-flex justify-content-between gap-2">
-                <span class="sa-list-title">INC-14 / Checkout API</span>
-                <span class="sa-badge sa-badge-danger">Investigating</span>
-              </div>
-              <div class="sa-list-meta">05 Nov, 13:55 · 6 failed requests · Related ERR-104</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="d-flex justify-content-between gap-2">
-                <span class="sa-list-title">INC-13 / Catalog latency</span>
-                <span class="sa-badge sa-badge-warning">Investigating</span>
-              </div>
-              <div class="sa-list-meta">05 Nov, 11:20 · 3 failed requests · Related ERR-103</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="d-flex justify-content-between gap-2">
-                <span class="sa-list-title">INC-12 / Update validation</span>
-                <span class="sa-badge sa-badge-success">Recovered</span>
-              </div>
-              <div class="sa-list-meta">04 Nov, 02:10 · Prior version 2.6.1 retained</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="d-flex justify-content-between gap-2">
-                <span class="sa-list-title">Maintenance / No active window</span>
-                <span class="sa-badge sa-badge-neutral">Off</span>
-              </div>
-              <div class="sa-list-meta">Next: 08 Nov, 02:00–02:30 PHT · Entire application</div>
-            </div>
-          </div>
-        </div>
+      <div class="admin-card mb-4"><h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Maintenance &amp; failure audit events</h3><div id="monitorEvents">Loading audit events…</div></div>
+      <div class="admin-callout">
+        <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Measured health checks</span>
+        <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">Availability and failures reflect stored storefront, catalog API and database checks, including maintenance. API timing measures the catalog probe. Memory measures the monitoring PHP request. Missing periods show no samples. Checks run while this dashboard is open; gaps are not counted as uptime. Audit events use the selected date range across the application.</span>
       </div>
-
-      <div class="admin-card">
-        <div class="admin-callout mb-3">
-          <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Review-only health interface</span>
-          <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">
-            Trend axes, service checks, incidents and resource values are simulated. Refresh and date-range controls represent interface states, not actual server or database management.
-          </span>
-        </div>
-        <div class="d-flex flex-wrap gap-2 align-items-end">
-          <div>
-            <label class="sa-tiny-label mb-1" for="monitorRange">Range</label>
-            <select id="monitorRange" class="admin-select-filter">
-              <option>Range: Last 7 days</option>
-              <option>Range: Last 24 hours</option>
-              <option>Range: Last 30 days</option>
-            </select>
-          </div>
-          <div>
-            <label class="sa-tiny-label mb-1" for="monitorService">Service</label>
-            <select id="monitorService" class="admin-select-filter">
-              <option>Service: All</option>
-              <option>Service: Application</option>
-              <option>Service: API</option>
-              <option>Service: Database</option>
-            </select>
-          </div>
-          <div>
-            <label class="sa-tiny-label mb-1" for="monitorEnvironment">Environment</label>
-            <select id="monitorEnvironment" class="admin-select-filter">
-              <option>Environment: Example only</option>
-            </select>
-          </div>
-          <button type="button" class="btn-admin-outline" id="btnRefreshMonitoring">Refresh example snapshot</button>
-          <button type="button" class="btn-admin-outline" data-demo-action="Performance history is illustrative only.">View performance history</button>
-        </div>
-      </div>
-
-      <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
-        <span class="sa-tiny-label">ILLUSTRATIVE DATA · STATIC INTERFACE</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
-      </div>
+      <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc"><span class="sa-tiny-label">LIVE CHECKS · DATABASE HISTORY · PHT</span><a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a></div>
     </section>
-
     <!-- SECTION 21.6: ERROR & DEBUG MANAGEMENT -->
     <section id="module-errors" class="admin-section px-4 px-lg-5">
       <div class="d-flex justify-content-between align-items-start mb-2">
@@ -2595,6 +2377,7 @@ payload: [redacted] · credentials: [redacted]</div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/scroll-reveal.js"></script>
   <script src="assets/js/maintenance.js"></script>
+  <script src="assets/js/monitoring.js"></script>
   <script>
     (function () {
       'use strict';
@@ -3153,6 +2936,7 @@ payload: [redacted] · credentials: [redacted]</div>
           initAccountEvents();
           initDemoActions();
           initOverview();
+          window.initLiveMonitoring({ byId, showToast, escapeHtml, getCsrfToken });
           applyAuthenticatedIdentity(auth);
 
           if (overlay) overlay.classList.add('is-hidden');
@@ -4728,15 +4512,7 @@ payload: [redacted] · credentials: [redacted]</div>
           });
         });
 
-        const refresh = byId('btnRefreshMonitoring');
-        if (refresh) {
-          refresh.addEventListener('click', function () {
-            const now = new Date();
-            const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-            document.querySelectorAll('.sa-checked-at').forEach(function (cell) { cell.textContent = time; });
-            showToast('Example monitoring snapshot refreshed locally at ' + time + ' PHT.');
-          });
-        }
+
       }
     })();
   </script>
