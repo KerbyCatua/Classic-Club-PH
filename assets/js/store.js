@@ -33,12 +33,49 @@ const CCStore = (function () {
     });
   }
 
+  // Exact filename mappings distinguish colour variants and legacy product names.
+  const HIGH_RES_IMAGES = {
+    "essential-hw-tee-obsidian":  "assets/img/CC-Products JPG HIGH QUALITY/01 ESSENTIAL HEAVYWEIGHT TEE.jpg",
+    "structured-overshirt-graphite":  "assets/img/CC-Products JPG HIGH QUALITY/02 STRUCTURED OVERSHIRT.jpg",
+    "relaxed-trouser-charcoal":  "assets/img/CC-Products JPG HIGH QUALITY/03 RELAXED TAILORED TROUSER.jpg",
+    "textured-knit-polo-oat":  "assets/img/CC-Products JPG HIGH QUALITY/04 TEXTURED KNIT POLO.jpg",
+    "essential-hw-tee-chalk":  "assets/img/CC-Products JPG HIGH QUALITY/05 ESSENTIAL HEAVYWEIGHT TEE.jpg",
+    "loopback-hoodie-obsidian":  "assets/img/CC-Products JPG HIGH QUALITY/06 LOOPBACK CLUB HOODIE.jpg",
+    "everyday-poplin-shirt-ivory":  "assets/img/CC-Products JPG HIGH QUALITY/07 EVERYDAY POPLIN SHIRT.jpg",
+    "pleated-city-short-stone":  "assets/img/CC-Products JPG HIGH QUALITY/08 PLEATED CITY SHORT.jpg",
+    "ls-jersey-tee-graphite":  "assets/img/CC-Products JPG HIGH QUALITY/09 LONG-SLEEVE JERSEY TEE.jpg",
+    "ribbed-tank-chalk":  "assets/img/CC-Products JPG HIGH QUALITY/10 RIBBED LAYERING TANK.jpg",
+    "collarless-jacket-obsidian":  "assets/img/CC-Products JPG HIGH QUALITY/11 COLLARLESS STUDIO JACKET.jpg",
+    "double-zip-hoodie-ash":  "assets/img/CC-Products JPG HIGH QUALITY/12 DOUBLE-ZIP CLUB HOODIE.jpg",
+    "understated-cap-obsidian":  "assets/img/CC-Products JPG HIGH QUALITY/13 UNDERSTATED CLUB CAP.jpg",
+    "daily-canvas-tote-natural":  "assets/img/CC-Products JPG HIGH QUALITY/14 DAILY CANVAS TOTE.jpg",
+    "slim-leather-belt-black":  "assets/img/CC-Products JPG HIGH QUALITY/15 SLIM LEATHER BELT.jpg",
+    "drawstring-pant-stone":  "assets/img/CC-Products JPG HIGH QUALITY/16 DRAWSTRING COTTON PANT.jpg",
+    "CC-TEE-001":  "assets/img/CC-Products JPG HIGH QUALITY/01 ESSENTIAL HEAVYWEIGHT TEE.jpg",
+    "CC-OSH-002":  "assets/img/CC-Products JPG HIGH QUALITY/02 STRUCTURED OVERSHIRT.jpg",
+    "CC-TRS-004":  "assets/img/CC-Products JPG HIGH QUALITY/03 RELAXED TAILORED TROUSER.jpg",
+    "CC-TOP-004":  "assets/img/CC-Products JPG HIGH QUALITY/04 TEXTURED KNIT POLO.jpg",
+    "CC-TEE-005":  "assets/img/CC-Products JPG HIGH QUALITY/05 ESSENTIAL HEAVYWEIGHT TEE.jpg",
+    "CC-HOD-003":  "assets/img/CC-Products JPG HIGH QUALITY/06 LOOPBACK CLUB HOODIE.jpg",
+    "CC-SHRT-007":  "assets/img/CC-Products JPG HIGH QUALITY/07 EVERYDAY POPLIN SHIRT.jpg",
+    "CC-BTM-008":  "assets/img/CC-Products JPG HIGH QUALITY/08 PLEATED CITY SHORT.jpg",
+    "CC-TEE-009":  "assets/img/CC-Products JPG HIGH QUALITY/09 LONG-SLEEVE JERSEY TEE.jpg",
+    "CC-TOP-010":  "assets/img/CC-Products JPG HIGH QUALITY/10 RIBBED LAYERING TANK.jpg",
+    "CC-JKT-011":  "assets/img/CC-Products JPG HIGH QUALITY/11 COLLARLESS STUDIO JACKET.jpg",
+    "CC-HOD-012":  "assets/img/CC-Products JPG HIGH QUALITY/12 DOUBLE-ZIP CLUB HOODIE.jpg",
+    "CC-CAP-005":  "assets/img/CC-Products JPG HIGH QUALITY/13 UNDERSTATED CLUB CAP.jpg",
+    "CC-TOT-006":  "assets/img/CC-Products JPG HIGH QUALITY/14 DAILY CANVAS TOTE.jpg",
+    "CC-ACC-015":  "assets/img/CC-Products JPG HIGH QUALITY/15 SLIM LEATHER BELT.jpg",
+    "CC-BTM-016":  "assets/img/CC-Products JPG HIGH QUALITY/16 DRAWSTRING COTTON PANT.jpg"
+};
+
   function catalogItemToProduct(item) {
     const key = item.catalog_key || `catalog-${item.id}-${item.variant_id}`;
     return {
       id: key,
       sku: item.sku || '',
-      srcImage: item.image_url || '',
+      srcImage: HIGH_RES_IMAGES[key] || HIGH_RES_IMAGES[item.sku] || item.image_url || '',
+      productGroup: String(item.id),
       badge: Number(item.is_new) === 1 ? 'NEW / LIVE CATALOG' : 'LIVE CATALOG',
       isNew: Number(item.is_new) === 1,
       name: item.name || '',
@@ -343,7 +380,7 @@ const CCStore = (function () {
                     });
                   }
       saveCart(cart);
-      apiRequest('public/api/cart/add.php', {
+      return apiRequest('public/api/cart/add.php', {
         method: 'POST',
         body: JSON.stringify({
           catalog_key: item.id,
@@ -352,13 +389,14 @@ const CCStore = (function () {
         })
       }).then(data => {
         saveCart(data.items || []);
+        return true;
             }).catch(async error => {
         console.error('Server cart add failed:', error);
               window.alert(error.message || 'Unable to add this item to your bag.');
               await this.refreshCartFromServer();
+              return false;
             });
 
-            return true;
           },
 
           refreshCartFromServer: async function () {
