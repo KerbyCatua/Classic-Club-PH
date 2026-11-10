@@ -518,8 +518,8 @@
           <div class="sa-hero-side d-flex flex-column gap-3 ms-lg-auto">
             <span class="cc-eyebrow text-accent">GLOBAL APPLICATION SCOPE</span>
             <p class="admin-section-desc mb-0">Authorized Super Admin workspace. Global access is separate from business staff permissions.</p>
-            <small class="text-muted-cc" style="font-size: 11px; line-height: 17px;">
-              Demo dataset · Snapshot 05 Nov 2026, 14:30 PHT. All records and status values are illustrative. No live operations.
+            <small class="text-muted-cc" style="font-size: 11px; line-height: 17px;" id="overviewSnapshotLabel">
+              Loading live database snapshot…
             </small>
           </div>
         </div>
@@ -529,7 +529,7 @@
       <div class="d-flex flex-wrap gap-3">
         <div class="sa-pill">Scope: Entire application <i class="bi bi-chevron-down ms-1" style="font-size: 11px;"></i></div>
         <div class="sa-pill">Access: Authorized Super Admin</div>
-        <div class="sa-pill">Dataset: Example / read-only preview</div>
+        <div class="sa-pill" id="overviewDatasetPill">Dataset: 21.1 live · other modules illustrative</div>
       </div>
     </section>
 
@@ -590,8 +590,8 @@
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">System dashboard overview</h2>
-      <p class="admin-section-desc mb-4">
-        Global application scope · Authorized Super Admin access. Every health indicator and account total below is a simulated snapshot, not live telemetry.
+      <p class="admin-section-desc mb-4" id="overviewDescription">
+        Global application scope · Authorized Super Admin access. Health indicators, account totals and recent activity below are read from the live database.
       </p>
 
       <div class="admin-callout mb-4">
@@ -606,50 +606,50 @@
         <div class="col-12 col-sm-6 col-xl-3">
           <div class="admin-card h-100">
             <span class="admin-card-label">Total registered users</span>
-            <div class="admin-card-stat" id="statTotalUsers">1,200</div>
-            <span class="admin-card-sub">All three supported global roles</span>
+            <div class="admin-card-stat" id="statTotalUsers">—</div>
+            <span class="admin-card-sub" id="statTotalUsersSub">Loading live totals…</span>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
           <div class="admin-card h-100">
             <span class="admin-card-label">Total customers</span>
-            <div class="admin-card-stat" id="statTotalCustomers">1,152</div>
-            <span class="admin-card-sub">1,058 active / 74 inactive / 20 suspended</span>
+            <div class="admin-card-stat" id="statTotalCustomers">—</div>
+            <span class="admin-card-sub" id="statTotalCustomersSub">Loading live totals…</span>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
           <div class="admin-card h-100">
             <span class="admin-card-label">Business administrators</span>
-            <div class="admin-card-stat" id="statTotalAdmins">45</div>
-            <span class="admin-card-sub">39 active / 6 inactive / 0 suspended</span>
+            <div class="admin-card-stat" id="statTotalAdmins">—</div>
+            <span class="admin-card-sub" id="statTotalAdminsSub">Loading live totals…</span>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
           <div class="admin-card h-100">
             <span class="admin-card-label">Super Administrators</span>
-            <div class="admin-card-stat">3</div>
-            <span class="admin-card-sub">3 active / 0 inactive / 0 suspended</span>
+            <div class="admin-card-stat" id="statTotalSuperAdmins">—</div>
+            <span class="admin-card-sub" id="statTotalSuperAdminsSub">Loading live totals…</span>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Active accounts</span>
-            <div class="admin-card-stat">1,100</div>
-            <span class="admin-card-sub">1,058 customers + 39 Admin + 3 Super Admin</span>
+            <div class="admin-card-stat" id="statActiveAccounts">—</div>
+            <span class="admin-card-sub" id="statActiveAccountsSub">Loading live totals…</span>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Inactive accounts</span>
-            <div class="admin-card-stat">80</div>
-            <span class="admin-card-sub">74 customers + 6 Admin</span>
+            <div class="admin-card-stat" id="statInactiveAccounts">—</div>
+            <span class="admin-card-sub" id="statInactiveAccountsSub">Loading live totals…</span>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Suspended accounts</span>
-            <div class="admin-card-stat">20</div>
-            <span class="admin-card-sub">20 customers · No privileged accounts</span>
+            <div class="admin-card-stat" id="statSuspendedAccounts">—</div>
+            <span class="admin-card-sub" id="statSuspendedAccountsSub">Loading live totals…</span>
           </div>
         </div>
       </div>
@@ -658,27 +658,27 @@
       <div class="sa-status-strip mb-4">
         <div class="sa-status-item">
           <span class="sa-status-label">Application status</span>
-          <span class="sa-status-value">Available · simulated</span>
+          <span class="sa-status-value" id="overviewAppStatus">Checking…</span>
         </div>
         <div class="sa-status-item">
           <span class="sa-status-label">Server status</span>
-          <span class="sa-status-value">Healthy · simulated</span>
+          <span class="sa-status-value" id="overviewServerStatus">Checking…</span>
         </div>
         <div class="sa-status-item">
           <span class="sa-status-label">Database connection</span>
-          <span class="sa-status-value">Connected · simulated</span>
+          <span class="sa-status-value" id="overviewDatabaseStatus">Checking…</span>
         </div>
         <div class="sa-status-item">
-          <span class="sa-status-label">Application uptime</span>
-          <span class="sa-status-value">Process uptime · example</span>
+          <span class="sa-status-label">Database uptime</span>
+          <span class="sa-status-value" id="overviewUptime">—</span>
         </div>
         <div class="sa-status-item">
           <span class="sa-status-label">Current version</span>
-          <span class="sa-status-value">2.6.1</span>
+          <span class="sa-status-value" id="overviewVersion">—</span>
         </div>
         <div class="sa-status-item">
           <span class="sa-status-label">Maintenance mode</span>
-          <span class="sa-status-value" id="overviewMaintenanceValue">Next scheduled: 08 Nov</span>
+          <span class="sa-status-value" id="overviewMaintenanceValue">—</span>
         </div>
       </div>
 
@@ -688,15 +688,13 @@
           <div class="admin-card h-100">
             <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
               <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Recent system errors</h3>
-              <span class="sa-badge sa-badge-danger">2 unresolved</span>
+              <span class="sa-badge sa-badge-neutral" id="overviewErrorsBadge">—</span>
             </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">2 unresolved error groups</div>
-              <div class="sa-list-meta">ERR-104: High / 6 occurrences · ERR-103: Medium / 3 occurrences</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">9 failed API requests / 24 h</div>
-              <div class="sa-list-meta">9 of 10,000 example requests · 0.09% error rate</div>
+            <div id="overviewErrorsList">
+              <div class="sa-list-row">
+                <div class="sa-list-title">Loading error activity…</div>
+                <div class="sa-list-meta">Reading the audit trail</div>
+              </div>
             </div>
             <a href="#module-errors" class="btn-admin-outline btn-admin-sm mt-3 w-100">Review errors <i class="bi bi-arrow-down"></i></a>
           </div>
@@ -706,15 +704,13 @@
           <div class="admin-card h-100">
             <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
               <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Open support tickets</h3>
-              <span class="sa-badge sa-badge-warning">5 unresolved</span>
+              <span class="sa-badge sa-badge-neutral" id="overviewTicketsBadge">—</span>
             </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">3 Open + 2 In Progress · 8 example tickets total</div>
-              <div class="sa-list-meta">Customer and business administrator requests</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">T-208 · Checkout request</div>
-              <div class="sa-list-meta">High priority · Alex Reyes · Assigned to Paolo Garcia</div>
+            <div id="overviewTicketsList">
+              <div class="sa-list-row">
+                <div class="sa-list-title">Loading support queue…</div>
+                <div class="sa-list-meta">Reading contact inquiries</div>
+              </div>
             </div>
             <a href="#module-tickets" class="btn-admin-outline btn-admin-sm mt-3 w-100">Review support queue <i class="bi bi-arrow-down"></i></a>
           </div>
@@ -724,15 +720,13 @@
           <div class="admin-card h-100">
             <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
               <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Recent security events</h3>
-              <span class="sa-badge sa-badge-info">Monitored</span>
+              <span class="sa-badge sa-badge-info" id="overviewSecurityBadge">Monitored</span>
             </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Failed login blocked</div>
-              <div class="sa-list-meta">05 Nov, 08:40 · Account reference redacted</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Suspicious account activity</div>
-              <div class="sa-list-meta">04 Nov, 18:20 · Sam Chua account flagged</div>
+            <div id="overviewSecurityList">
+              <div class="sa-list-row">
+                <div class="sa-list-title">Loading security events…</div>
+                <div class="sa-list-meta">Reading authentication activity</div>
+              </div>
             </div>
             <a href="#module-users" class="btn-admin-outline btn-admin-sm mt-3 w-100">Review security logs <i class="bi bi-arrow-down"></i></a>
           </div>
@@ -744,17 +738,11 @@
         <div class="col-12 col-lg-5">
           <div class="admin-card h-100">
             <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Recent administrative activities</h3>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Inez Flores · Permission change</div>
-              <div class="sa-list-meta">04 Nov, 15:20 · Business report export allowed within assigned business</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Julia Dela Cruz · Configuration</div>
-              <div class="sa-list-meta">03 Nov, 10:00 · Idle timeout 45 → 30 min</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Paolo Garcia · Maintenance ended</div>
-              <div class="sa-list-meta">01 Nov, 02:15 · Application availability restored</div>
+            <div id="overviewActivitiesList">
+              <div class="sa-list-row">
+                <div class="sa-list-title">Loading administrative activity…</div>
+                <div class="sa-list-meta">Reading the audit trail</div>
+              </div>
             </div>
           </div>
         </div>
@@ -762,50 +750,34 @@
         <div class="col-12 col-lg-7">
           <div class="admin-card h-100">
             <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
-              <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Application availability / example</h3>
-              <span class="sa-badge sa-badge-success">99.91% / 30d</span>
+              <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;" id="overviewChartTitle">Administrative activity / live</h3>
+              <span class="sa-badge sa-badge-success" id="overviewChartBadge">—</span>
             </div>
-            <div class="text-light-cc mb-1" style="font-size: 14px;">Availability by day / 30 Oct–05 Nov 2026</div>
-            <div class="text-muted-cc mb-2" style="font-size: 11px;">Availability · % · illustrative series</div>
+            <div class="text-light-cc mb-1" style="font-size: 14px;" id="overviewChartSubtitle">Last 7 days · PHT</div>
+            <div class="text-muted-cc mb-2" style="font-size: 11px;" id="overviewChartLegend">Audit log events · count</div>
 
             <div class="sa-chart-scroll">
               <div class="sa-chart">
-                <div class="sa-chart-y">
-                  <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
+                <div class="sa-chart-y" id="overviewChartYAxis">
+                  <span>0</span><span>0</span><span>0</span><span>0</span><span>0</span>
                 </div>
                 <div class="sa-chart-main">
-                  <div class="sa-chart-plot" aria-label="Application availability chart">
-                    <div class="sa-chart-bar" style="height: 100%;"></div>
-                    <div class="sa-chart-bar" style="height: 100%;"></div>
-                    <div class="sa-chart-bar" style="height: 98.96%;"></div>
-                    <div class="sa-chart-bar" style="height: 100%;"></div>
-                    <div class="sa-chart-bar" style="height: 100%;"></div>
-                    <div class="sa-chart-bar" style="height: 99.84%;"></div>
-                    <div class="sa-chart-bar" style="height: 100%;"></div>
-                  </div>
-                  <div class="sa-chart-labels">
-                    <div>30 Oct<b>100</b></div>
-                    <div>31 Oct<b>100</b></div>
-                    <div>01 Nov<b>98.96</b></div>
-                    <div>02 Nov<b>100</b></div>
-                    <div>03 Nov<b>100</b></div>
-                    <div>04 Nov<b>99.84</b></div>
-                    <div>05 Nov<b>100</b></div>
-                  </div>
+                  <div class="sa-chart-plot" id="overviewChartPlot" aria-label="Administrative activity chart"></div>
+                  <div class="sa-chart-labels" id="overviewChartLabels"></div>
                 </div>
               </div>
             </div>
             <div class="sa-scroll-hint mt-2 d-sm-none">Swipe chart to view all 7 days →</div>
 
-            <div class="text-muted-cc mt-3" style="font-size: 12px; line-height: 19px;">
-              Illustrative 30-day availability: 99.91%, including scheduled maintenance. Maintenance is Off at the snapshot time.
+            <div class="text-muted-cc mt-3" style="font-size: 12px; line-height: 19px;" id="overviewChartCaption">
+              Live administrative activity from the audit trail over the last 7 days.
             </div>
           </div>
         </div>
       </div>
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-2 border-top border-cc">
-        <span class="sa-tiny-label">ILLUSTRATIVE DATA · STATIC INTERFACE</span>
+        <span class="sa-tiny-label" id="overviewDataFootnote">LIVE DATABASE DATA · AUTO-REFRESH</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
       </div>
     </section>
@@ -2815,6 +2787,18 @@ payload: [redacted] · credentials: [redacted]</div>
         });
       }
 
+      function setText(id, value) {
+        const element = byId(id);
+        if (element) element.textContent = value;
+      }
+
+      function setBadge(id, text, variant) {
+        const element = byId(id);
+        if (!element) return;
+        element.textContent = text;
+        element.className = 'sa-badge sa-badge-' + (variant || 'neutral');
+      }
+
       function showToast(message, type) {
         const toastEl = byId('adminToast');
         const toastBody = byId('adminToastBody');
@@ -2847,31 +2831,386 @@ payload: [redacted] · credentials: [redacted]</div>
       }
 
       /* ============================================================
-         Boot
+         21.1 — System dashboard overview (live database data)
          ============================================================ */
+      let overviewLoading = false;
+      let overviewRefreshTimer = null;
+
+      function formatNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number.toLocaleString('en-US') : '0';
+      }
+
+      function statusCountLine(counts) {
+        const safe = counts || {};
+        return (safe.active || 0) + ' active / ' + (safe.inactive || 0) + ' inactive / ' + (safe.suspended || 0) + ' suspended';
+      }
+
+      function otherCountSuffix(count) {
+        return count > 0 ? ' + ' + count + ' other' : '';
+      }
+
+      function renderOverviewUsers(users) {
+        const roles = users.roles || {};
+        const customer = roles.customer || {};
+        const admin = roles.admin || {};
+        const superAdmin = roles.super_admin || {};
+        const other = users.other || {};
+        const byStatus = users.by_status || {};
+
+        setText('statTotalUsers', formatNumber(users.total));
+        setText('statTotalCustomers', formatNumber(customer.total));
+        setText('statTotalAdmins', formatNumber(admin.total));
+        setText('statTotalSuperAdmins', formatNumber(superAdmin.total));
+        setText('statActiveAccounts', formatNumber(byStatus.active));
+        setText('statInactiveAccounts', formatNumber(byStatus.inactive));
+        setText('statSuspendedAccounts', formatNumber(byStatus.suspended));
+
+        const pendingNote = (byStatus.pending || 0) > 0 ? ' · ' + byStatus.pending + ' pending' : '';
+        setText('statTotalUsersSub', 'All three supported global roles' + pendingNote);
+        setText('statTotalCustomersSub', statusCountLine(customer));
+        setText('statTotalAdminsSub', statusCountLine(admin));
+        setText('statTotalSuperAdminsSub', statusCountLine(superAdmin));
+
+        setText('statActiveAccountsSub',
+          (customer.active || 0) + ' customers + ' + (admin.active || 0) + ' Admin + ' + (superAdmin.active || 0) + ' Super Admin' +
+          otherCountSuffix(other.active || 0));
+
+        setText('statInactiveAccountsSub',
+          (customer.inactive || 0) + ' customers + ' + (admin.inactive || 0) + ' Admin' +
+          otherCountSuffix(other.inactive || 0));
+
+        const privilegedSuspended = (admin.suspended || 0) + (superAdmin.suspended || 0);
+        const privilegedLabel = privilegedSuspended > 0
+          ? privilegedSuspended + ' privileged account' + (privilegedSuspended === 1 ? '' : 's')
+          : 'No privileged accounts';
+        setText('statSuspendedAccountsSub',
+          (customer.suspended || 0) + ' customers · ' + privilegedLabel +
+          otherCountSuffix(other.suspended || 0));
+      }
+
+      function renderOverviewHealth(health) {
+        setText('overviewAppStatus', health.application_status || 'Unknown');
+        setText('overviewServerStatus', health.server_status || 'Unknown');
+
+        const latency = health.database_latency_ms !== null && health.database_latency_ms !== undefined
+          ? ' · ' + health.database_latency_ms + ' ms'
+          : '';
+        setText('overviewDatabaseStatus', (health.database_status || 'Unknown') + latency);
+        setText('overviewUptime', health.database_uptime_label || '—');
+        setText('overviewVersion', health.application_version || '—');
+        setText('overviewMaintenanceValue', health.maintenance_label || (health.maintenance_mode ? 'Active' : 'Off'));
+
+        const app = byId('overviewAppStatus');
+        if (app) {
+          app.classList.toggle('text-accent', !health.maintenance_mode);
+          app.classList.toggle('text-warning', !!health.maintenance_mode);
+        }
+
+        const server = byId('overviewServerStatus');
+        if (server) {
+          server.classList.toggle('text-accent', health.server_status === 'Healthy');
+          server.classList.toggle('text-warning', health.server_status !== 'Healthy');
+        }
+
+        const database = byId('overviewDatabaseStatus');
+        if (database) {
+          database.classList.toggle('text-accent', health.database_status === 'Connected');
+          database.classList.toggle('text-warning', health.database_status !== 'Connected');
+        }
+
+        const maintenance = byId('overviewMaintenanceValue');
+        if (maintenance) {
+          maintenance.classList.toggle('text-warning', !!health.maintenance_mode);
+          maintenance.classList.toggle('text-accent', !health.maintenance_mode);
+        }
+      }
+
+      function renderOverviewErrors(errors) {
+        const errorCount = Number(errors.error_count_7d || 0);
+        const failed24 = Number(errors.failed_24h || 0);
+        const total24 = Number(errors.total_events_24h || 0);
+        const rate = Number(errors.error_rate_24h || 0);
+
+        setBadge('overviewErrorsBadge', errorCount + ' error' + (errorCount === 1 ? '' : 's') + ' / 7d', errorCount > 0 ? 'danger' : 'success');
+
+        const list = byId('overviewErrorsList');
+        if (!list) return;
+
+        let html = '';
+        if (errors.recent && errors.recent.length) {
+          html += '<div class="sa-list-row">' +
+            '<div class="sa-list-title">' + errorCount + ' error event' + (errorCount === 1 ? '' : 's') + ' / 7d</div>' +
+            '<div class="sa-list-meta">' + errors.recent.map(function (item) {
+              return escapeHtml(item.action) + ' · ' + escapeHtml(item.time_label);
+            }).join(' · ') + '</div>' +
+            '</div>';
+        } else {
+          html += '<div class="sa-list-row">' +
+            '<div class="sa-list-title">No error events in the last 7 days</div>' +
+            '<div class="sa-list-meta">No error, failure or timeout entries in the audit trail.</div>' +
+            '</div>';
+        }
+
+        html += '<div class="sa-list-row">' +
+          '<div class="sa-list-title">' + failed24 + ' failed action' + (failed24 === 1 ? '' : 's') + ' / 24 h</div>' +
+          '<div class="sa-list-meta">' + (total24 > 0
+            ? failed24 + ' of ' + total24 + ' audit events · ' + rate.toFixed(2) + '% error rate'
+            : 'No audit activity in the last 24 hours.') + '</div>' +
+          '</div>';
+
+        list.innerHTML = html;
+      }
+
+      function renderOverviewSupport(support) {
+        const unresolved = Number(support.unresolved || 0);
+        setBadge('overviewTicketsBadge', unresolved + ' unresolved', unresolved > 0 ? 'warning' : 'success');
+
+        const list = byId('overviewTicketsList');
+        if (!list) return;
+
+        let html = '<div class="sa-list-row">' +
+          '<div class="sa-list-title">' + (support.open || 0) + ' Open + ' + (support.in_progress || 0) + ' In Progress · ' + (support.total || 0) + ' total inquiries</div>' +
+          '<div class="sa-list-meta">Contact inquiries recorded in the support queue</div>' +
+          '</div>';
+
+        if (support.latest) {
+          const latest = support.latest;
+          html += '<div class="sa-list-row">' +
+            '<div class="sa-list-title">' + escapeHtml(latest.reference) + ' · ' + escapeHtml(latest.topic_label) + '</div>' +
+            '<div class="sa-list-meta">' + escapeHtml(latest.status_label) + ' · ' + escapeHtml(latest.full_name) + ' · Assigned to ' + escapeHtml(latest.assignee) + '</div>' +
+            '</div>';
+        } else {
+          html += '<div class="sa-list-row">' +
+            '<div class="sa-list-title">No open support inquiries</div>' +
+            '<div class="sa-list-meta">New contact inquiries will appear here.</div>' +
+            '</div>';
+        }
+
+        list.innerHTML = html;
+      }
+
+      function renderOverviewSecurity(events) {
+        const list = byId('overviewSecurityList');
+        if (!list) return;
+
+        const badge = byId('overviewSecurityBadge');
+        if (badge) {
+          badge.textContent = events.length ? 'Monitored' : 'No events';
+          badge.className = 'sa-badge ' + (events.length ? 'sa-badge-info' : 'sa-badge-neutral');
+        }
+
+        if (!events.length) {
+          list.innerHTML = '<div class="sa-list-row">' +
+            '<div class="sa-list-title">No security events recorded</div>' +
+            '<div class="sa-list-meta">Authentication activity will appear here.</div>' +
+            '</div>';
+          return;
+        }
+
+        list.innerHTML = events.map(function (event) {
+          return '<div class="sa-list-row">' +
+            '<div class="sa-list-title">' + escapeHtml(event.action_label) + ' · ' + escapeHtml(event.user) + '</div>' +
+            '<div class="sa-list-meta">' + escapeHtml(event.time_label) + (event.ip_address ? ' · IP ' + escapeHtml(event.ip_address) : '') + '</div>' +
+            '</div>';
+        }).join('');
+      }
+
+      function renderOverviewActivities(activities) {
+        const list = byId('overviewActivitiesList');
+        if (!list) return;
+
+        if (!activities.length) {
+          list.innerHTML = '<div class="sa-list-row">' +
+            '<div class="sa-list-title">No administrative activity recorded</div>' +
+            '<div class="sa-list-meta">Administrative changes will appear here.</div>' +
+            '</div>';
+          return;
+        }
+
+        list.innerHTML = activities.map(function (activity) {
+          const detail = activity.detail ? ' · ' + activity.detail : '';
+          return '<div class="sa-list-row">' +
+            '<div class="sa-list-title">' + escapeHtml(activity.user) + ' · ' + escapeHtml(activity.action) + '</div>' +
+            '<div class="sa-list-meta">' + escapeHtml(activity.time_label) + escapeHtml(detail) + '</div>' +
+            '</div>';
+        }).join('');
+      }
+
+      function renderOverviewChart(chart) {
+        const days = chart.days || [];
+        const rawMax = Number(chart.max || 0);
+        const scaleMax = rawMax > 0 ? rawMax : 1;
+
+        const plot = byId('overviewChartPlot');
+        if (plot) {
+          plot.innerHTML = days.map(function (day) {
+            const count = Number(day.count || 0);
+            const height = count > 0 ? Math.max(2, (count / scaleMax) * 100) : 0;
+            return '<div class="sa-chart-bar" style="height: ' + height.toFixed(2) + '%;" title="' + escapeHtml(day.label + ' · ' + count + ' events') + '"></div>';
+          }).join('');
+        }
+
+        const labels = byId('overviewChartLabels');
+        if (labels) {
+          labels.innerHTML = days.map(function (day) {
+            return '<div>' + escapeHtml(day.label) + '<b>' + escapeHtml(String(day.count || 0)) + '</b></div>';
+          }).join('');
+        }
+
+        const yAxis = byId('overviewChartYAxis');
+        if (yAxis) {
+          const steps = rawMax > 0
+            ? [rawMax, Math.round(rawMax * 0.75), Math.round(rawMax * 0.5), Math.round(rawMax * 0.25), 0]
+            : [0, 0, 0, 0, 0];
+          yAxis.innerHTML = steps.map(function (value) {
+            return '<span>' + escapeHtml(String(value)) + '</span>';
+          }).join('');
+        }
+
+        const total = Number(chart.total || 0);
+        setBadge('overviewChartBadge', formatNumber(total) + ' events / 7d', 'success');
+        setText('overviewChartSubtitle', 'Last 7 days · ' + (days.length ? days[0].label + '–' + days[days.length - 1].label : 'PHT'));
+        setText('overviewChartCaption', 'Live administrative activity from the audit trail. ' + formatNumber(total) + ' events recorded across the last 7 days.');
+      }
+
+      function renderOverviewSnapshot(data) {
+        const snapshot = byId('overviewSnapshotLabel');
+        if (snapshot) {
+          snapshot.textContent = 'Live database snapshot · ' + (data.generated_at_label || 'just now') + '. Module 21.1 only; other modules remain illustrative.';
+        }
+
+        const footnote = byId('overviewDataFootnote');
+        if (footnote) {
+          footnote.textContent = 'LIVE DATABASE DATA · UPDATED ' + (data.generated_at_label || '').toUpperCase();
+        }
+      }
+
+      function renderOverview(data) {
+        if (!data) return;
+        renderOverviewUsers(data.users || {});
+        renderOverviewHealth(data.health || {});
+        renderOverviewErrors(data.errors || {});
+        renderOverviewSupport(data.support || {});
+        renderOverviewSecurity(data.security_events || []);
+        renderOverviewActivities(data.activities || []);
+        renderOverviewChart(data.activity_chart || {});
+        renderOverviewSnapshot(data);
+      }
+
+      function loadOverview() {
+        if (overviewLoading) return Promise.resolve();
+        overviewLoading = true;
+
+        return fetch('public/api/super-admin/overview.php', {
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        }).then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (payload) {
+            if (!response.ok || !payload.success || !payload.data) {
+              throw new Error((payload.error && payload.error.message) || 'Unable to load the system overview.');
+            }
+            renderOverview(payload.data);
+          });
+        }).catch(function () {
+          const snapshot = byId('overviewSnapshotLabel');
+          if (snapshot) snapshot.textContent = 'Live snapshot unavailable. Retrying automatically…';
+          const footnote = byId('overviewDataFootnote');
+          if (footnote) footnote.textContent = 'LIVE DATA UNAVAILABLE · RETRYING';
+        }).finally(function () {
+          overviewLoading = false;
+        });
+      }
+
+      function initOverview() {
+        loadOverview();
+
+        if (overviewRefreshTimer) clearInterval(overviewRefreshTimer);
+        overviewRefreshTimer = setInterval(loadOverview, 60000);
+
+        document.addEventListener('visibilitychange', function () {
+          if (!document.hidden) loadOverview();
+        });
+      }
+
+      /* ============================================================
+         Access verification + Boot
+         ============================================================ */
+      let authenticatedIdentity = null;
+
+      function verifySuperAdminSession() {
+        return fetch('public/api/admin/auth-check.php', {
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        }).then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (payload) {
+            if (!response.ok || !payload.success || !payload.data || !payload.data.authenticated) {
+              throw new Error('Authentication required.');
+            }
+
+            const data = payload.data;
+            const user = data.user || {};
+            const roles = data.roles || user.roles || [];
+
+            if (roles.indexOf('super_admin') === -1) {
+              const forbidden = new Error('Super Admin role required.');
+              forbidden.code = 'FORBIDDEN';
+              throw forbidden;
+            }
+
+            return data;
+          });
+        });
+      }
+
+      function applyAuthenticatedIdentity(data) {
+        const user = data.user || {};
+        const first = user.first_name || '';
+        const last = user.last_name || '';
+        if (!first && !last) return;
+
+        authenticatedIdentity = user;
+        updateHeaderIdentity(first, last);
+
+        const firstInput = byId('accountFirstName');
+        const lastInput = byId('accountLastName');
+        const emailInput = byId('accountEmail');
+        const mobileInput = byId('accountMobile');
+        if (firstInput) firstInput.value = first;
+        if (lastInput) lastInput.value = last;
+        if (emailInput) emailInput.value = user.email || '';
+        if (mobileInput) mobileInput.value = user.mobile || '';
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         const overlay = byId('adminLoadingOverlay');
         const main = byId('adminMainContent');
 
-        initDirectory();
-        renderUsers();
-        initUserEvents();
-        initMaintenanceEvents();
-        renderErrors();
-        initErrorEvents();
-        renderTickets();
-        initTicketEvents();
-        initConfigEvents();
-        initAccountEvents();
-        initDemoActions();
+        verifySuperAdminSession().then(function (auth) {
+          initDirectory();
+          renderUsers();
+          initUserEvents();
+          initMaintenanceEvents();
+          renderErrors();
+          initErrorEvents();
+          renderTickets();
+          initTicketEvents();
+          initConfigEvents();
+          initAccountEvents();
+          initDemoActions();
+          initOverview();
+          applyAuthenticatedIdentity(auth);
 
-        window.setTimeout(function () {
           if (overlay) overlay.classList.add('is-hidden');
           if (main) main.hidden = false;
           if (typeof window.refreshScrollReveal === 'function') {
             window.refreshScrollReveal();
           }
-        }, 650);
+        }).catch(function () {
+          window.location.replace('auth.html?notice=super_admin_required');
+        });
       });
 
       /* ============================================================
@@ -3862,13 +4201,14 @@ payload: [redacted] · credentials: [redacted]</div>
         const cancelProfile = byId('btnCancelProfile');
         if (cancelProfile) {
           cancelProfile.addEventListener('click', function () {
-            byId('accountFirstName').value = 'Julia';
-            byId('accountLastName').value = 'Dela Cruz';
-            byId('accountEmail').value = 'julia.dc@example.com';
-            byId('accountMobile').value = '+63 917 000 0121';
+            const identity = authenticatedIdentity || { first_name: '', last_name: '', email: '', mobile: '' };
+            byId('accountFirstName').value = identity.first_name || '';
+            byId('accountLastName').value = identity.last_name || '';
+            byId('accountEmail').value = identity.email || '';
+            byId('accountMobile').value = identity.mobile || '';
             byId('accountTimezone').value = 'Asia/Manila · PHT';
-            updateHeaderIdentity('Julia', 'Dela Cruz');
-            showToast('Profile edits cancelled. Example values restored.', 'warning');
+            updateHeaderIdentity(identity.first_name || '', identity.last_name || '');
+            showToast('Profile edits cancelled. Current account values restored.', 'warning');
           });
         }
 
@@ -3920,8 +4260,31 @@ payload: [redacted] · credentials: [redacted]</div>
 
         const logout = byId('saLogoutBtn');
         if (logout) {
-          logout.addEventListener('click', function () {
-            showToast('Example logout. No authenticated session was changed.', 'warning');
+          logout.addEventListener('click', async function () {
+            logout.disabled = true;
+            try {
+              const csrfResponse = await fetch('public/api/auth/csrf.php', {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: { 'Accept': 'application/json' }
+              });
+              const csrfPayload = await csrfResponse.json().catch(function () { return {}; });
+              const token = csrfPayload && csrfPayload.data ? csrfPayload.data.token : '';
+
+              await fetch('public/api/auth/logout.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'X-CSRF-Token': token || ''
+                }
+              });
+            } catch (error) {
+              // The server still clears the session whenever possible.
+            }
+            window.location.replace('auth.html?notice=logged_out');
           });
         }
       }

@@ -1,3 +1,18 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Route the Super Admin page through the PHP role gate so the static file
+  # can never be served to an unauthenticated or non-super-admin visitor.
+  RewriteRule ^super-admin-dashboard\.html$ super-admin-gate.php [L,QSA,NC]
+</IfModule>
+
+# Fail closed: when mod_rewrite is unavailable, never serve the raw page.
+<IfModule !mod_rewrite.c>
+  <Files "super-admin-dashboard.html">
+    Require all denied
+  </Files>
+</IfModule>
+
 <IfModule mod_headers.c>
   <FilesMatch "\.(html|js|css)$">
     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
