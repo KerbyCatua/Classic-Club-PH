@@ -5,6 +5,8 @@ body.cc-address-modal-open > :not(#manage-address-modal):not(.modal-backdrop):no
 #manage-address-modal .modal-dialog { max-width: 1120px; }
 #manage-address-modal .modal-content { background: var(--cc-surface); border: 1px solid var(--cc-border); border-radius: 0; padding: 32px; }
 #manage-address-modal .modal-header, #manage-address-modal .modal-body, #manage-address-modal .modal-footer { padding: 0; border: 0; }
+#manage-address-modal .modal-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+#manage-address-modal .modal-header > .cc-address-button { display: inline-flex; align-items: center; justify-content: center; align-self: start; white-space: nowrap; }
 #manage-address-modal .modal-body { margin-top: 28px; }
 #manage-address-modal .modal-body > .row { margin-left: 0; margin-right: 0; }
 #manage-address-modal .modal-footer { border-top: 1px solid var(--cc-border); margin-top: 28px; padding-top: 20px; }
