@@ -5,7 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof CCStore === 'undefined') return;
 
-  // One live region for wishlist actions; server refreshes stay silent.
+  // One shared live region for action feedback; server refreshes stay silent.
   const snackbar = document.createElement('div');
   snackbar.id = 'cc-wishlist-snackbar';
   snackbar.className = 'cc-wishlist-snackbar';
@@ -17,8 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let snackbarClearTimer;
   let snackbarFrame;
 
-  window.addEventListener('cc:wishlistChanged', event => {
-    const message = event.detail.saved ? 'Added to wishlist' : 'Removed from wishlist';
+  function showSnackbar(message) {
     window.clearTimeout(snackbarTimer);
     window.clearTimeout(snackbarClearTimer);
     window.cancelAnimationFrame(snackbarFrame);
@@ -28,7 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
       snackbar.classList.remove('is-visible');
       snackbarClearTimer = window.setTimeout(() => { snackbar.textContent = ''; }, 250);
     }, 3500);
+  }
+
+  window.addEventListener('cc:wishlistChanged', event => {
+    showSnackbar(event.detail.saved ? 'Added to wishlist' : 'Removed from wishlist');
   });
+
+  // Consume logout feedback once on the destination, preserving the immediate redirect.
+  if (window.location.pathname.endsWith('/auth.html')) {
+    try {
+      const loggedOut = sessionStorage.getItem('cc_logout_success');
+      sessionStorage.removeItem('cc_logout_success');
+      if (loggedOut === '1') showSnackbar('Logged out successfully');
+    } catch (_) { /* Storage availability must not affect authentication. */ }
+  }
 
   function syncWishlistAccessibility() {
     document.querySelectorAll('.cc-wishlist-btn, .cc-main-wishlist-toggle').forEach(button => {
