@@ -268,6 +268,22 @@ h1, h2, h3, h4, .font-lora {
   color: var(--cc-accent);
 }
 
+/* Account sign-out confirmation, using Bootstrap's modal layout. */
+.cc-sign-out-modal {
+  --bs-modal-width: 520px;
+  --bs-modal-padding: 32px;
+  --bs-modal-bg: var(--cc-surface);
+  --bs-modal-border-color: var(--cc-border);
+  --bs-modal-border-radius: 0;
+}
+
+.cc-sign-out-modal .modal-body { gap: 20px; }
+.cc-sign-out-modal h2 { font-size: 32px; line-height: 1.55; letter-spacing: 0; }
+.cc-sign-out-modal p { font-size: 14px; line-height: 1.55; }
+.cc-sign-out-modal .cc-sign-out-actions { gap: 12px; }
+.cc-sign-out-modal .btn { flex-basis: 0; }
+.cc-sign-out-modal .btn:focus-visible { outline: 2px solid var(--cc-text); outline-offset: 3px; }
+
 /* Figma Wireframe Asset Placeholder Boxes */
 .cc-asset-box, .wf-box {
   position: relative;

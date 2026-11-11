@@ -1,7 +1,7 @@
-body.cc-address-modal-open > :not(#manage-address-modal):not(.modal-backdrop):not(.cc-wishlist-snackbar):not(script) {
+body:is(.cc-address-modal-open, .cc-sign-out-modal-open) > :not(#manage-address-modal):not(#sign-out-modal):not(.modal-backdrop):not(.cc-wishlist-snackbar):not(script) {
   filter: blur(5px);
 }
-.cc-address-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+.cc-address-backdrop, body.cc-sign-out-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
 #manage-address-modal .modal-dialog { max-width: 1120px; }
 #manage-address-modal .modal-content { background: var(--cc-surface); border: 1px solid var(--cc-border); border-radius: 0; padding: 32px; }
 #manage-address-modal .modal-header, #manage-address-modal .modal-body, #manage-address-modal .modal-footer { padding: 0; border: 0; }

@@ -83,7 +83,7 @@
               <a href="shop-all.html" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Saved wishlist (<span id="wishlist-sidebar-count">0</span>)</a>
               <a href="#" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Addresses</a>
               <a href="#" class="p-3 text-muted-cc text-decoration-none" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Profile &amp; preferences</a>
-              <button type="button" id="sign-out-btn" class="p-3 text-start text-muted-cc border-0" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;">Sign out</button>
+              <button type="button" id="sign-out-btn" class="p-3 text-start text-muted-cc border-0" style="background: var(--cc-bg); border-left: 2px solid var(--cc-bg); font-size: 12px;" data-bs-toggle="modal" data-bs-target="#sign-out-modal" aria-haspopup="dialog">Sign out</button>
             </div>
 
             <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
@@ -222,6 +222,21 @@
 
   </main>
 
+  <div class="modal fade cc-sign-out-modal" id="sign-out-modal" tabindex="-1" aria-labelledby="sign-out-title" aria-describedby="sign-out-description" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body d-flex flex-column">
+          <h2 id="sign-out-title" class="font-lora text-light-cc m-0">Sign out?</h2>
+          <p id="sign-out-description" class="text-muted-cc m-0">Are you sure you want to sign out? You can sign in again anytime to access your orders and saved details.</p>
+          <div class="cc-sign-out-actions d-flex pt-2">
+            <button type="button" id="cancel-sign-out-btn" class="btn btn-cc-outline flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" id="confirm-sign-out-btn" class="btn btn-cc-teal flex-grow-1">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Reusable Footer Partial (Injected via partials.js) -->
   <div id="footer-partial"></div>
 
@@ -338,9 +353,22 @@
       }
 
       const signOutBtn = document.getElementById('sign-out-btn');
-      if (signOutBtn) {
-        signOutBtn.addEventListener('click', async () => {
+      const signOutModal = document.getElementById('sign-out-modal');
+      const confirmSignOutBtn = document.getElementById('confirm-sign-out-btn');
+      const cancelSignOutBtn = document.getElementById('cancel-sign-out-btn');
+      if (signOutBtn && signOutModal && confirmSignOutBtn && cancelSignOutBtn) {
+        signOutModal.addEventListener('show.bs.modal', () => document.body.classList.add('cc-sign-out-modal-open'));
+        signOutModal.addEventListener('hidden.bs.modal', () => document.body.classList.remove('cc-sign-out-modal-open'));
+        signOutModal.addEventListener('shown.bs.modal', () => cancelSignOutBtn.focus());
+        signOutModal.addEventListener('hide.bs.modal', event => {
+          if (confirmSignOutBtn.disabled) event.preventDefault();
+        });
+        confirmSignOutBtn.addEventListener('click', async () => {
+          if (confirmSignOutBtn.disabled) return;
           signOutBtn.disabled = true;
+          confirmSignOutBtn.disabled = true;
+          cancelSignOutBtn.disabled = true;
+          confirmSignOutBtn.textContent = 'Signing out…';
           try {
             const csrfResponse = await fetch('public/api/auth/csrf.php', {
               cache: 'no-store',
@@ -373,6 +401,9 @@
           } catch (error) {
             console.error(error);
             signOutBtn.disabled = false;
+            confirmSignOutBtn.disabled = false;
+            cancelSignOutBtn.disabled = false;
+            confirmSignOutBtn.textContent = 'Sign Out';
             window.alert(error.message || 'Unable to sign out.');
           }
         });
