@@ -66,6 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (el.id === 'header-cart-count' || el.classList.contains('cc-cart-count')) {
         el.textContent = totalItems;
       } else {
+        const hoverLabel = el.querySelector('.cc-header-action-label');
+        if (hoverLabel) {
+          const productCount = `${totalItems} ${totalItems === 1 ? 'Product' : 'Products'}`;
+          hoverLabel.textContent = productCount;
+          el.setAttribute('aria-label', `Shopping Bag, ${productCount}`);
+          return;
+        }
         // Check if there is a number text node next to the bag icon in header.html
         const badgeSpan = el.querySelector('.cart-badge-num, span');
         if (badgeSpan) {
