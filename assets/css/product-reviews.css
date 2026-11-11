@@ -1,0 +1,74 @@
+/* Custom styles for Review Product Page matching Figma specifications */
+    .star-rating-select {
+      display: inline-flex;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .star-rating-select .star-item {
+      font-size: 26px;
+      line-height: 1;
+      color: #777D7C;
+      user-select: none;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .star-rating-select .star-item:hover,
+    .star-rating-select .star-item.active {
+      color: #F4F1EA;
+    }
+    .star-rating-select .star-item:hover {
+      transform: scale(1.15);
+    }
+    .rating-bar-bg {
+      height: 4px;
+      background-color: #34393A;
+      width: 100%;
+      max-width: 300px;
+      overflow: hidden;
+    }
+    .rating-bar-fill {
+      height: 4px;
+      background-color: var(--cc-accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .review-photo-dropzone {
+      border: 1px solid #34393A;
+      background: var(--cc-bg);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .review-photo-dropzone:hover {
+      border-color: var(--cc-accent);
+    }
+    .review-photo-preview {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .review-photo-thumb {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border: 1px solid var(--cc-border);
+    }
+    .custom-checkbox {
+      width: 16px;
+      height: 16px;
+      background-color: transparent;
+      border: 1px solid #34393A;
+      accent-color: var(--cc-accent);
+      cursor: pointer;
+    }
+    .review-item-row {
+      border-bottom: 1px solid #34393A;
+    }
+    .review-item-row:last-child {
+      border-bottom: none;
+    }
+
+.review-author { width: 220px; max-width: 100%; }
+.review-score { font-size: 64px; line-height: 1.1; }
+.review-empty-star { color: var(--cc-muted, #777D7C); }
+
+.review-item-row { overflow-wrap: anywhere; }
+.review-item-row > * { min-width: 0; }

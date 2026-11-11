@@ -13,75 +13,7 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/scroll-reveal.css">
 
-  <style>
-    /* Custom styles for Review Product Page matching Figma specifications */
-    .star-rating-select {
-      display: inline-flex;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .star-rating-select .star-item {
-      font-size: 26px;
-      line-height: 1;
-      color: #777D7C;
-      user-select: none;
-      transition: color 0.15s ease, transform 0.15s ease;
-    }
-    .star-rating-select .star-item:hover,
-    .star-rating-select .star-item.active {
-      color: #F4F1EA;
-    }
-    .star-rating-select .star-item:hover {
-      transform: scale(1.15);
-    }
-    .rating-bar-bg {
-      height: 4px;
-      background-color: #34393A;
-      width: 100%;
-      max-width: 300px;
-      overflow: hidden;
-    }
-    .rating-bar-fill {
-      height: 4px;
-      background-color: var(--cc-accent);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .review-photo-dropzone {
-      border: 1px solid #34393A;
-      background: var(--cc-bg);
-      cursor: pointer;
-      transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .review-photo-dropzone:hover {
-      border-color: var(--cc-accent);
-    }
-    .review-photo-preview {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .review-photo-thumb {
-      width: 70px;
-      height: 70px;
-      object-fit: cover;
-      border: 1px solid var(--cc-border);
-    }
-    .custom-checkbox {
-      width: 16px;
-      height: 16px;
-      background-color: transparent;
-      border: 1px solid #34393A;
-      accent-color: var(--cc-accent);
-      cursor: pointer;
-    }
-    .review-item-row {
-      border-bottom: 1px solid #34393A;
-    }
-    .review-item-row:last-child {
-      border-bottom: none;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/product-reviews.css">
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261111-1">
   <script src="assets/js/quick-view.js?v=20261111-1" defer></script>
 </head>
@@ -100,7 +32,7 @@
           <span class="mx-1">/</span>
           <a href="tops-tees.html" id="review-cat-crumb" class="text-muted-cc text-decoration-none">Tops & tees</a>
           <span class="mx-1">/</span>
-          <a href="product-detail.html" id="review-prod-crumb" class="text-muted-cc text-decoration-none">Essential Heavyweight Tee</a>
+          <a href="product-detail.html" id="review-prod-crumb" class="text-muted-cc text-decoration-none">Product</a>
           <span class="mx-1">/</span>
           <span class="text-muted-cc">Reviews</span>
         </nav>
@@ -128,12 +60,12 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-4 py-2">
           <div class="d-flex align-items-center gap-4">
             <div class="border border-cc flex-shrink-0 d-flex align-items-center justify-content-center bg-cc-surface" style="width: 120px; height: 138px; padding: 8px;">
-              <img id="review-product-image" src="https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp" alt="Essential Heavyweight Tee" class="img-fluid object-fit-cover w-100 h-100" onerror="this.src='https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp';">
+              <img id="review-product-image" src="" alt="" class="img-fluid object-fit-cover w-100 h-100">
             </div>
             <div class="d-flex flex-column gap-2">
-              <span class="cc-eyebrow-teal m-0" id="review-product-collection">THE CORE COLLECTION / CC-TEE-001</span>
-              <h2 class="font-lora text-light-cc m-0" id="review-product-title" style="font-size: 28px;">Essential Heavyweight Tee</h2>
-              <span class="cc-small-text text-muted-cc" id="review-product-meta">Obsidian · 240 GSM cotton jersey · Relaxed unisex fit</span>
+              <span class="cc-eyebrow-teal m-0" id="review-product-collection">THE CORE COLLECTION</span>
+              <h2 class="font-lora text-light-cc m-0" id="review-product-title" style="font-size: 28px;">Product</h2>
+              <span class="cc-small-text text-muted-cc" id="review-product-meta"></span>
               <span class="text-light-cc font-sans fw-normal" id="review-product-price" style="font-size: 15px;" data-product-price></span>
             </div>
           </div>
@@ -149,58 +81,31 @@
       <div class="d-flex flex-column gap-4">
         <span class="cc-eyebrow-teal m-0">01 / AT A GLANCE</span>
         
-        <div class="row g-5 align-items-center">
+        <div class="row g-5 mx-0 align-items-center">
           <!-- Overall Rating -->
           <div class="col-12 col-md-3">
             <div class="d-flex flex-column gap-3">
               <div class="d-flex align-items-baseline gap-2">
-                <span class="font-lora text-light-cc" id="glance-average-score" style="font-size: 64px; line-height: 1.1;">4.3</span>
+                <span class="font-lora text-light-cc" id="glance-average-score" data-review-average style="font-size: 64px; line-height: 1.1;">&mdash;</span>
                 <span class="text-muted-cc font-sans" style="font-size: 13px;">/ 5</span>
               </div>
-              <div class="d-flex align-items-center gap-1 text-light-cc" id="glance-average-stars" style="font-size: 16px;">
-                <span>★</span><span>★</span><span>★</span><span>★</span><span style="color: #777D7C;">☆</span>
-              </div>
-              <span class="cc-xs-text text-muted-cc" id="glance-reviews-count">Based on 6 sample reviews</span>
+              <div class="d-flex align-items-center gap-1 text-light-cc" id="glance-average-stars" data-review-stars style="font-size: 16px;"></div>
+              <span class="cc-xs-text text-muted-cc" id="glance-reviews-count" data-review-count>Loading reviews&hellip;</span>
             </div>
           </div>
 
           <!-- Rating Distribution Bars -->
           <div class="col-12 col-md-5">
-            <div class="d-flex flex-column gap-2" id="rating-distribution-container">
-              <div class="d-flex align-items-center gap-3">
-                <span class="text-light-cc font-sans" style="font-size: 12px; width: 50px;">5 stars</span>
-                <div class="rating-bar-bg flex-grow-1"><div class="rating-bar-fill" style="width: 50%;"></div></div>
-                <span class="text-muted-cc font-sans text-end" style="font-size: 12px; width: 16px;">3</span>
-              </div>
-              <div class="d-flex align-items-center gap-3">
-                <span class="text-light-cc font-sans" style="font-size: 12px; width: 50px;">4 stars</span>
-                <div class="rating-bar-bg flex-grow-1"><div class="rating-bar-fill" style="width: 33.3%;"></div></div>
-                <span class="text-muted-cc font-sans text-end" style="font-size: 12px; width: 16px;">2</span>
-              </div>
-              <div class="d-flex align-items-center gap-3">
-                <span class="text-light-cc font-sans" style="font-size: 12px; width: 50px;">3 stars</span>
-                <div class="rating-bar-bg flex-grow-1"><div class="rating-bar-fill" style="width: 16.7%;"></div></div>
-                <span class="text-muted-cc font-sans text-end" style="font-size: 12px; width: 16px;">1</span>
-              </div>
-              <div class="d-flex align-items-center gap-3">
-                <span class="text-light-cc font-sans" style="font-size: 12px; width: 50px;">2 stars</span>
-                <div class="rating-bar-bg flex-grow-1"><div class="rating-bar-fill" style="width: 0%;"></div></div>
-                <span class="text-muted-cc font-sans text-end" style="font-size: 12px; width: 16px;">0</span>
-              </div>
-              <div class="d-flex align-items-center gap-3">
-                <span class="text-light-cc font-sans" style="font-size: 12px; width: 50px;">1 stars</span>
-                <div class="rating-bar-bg flex-grow-1"><div class="rating-bar-fill" style="width: 0%;"></div></div>
-                <span class="text-muted-cc font-sans text-end" style="font-size: 12px; width: 16px;">0</span>
-              </div>
+            <div class="d-flex flex-column gap-2" id="rating-distribution-container" data-review-breakdown>
             </div>
           </div>
 
           <!-- Fit Summary & Write a Review Anchor -->
           <div class="col-12 col-md-4 ps-md-4 border-start-md border-cc">
             <div class="d-flex flex-column gap-3">
-              <h3 class="font-lora text-light-cc m-0" style="font-size: 24px;">Relaxed, as intended.</h3>
+              <h3 class="font-lora text-light-cc m-0" style="font-size: 24px;">Fit, from daily wear.</h3>
               <p class="cc-small-text text-muted-cc m-0" id="glance-fit-summary" style="line-height: 21.45px;">
-                4 of 6 selected true to size.<br>2 of 6 found the fit roomy.
+                Fit feedback will appear with customer reviews.
               </p>
               <div>
                 <a href="#review-form-section" class="btn-cc-teal">
@@ -213,19 +118,19 @@
         </div>
 
         <p class="cc-eyebrow text-transform-none m-0 pt-2" style="text-transform: none; line-height: 18.15px;">
-          Illustrative reviews only. Names, purchase labels, dates and ratings are replacement-ready sample content, not real customer testimonials.
+          Reviews reflect customer experiences with this product variant.
         </p>
       </div>
     </section>
 
     <!-- Section 02: The Reviews -->
-    <section class="cc-section-px py-5">
+    <section id="customer-reviews" class="cc-section-px py-5">
       <div class="d-flex flex-column gap-4">
         <span class="cc-eyebrow-teal m-0">02 / THE REVIEWS</span>
         
         <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
           <h2 class="font-lora text-light-cc m-0" style="font-size: 38px;">Details, from daily wear.</h2>
-          <span class="text-muted-cc font-sans" id="reviews-count-header" style="font-size: 12px;">Showing all sample reviews</span>
+          <span class="text-muted-cc font-sans" id="reviews-count-header" style="font-size: 12px;">Loading reviews&hellip;</span>
         </div>
 
         <!-- Filter and Sort Bar -->
@@ -279,7 +184,7 @@
 
     <!-- Section 03: Your Perspective (Submission Form) -->
     <section id="review-form-section" class="cc-section-px py-5 bg-cc-surface">
-      <div class="row g-5 align-items-start">
+      <div class="row g-5 mx-0 align-items-start">
         
         <!-- Left Column: Perspective Intro & Product Details -->
         <div class="col-12 col-lg-4">
@@ -293,8 +198,8 @@
             </p>
             <hr class="border-cc m-0 opacity-100">
             <div class="d-flex flex-column gap-2">
-              <h3 class="font-lora text-light-cc m-0" id="form-product-title" style="font-size: 22px;">Essential Heavyweight Tee</h3>
-              <span class="cc-xs-text text-muted-cc" id="form-product-sku">CC-TEE-001 / THE CORE COLLECTION</span>
+              <h3 class="font-lora text-light-cc m-0" id="form-product-title" style="font-size: 22px;">Product</h3>
+              <span class="cc-xs-text text-muted-cc" id="form-product-sku">THE CORE COLLECTION</span>
             </div>
             <p class="cc-xs-text text-muted-cc m-0" style="line-height: 21px;">
               Keep your review focused on the product. Please leave out personal details, order numbers and delivery addresses. Reviews may be checked before publication.
@@ -471,88 +376,13 @@
   <script src="assets/js/main.js?v=20261108-1"></script>
   <script src="assets/js/scroll-reveal.js"></script>
 
+  <script src="assets/js/product-reviews.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Initial Sample Reviews (from Figma specs)
-      const sampleReviews = [
-        {
-          id: 'sample-1',
-          name: 'Alex R.',
-          verified: true,
-          date: '30 October 2026',
-          size: 'M',
-          color: 'Obsidian',
-          fit: 'True to size',
-          rating: 5,
-          title: 'The weight makes the difference.',
-          content: 'The jersey has a reassuring weight without feeling stiff. I chose my usual M and the shoulder sits exactly where I wanted it: relaxed, not oversized. The neckline holds its shape after a cold wash and a line dry. An easy piece to wear on its own.'
-        },
-        {
-          id: 'sample-2',
-          name: 'Jamie L.',
-          verified: true,
-          date: '28 October 2026',
-          size: 'S',
-          color: 'Obsidian',
-          fit: 'True to size',
-          rating: 5,
-          title: 'Clean proportions, no extra effort.',
-          content: 'The sleeve length and straight hem are what sold me on this tee. My usual S leaves enough room through the body to tuck it into trousers without bunching. Obsidian is easy to pair with everything, and the small tonal label keeps the finish understated.'
-        },
-        {
-          id: 'sample-3',
-          name: 'Sam C.',
-          verified: true,
-          date: '25 October 2026',
-          size: 'L',
-          color: 'Obsidian',
-          fit: 'Roomy',
-          rating: 4,
-          title: 'Substantial fabric, a generous cut.',
-          content: 'The cotton feels substantial and the seams are neat. I ordered L for a loose fit, but there is more room through the chest than I expected. I would compare the flat measurements before ordering again. Still a useful layer under an open overshirt.'
-        },
-        {
-          id: 'sample-4',
-          name: 'Morgan D.',
-          verified: true,
-          date: '22 October 2026',
-          size: 'XL',
-          color: 'Obsidian',
-          fit: 'True to size',
-          rating: 5,
-          title: 'A neckline that feels considered.',
-          content: 'I prefer a crew neck with a little structure, and this one sits neatly without feeling tight. XL gives me the intended relaxed silhouette. After two gentle washes, the shape still looks balanced and the hem lies flat. Exactly the kind of basic I reach for often.'
-        },
-        {
-          id: 'sample-5',
-          name: 'Drew P.',
-          verified: true,
-          date: '19 October 2026',
-          size: 'XS',
-          color: 'Obsidian',
-          fit: 'True to size',
-          rating: 4,
-          title: 'Best for cooler days and indoor wear.',
-          content: 'The XS fits as described and the dropped shoulder looks good with tailored bottoms. The 240 GSM fabric is denser than my usual tees, so I save it for air-conditioned days rather than long walks in midday heat. The drape and finish are lovely.'
-        },
-        {
-          id: 'sample-6',
-          name: 'Casey M.',
-          verified: true,
-          date: '16 October 2026',
-          size: 'M',
-          color: 'Obsidian',
-          fit: 'Roomy',
-          rating: 3,
-          title: 'Good construction; not my preferred fit.',
-          content: 'The stitching is tidy and the collar feels durable, but M is wider through the body than I personally like. I was hoping for a closer fit. The garment measurements would have helped me choose better; I would try S next time for a less relaxed shape.'
-        }
-      ];
-
-      // 2. Parse Query Params
+      // Parse the selected product and optional purchase context.
       const urlParams = new URLSearchParams(window.location.search);
       const queryOrderNumber = urlParams.get('order_number') || '';
-      const queryVariant = urlParams.get('variant') || urlParams.get('id') || 'essential-hw-tee-obsidian';
+      const queryVariant = urlParams.get('variant') || urlParams.get('id') || '';
       const queryVariantId = urlParams.get('variant_id') || '';
 
       document.getElementById('form-order-number').value = queryOrderNumber;
@@ -568,26 +398,20 @@
       let isLoggedIn = false;
 
       try {
-        const fetchUrl = `public/api/reviews/eligibility.php?order_number=${encodeURIComponent(queryOrderNumber)}&variant=${encodeURIComponent(queryVariant)}&variant_id=${encodeURIComponent(queryVariantId)}`;
-        const res = await fetch(fetchUrl, {
-          cache: 'no-store',
-          credentials: 'same-origin',
-          headers: { 'Accept': 'application/json' }
-        });
-        const json = await res.json();
-        if (res.ok && json.success) {
-          activeVariant = json.data.variant;
-          serverReviews = json.data.reviews || [];
-          eligibility = json.data.eligibility || {};
-          isLoggedIn = !!json.data.is_logged_in;
-        }
+        const data = await CCProductReviews.load({variant: queryVariant, variantId: queryVariantId, orderNumber: queryOrderNumber});
+        activeVariant = data.variant;
+        serverReviews = data.reviews || [];
+        eligibility = data.eligibility || {};
+        isLoggedIn = !!data.is_logged_in;
       } catch (err) {
         console.warn('Could not load eligibility from server:', err);
       }
 
+      if (typeof CCStore !== 'undefined') await CCStore.whenCatalogReady();
+
       // Fallback from CCStore if server variant missing
       if (!activeVariant && typeof CCStore !== 'undefined') {
-        const fallbackProd = CCStore.getProductById(queryVariant) || CCStore.getProductById('essential-hw-tee-obsidian');
+        const fallbackProd = CCStore.getProductById(queryVariant);
         if (fallbackProd) {
           activeVariant = {
             product_name: fallbackProd.name,
@@ -602,14 +426,19 @@
         }
       }
 
+      if (!activeVariant) {
+        document.querySelector('main').innerHTML = '<section class="cc-section-px cc-section-py"><h1 class="cc-sec-title">Product unavailable.</h1><p class="cc-body-text">Select a product from the collection to view its reviews.</p><a href="shop-all.html" class="btn-cc-teal">Explore the collection</a></section>';
+        return;
+      }
+
       // 4. Hydrate Product Display
       if (activeVariant) {
         document.title = `${activeVariant.product_name} - Product Review | Classic Club PH`;
-        const prodTitle = activeVariant.product_name || 'Essential Heavyweight Tee';
-        const prodColor = activeVariant.color_name || 'Obsidian';
-        const prodPrice = activeVariant.price ? `₱${Number(activeVariant.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '₱1,890.00';
-        const prodSku = activeVariant.sku || 'CC-TEE-001';
-        const prodImg = activeVariant.image_url || 'https://res.cloudinary.com/doeikmdvh/image/upload/v1793513904/01_ESSENTIAL_HEAVYWEIGHT_TEE_nu8k9g.webp';
+        const prodTitle = activeVariant.product_name || 'Product';
+        const prodColor = activeVariant.color_name || '';
+        const prodPrice = new Intl.NumberFormat('en-PH', {style: 'currency', currency: 'PHP'}).format(Number(activeVariant.price || 0));
+        const prodSku = activeVariant.sku || '';
+        const prodImg = activeVariant.image_url || '';
 
         document.getElementById('review-prod-crumb').textContent = prodTitle;
         document.getElementById('review-product-title').textContent = prodTitle;
@@ -619,9 +448,10 @@
         document.getElementById('form-product-sku').textContent = `${prodSku} / THE CORE COLLECTION`;
         document.getElementById('review-product-image').src = prodImg;
         document.getElementById('review-product-image').alt = `${prodTitle} / ${prodColor}`;
-        document.getElementById('review-product-meta').textContent = `${prodColor} · 240 GSM cotton jersey · Relaxed unisex fit`;
+        document.getElementById('review-product-meta').textContent = [prodColor, activeVariant.description].filter(Boolean).join(' / ');
         document.getElementById('back-to-product-link').href = `product-detail.html?id=${encodeURIComponent(activeVariant.catalog_key || queryVariant)}`;
         
+        document.getElementById('form-catalog-key').value = activeVariant.catalog_key || queryVariant;
         if (activeVariant.variant_id) {
           document.getElementById('form-variant-id').value = activeVariant.variant_id;
         }
@@ -675,55 +505,13 @@
         submitBtn.disabled = false;
       }
 
-      // 7. Combine Server and Sample Reviews
-      const allReviews = [
-        ...serverReviews.map(r => ({
-          id: `db-${r.id}`,
-          name: r.display_name,
-          verified: !!r.is_verified_purchase,
-          date: new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-          size: r.size_purchased,
-          color: activeVariant?.color_name || 'Obsidian',
-          fit: r.fit_feedback,
-          rating: Number(r.rating),
-          title: r.title,
-          content: r.content
-        })),
-        ...sampleReviews
-      ];
-
-      // 8. Render At-a-Glance Summary
+      const allReviews = CCProductReviews.normalize(serverReviews, activeVariant);
       function updateGlanceSummary(reviews) {
-        if (reviews.length === 0) return;
-        const total = reviews.length;
-        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
-        const avg = (sum / total).toFixed(1);
-
-        document.getElementById('glance-average-score').textContent = avg;
-        document.getElementById('glance-reviews-count').textContent = `Based on ${total} customer review${total === 1 ? '' : 's'}`;
-        document.getElementById('reviews-count-header').textContent = `Showing all ${total} review${total === 1 ? '' : 's'}`;
-
-        const starMarkup = [1, 2, 3, 4, 5].map(i => {
-          return i <= Math.round(avg) ? '<span>★</span>' : '<span style="color: #777D7C;">☆</span>';
-        }).join('');
-        document.getElementById('glance-average-stars').innerHTML = starMarkup;
-
-        // Breakdown
-        const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-        reviews.forEach(r => { counts[r.rating] = (counts[r.rating] || 0) + 1; });
-
-        const barContainer = document.getElementById('rating-distribution-container');
-        barContainer.innerHTML = [5, 4, 3, 2, 1].map(stars => {
-          const c = counts[stars] || 0;
-          const pct = ((c / total) * 100).toFixed(1);
-          return `
-            <div class="d-flex align-items-center gap-3">
-              <span class="text-light-cc font-sans" style="font-size: 12px; width: 50px;">${stars} stars</span>
-              <div class="rating-bar-bg flex-grow-1"><div class="rating-bar-fill" style="width: ${pct}%;"></div></div>
-              <span class="text-muted-cc font-sans text-end" style="font-size: 12px; width: 16px;">${c}</span>
-            </div>
-          `;
-        }).join('');
+        CCProductReviews.summary(reviews);
+        document.getElementById('reviews-count-header').textContent = 'Showing all ' + reviews.length + ' reviews';
+        const fits = new Map();
+        reviews.forEach(r => { if (r.fit) fits.set(r.fit, (fits.get(r.fit) || 0) + 1); });
+        document.getElementById('glance-fit-summary').textContent = [...fits].map(([fit, count]) => count + ' of ' + reviews.length + ': ' + fit).join('. ') || 'Fit feedback will appear with customer reviews.';
       }
 
       updateGlanceSummary(allReviews);
@@ -760,52 +548,7 @@
           filtered.sort((a, b) => a.rating - b.rating);
         }
 
-        if (filtered.length === 0) {
-          listContainer.innerHTML = `
-            <div class="py-5 text-center text-muted-cc border-top border-cc">
-              <p class="m-0 font-sans" style="font-size: 14px;">No reviews match the selected filters.</p>
-            </div>
-          `;
-          return;
-        }
-
-        listContainer.innerHTML = filtered.map(r => {
-          const starsHtml = [1, 2, 3, 4, 5].map(i => {
-            return i <= r.rating ? '<span>★</span>' : '<span style="color: #777D7C;">☆</span>';
-          }).join('');
-
-          return `
-            <div class="review-item-row py-4 d-flex flex-column flex-md-row gap-4 gap-md-5">
-              <div class="flex-shrink-0 d-flex flex-column gap-2" style="width: 220px;">
-                <span class="text-light-cc font-sans fw-medium" style="font-size: 14px;">${escapeHtml(r.name)}</span>
-                <span class="text-accent font-sans" style="font-size: 10px; letter-spacing: 0.6px;">✓ VERIFIED PURCHASE · ${r.id.startsWith('db-') ? 'DELIVERED' : 'SAMPLE'}</span>
-                <span class="text-muted-cc font-sans" style="font-size: 11px;">${escapeHtml(r.date)}</span>
-                <span class="text-muted-cc font-sans" style="font-size: 12px; line-height: 1.6;">Size ${escapeHtml(r.size)} · ${escapeHtml(r.color)}</span>
-                <span class="text-muted-cc font-sans" style="font-size: 12px;">Fit — ${escapeHtml(r.fit)}</span>
-              </div>
-              <div class="flex-grow-1 d-flex flex-column gap-3">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="d-flex gap-1 text-light-cc" style="font-size: 13px;">${starsHtml}</div>
-                  <span class="text-muted-cc font-sans" style="font-size: 11px;">${r.rating}.0 / 5</span>
-                </div>
-                <h4 class="font-lora text-light-cc m-0" style="font-size: 24px; line-height: 1.3;">${escapeHtml(r.title)}</h4>
-                <p class="text-muted-cc font-sans m-0" style="font-size: 14px; line-height: 1.75; max-width: 880px;">
-                  ${escapeHtml(r.content)}
-                </p>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-
-      function escapeHtml(str) {
-        return String(str || '').replace(/[&<>'"]/g, tag => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          "'": '&#39;',
-          '"': '&quot;'
-        }[tag] || tag));
+        CCProductReviews.renderList(listContainer, filtered, allReviews.length ? 'No reviews match the selected filters.' : undefined);
       }
 
       renderReviewsList();
@@ -949,7 +692,7 @@
             verified: true,
             date: 'Just now',
             size: payload.size_purchased,
-            color: activeVariant?.color_name || 'Obsidian',
+            color: activeVariant?.color_name || '',
             fit: payload.fit_feedback,
             rating: payload.rating,
             title: payload.title,

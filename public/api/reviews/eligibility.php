@@ -23,7 +23,9 @@ try {
     $reviewRepo = new ReviewRepository($pdo);
     $orderRepo = new OrderRepository($pdo);
     // Trigger simulated delivery update
-    $orderRepo->updateSimulatedDeliveries();
+    if ($orderNumber !== '') {
+        $orderRepo->updateSimulatedDeliveries();
+    }
 
     // Find variant
     $variant = null;
@@ -31,11 +33,6 @@ try {
         $variant = $reviewRepo->findVariantById($variantId);
     } elseif ($variantKey !== '') {
         $variant = $reviewRepo->findVariantByCatalogKey($variantKey);
-    }
-
-    if ($variant === null) {
-        // Fallback default variant (CC-TEE-001 / Obsidian)
-        $variant = $reviewRepo->findVariantByCatalogKey('essential-hw-tee-obsidian');
     }
 
     $reviews = $variant ? $reviewRepo->getReviewsForVariant((int) $variant['variant_id']) : [];
