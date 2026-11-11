@@ -252,21 +252,29 @@ const CCStore = (function () {
       if (catalogPromise) return catalogPromise;
       catalogPromise = (async () => {
         try {
-          const res = await fetch('public/api/catalog/products.php?per_page=50', {
-            cache: 'no-store',
-            headers: { 'Accept': 'application/json' }
-          });
-          const json = await res.json();
-          if (json.success && json.data && Array.isArray(json.data.items)) {
-            liveCatalogItems = json.data.items;
-            Object.keys(PRODUCTS).forEach(key => delete PRODUCTS[key]);
-            liveCatalogItems.forEach(p => {
-              const key = p.catalog_key || `catalog-${p.id}-${p.variant_id}`;
-              PRODUCTS[key] = catalogItemToProduct(p);
+          // Read every page: collection filters must include newly added variants
+          // even when the catalog grows beyond the API's maximum page size.
+          const items = [];
+          for (let page = 1; ; page++) {
+            const res = await fetch(`public/api/catalog/products.php?per_page=50&page=${page}`, {
+              cache: 'no-store',
+              headers: { 'Accept': 'application/json' }
             });
-            catalogLoaded = true;
-            return liveCatalogItems;
+            const json = await res.json();
+            if (!res.ok || !json.success || !Array.isArray(json.data?.items)) {
+              throw new Error('Unable to load the product catalog.');
+            }
+            items.push(...json.data.items);
+            if (json.data.items.length < 50) break;
           }
+          liveCatalogItems = items;
+          Object.keys(PRODUCTS).forEach(key => delete PRODUCTS[key]);
+          liveCatalogItems.forEach(p => {
+            const key = p.catalog_key || `catalog-${p.id}-${p.variant_id}`;
+            PRODUCTS[key] = catalogItemToProduct(p);
+          });
+          catalogLoaded = true;
+          return liveCatalogItems;
         } catch (e) {
           console.warn('Could not sync live catalog:', e);
         }

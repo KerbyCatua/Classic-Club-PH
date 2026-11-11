@@ -214,9 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Update live price text (find the element displaying the price)
-      const priceEls = card.querySelectorAll('.text-light-cc, [data-product-price]');
+      const priceEls = card.querySelectorAll('[data-product-price], .cc-small-text.text-light-cc');
       priceEls.forEach(priceEl => {
-        if (product.price) {
+        if (Number.isFinite(product.price)) {
           priceEl.textContent = CCStore.formatPHP(product.price);
         }
       });
@@ -226,6 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (titleEl && product.name) {
         titleEl.textContent = product.name;
       }
+      const colorEl = card.querySelector('.justify-content-between > .cc-xs-text');
+      if (colorEl) colorEl.textContent = product.color;
     });
   }
 
@@ -239,11 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('product-grid');
     if (!grid || typeof CCStore.getLiveCatalogItems !== 'function') return;
 
-    const existingSkus = new Set(
-      Array.from(grid.querySelectorAll('[data-product-id]'))
-        .map(element => CCStore.getProductById(element.getAttribute('data-product-id'))?.sku)
-        .filter(Boolean)
-    );
     const existingProductIds = new Set(
       Array.from(grid.querySelectorAll('[data-product-id]'))
         .map(element => element.getAttribute('data-product-id'))
@@ -254,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageCategory = pageName.replace(/\.html$/, '');
     CCStore.getLiveCatalogItems().forEach(item => {
       const productId = item.catalog_key || `catalog-${item.id}-${item.variant_id}`;
-      if (!item.sku || existingSkus.has(item.sku) || existingProductIds.has(productId)) return;
+      if (existingProductIds.has(productId)) return;
       const product = CCStore.getProductById(productId);
       if (!product) return;
       if (
@@ -290,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </article>`;
       grid.appendChild(card);
       bindGlobalWishlistButton(card.querySelector('.cc-wishlist-btn'));
-      existingSkus.add(item.sku);
       existingProductIds.add(productId);
     });
   }
@@ -314,20 +310,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sync live database catalog (prices, availability) and re-hydrate
   if (typeof CCStore !== 'undefined' && typeof CCStore.syncCatalogFromApi === 'function') {
     CCStore.syncCatalogFromApi().then(() => {
-      renderNewLiveCatalogCards();
-      hydrateProductCards();
       hydrateProductDetail();
       window.dispatchEvent(new CustomEvent('cc:catalogReady'));
     });
   }
 
+  window.addEventListener('cc:catalogReady', () => {
+    renderNewLiveCatalogCards();
+    hydrateProductCards();
+    syncWishlistAccessibility();
+  });
 
-  // Existing page scripts own static buttons with product IDs.
-  // Bind homepage buttons and newly rendered catalog buttons here.
+
+  // Collection pages share wishlist binding with newly rendered catalog cards.
+  // Other pages retain their existing inline button handlers.
   document.querySelectorAll('.cc-wishlist-btn').forEach(button => {
     if (
       button.tagName !== 'BUTTON' ||
-      button.hasAttribute('data-product-id')
+      (button.hasAttribute('data-product-id') && !document.querySelector('[data-collection]'))
     ) {
       return;
     }
@@ -337,12 +337,14 @@ document.addEventListener('DOMContentLoaded', () => {
   syncWishlistAccessibility();
 
   function bindGlobalWishlistButton(button) {
+    if (!button || button.dataset.wishlistBound === 'true') return;
     const card = button.closest('.cc-product-card');
     const productId =
       button.getAttribute('data-product-id') ||
       card?.getAttribute('data-product-id');
 
     if (!productId) return;
+    button.dataset.wishlistBound = 'true';
 
     function updateWishlistButton() {
       const saved = CCStore.isInWishlist(productId);
@@ -362,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateWishlistButton();
+    window.addEventListener('cc:wishlistUpdated', updateWishlistButton);
 
     button.addEventListener('click', event => {
       event.preventDefault();
