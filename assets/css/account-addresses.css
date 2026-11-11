@@ -1,4 +1,4 @@
-body.cc-address-modal-open > :not(#manage-address-modal):not(.modal-backdrop):not(script) {
+body.cc-address-modal-open > :not(#manage-address-modal):not(.modal-backdrop):not(.cc-wishlist-snackbar):not(script) {
   filter: blur(5px);
 }
 .cc-address-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }

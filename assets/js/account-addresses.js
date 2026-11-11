@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const actions = document.createElement('div');
       actions.className = 'd-flex gap-3';
       for (const [label, handler] of [
-        ['Edit address', () => { edit(address); message(''); form.elements.first_name.focus(); }],
+        ['Edit address', () => { edit(address); message(''); CCSnackbar.show('Address selected.'); form.elements.first_name.focus(); }],
         ['Remove', async () => {
           if (!confirm('Remove this saved address? Past orders will keep their delivery details.')) return;
           await mutate({ action: 'delete', id: Number(address.id) }, 'Address removed.');
@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       addresses = result.addresses;
       edit(addresses.find(a => Number(a.id) === Number(result.id)) || CCAddresses.defaultShipping(addresses));
       dashboard(); message(success);
+      if (body.action === 'save') CCSnackbar.show(success);
     } catch (error) {
       message(error.message, true);
       for (const [name, text] of Object.entries(error.fields || {})) {

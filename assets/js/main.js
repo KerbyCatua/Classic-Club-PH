@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
       snackbarClearTimer = window.setTimeout(() => { snackbar.textContent = ''; }, 250);
     }, 3500);
   }
+  window.CCSnackbar = { show: showSnackbar };
 
   window.addEventListener('cc:wishlistChanged', event => {
     showSnackbar(event.detail.saved ? 'Added to wishlist' : 'Removed from wishlist');

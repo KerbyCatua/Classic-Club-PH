@@ -39,7 +39,7 @@
   .cc-catalog-search { width: 100%; }
 }
 
-/* Shared wishlist feedback, above loaders, modals and fixed navigation. */
+/* Shared action feedback, above loaders, modals and fixed navigation. */
 .cc-wishlist-snackbar {
   position: fixed;
   z-index: 2147483647;
