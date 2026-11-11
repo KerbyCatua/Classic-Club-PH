@@ -5,6 +5,44 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof CCStore === 'undefined') return;
 
+  // One live region for wishlist actions; server refreshes stay silent.
+  const snackbar = document.createElement('div');
+  snackbar.id = 'cc-wishlist-snackbar';
+  snackbar.className = 'cc-wishlist-snackbar';
+  snackbar.setAttribute('role', 'status');
+  snackbar.setAttribute('aria-live', 'polite');
+  snackbar.setAttribute('aria-atomic', 'true');
+  document.body.appendChild(snackbar);
+  let snackbarTimer;
+  let snackbarClearTimer;
+  let snackbarFrame;
+
+  window.addEventListener('cc:wishlistChanged', event => {
+    const message = event.detail.saved ? 'Added to wishlist' : 'Removed from wishlist';
+    window.clearTimeout(snackbarTimer);
+    window.clearTimeout(snackbarClearTimer);
+    window.cancelAnimationFrame(snackbarFrame);
+    if (snackbar.textContent !== message) snackbar.textContent = message;
+    snackbarFrame = window.requestAnimationFrame(() => snackbar.classList.add('is-visible'));
+    snackbarTimer = window.setTimeout(() => {
+      snackbar.classList.remove('is-visible');
+      snackbarClearTimer = window.setTimeout(() => { snackbar.textContent = ''; }, 250);
+    }, 3500);
+  });
+
+  function syncWishlistAccessibility() {
+    document.querySelectorAll('.cc-wishlist-btn, .cc-main-wishlist-toggle').forEach(button => {
+      const productId = button.getAttribute('data-product-id') ||
+        button.getAttribute('data-id') || button.closest('[data-product-id]')?.getAttribute('data-product-id');
+      if (!productId) return;
+      const saved = CCStore.isInWishlist(productId);
+      button.setAttribute('aria-pressed', String(saved));
+      button.setAttribute('aria-label', saved ? 'Remove from wishlist' : 'Save to wishlist');
+    });
+  }
+  window.addEventListener('cc:wishlistUpdated', syncWishlistAccessibility);
+  window.addEventListener('cc:catalogReady', syncWishlistAccessibility);
+
   // 1. Sync Header Cart & Wishlist Badges
   function syncHeaderBadges() {
     const totalItems = CCStore.getCartTotalItems();
@@ -232,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </article>`;
       grid.appendChild(card);
+      bindGlobalWishlistButton(card.querySelector('.cc-wishlist-btn'));
       existingSkus.add(item.sku);
       existingProductIds.add(productId);
     });
@@ -264,7 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-    // Handle wishlist buttons on pages that use button elements
+  // Existing page scripts own static buttons with product IDs.
+  // Bind homepage buttons and newly rendered catalog buttons here.
   document.querySelectorAll('.cc-wishlist-btn').forEach(button => {
     if (
       button.tagName !== 'BUTTON' ||
@@ -273,6 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    bindGlobalWishlistButton(button);
+  });
+  syncWishlistAccessibility();
+
+  function bindGlobalWishlistButton(button) {
     const card = button.closest('.cc-product-card');
     const productId =
       button.getAttribute('data-product-id') ||
@@ -304,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
       CCStore.toggleWishlist(productId);
       updateWishlistButton();
     });
-  });
+  }
 
 
   // 4. Apply Favicon

@@ -472,6 +472,9 @@ const CCStore = (function () {
       if (!wishlist.includes(id)) {
         wishlist.push(id);
         saveWishlist(wishlist);
+        window.dispatchEvent(new CustomEvent('cc:wishlistChanged', {
+          detail: { productId: id, saved: true }
+        }));
       }
       this.removeFromCart(id, color, size);
     },
@@ -541,6 +544,9 @@ const CCStore = (function () {
         wishlist.push(productId);
       }
       saveWishlist(wishlist);
+      window.dispatchEvent(new CustomEvent('cc:wishlistChanged', {
+        detail: { productId, saved: index === -1 }
+      }));
       apiRequest('public/api/wishlist/toggle.php', {
         method: 'POST',
         body: JSON.stringify({ catalog_key: productId })

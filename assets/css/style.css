@@ -16,6 +16,43 @@
   --font-sans: 'Inter', sans-serif;
 }
 
+/* Shared wishlist feedback, above loaders, modals and fixed navigation. */
+.cc-wishlist-snackbar {
+  position: fixed;
+  z-index: 2147483647;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 14px 24px;
+  border: 1px solid var(--cc-border);
+  border-left: 3px solid var(--cc-accent);
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.65;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 12px);
+  transition: opacity 220ms ease, transform 220ms ease, visibility 220ms;
+}
+
+.cc-wishlist-snackbar.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-wishlist-snackbar {
+    transition: none;
+    transform: translateX(-50%);
+  }
+}
+
 /* Base Reset & Body */
 body {
   background-color: var(--cc-bg);

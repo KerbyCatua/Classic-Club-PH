@@ -147,6 +147,11 @@
         
         // Dispatch event so Header Bag/Wishlist numbers update instantly
         window.dispatchEvent(new CustomEvent('cc:wishlistUpdated', { detail: updated }));
+        if (updated.length !== current.length) {
+          window.dispatchEvent(new CustomEvent('cc:wishlistChanged', {
+            detail: { productId: idToRemove, saved: false }
+          }));
+        }
       }
 
       function renderWishlist() {
@@ -218,6 +223,7 @@
                     data-id="${savedId}"
                     style="border-color: var(--cc-accent);"
                     aria-label="Remove from wishlist"
+                    aria-pressed="true"
                   >
                     <i class="bi bi-heart-fill"></i>
                   </button>
