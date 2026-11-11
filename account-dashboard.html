@@ -12,6 +12,7 @@
   <!-- Global Project Stylesheet -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/account-addresses.css">
+  <link rel="stylesheet" href="assets/css/account-orders.css">
   <link rel="stylesheet" href="assets/css/scroll-reveal.css">
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261111-1">
   <script src="assets/js/quick-view.js?v=20261111-1" defer></script>
@@ -134,6 +135,7 @@
               </div>
 
               <!-- Dynamic Orders Container -->
+              <div id="dashboard-orders-viewport" class="cc-order-history-viewport" role="region" aria-label="Order history" tabindex="0">
               <div id="dashboard-orders-container" class="d-flex flex-column gap-4">
                 <!-- Order cards rendered dynamically via renderOrderHistory() -->
                 <div class="border border-cc p-4 p-md-5 d-flex flex-column gap-4">
@@ -184,6 +186,10 @@
                     </a>
                   </div>
                 </div>
+              </div>
+              </div>
+              <div class="text-center" id="dashboard-orders-toggle-wrap" hidden>
+                <button type="button" id="dashboard-orders-toggle" class="btn-cc-outline" aria-expanded="false" aria-controls="dashboard-orders-viewport">View All</button>
               </div>
             </div>
             <!-- Preferences Section -->
@@ -398,6 +404,47 @@
           wishlistSidebar.textContent = CCStore.getWishlist().length;
         }
 
+        const ordersViewport = document.getElementById('dashboard-orders-viewport');
+        const ordersContainer = document.getElementById('dashboard-orders-container');
+        const ordersToggle = document.getElementById('dashboard-orders-toggle');
+        const ordersToggleWrap = document.getElementById('dashboard-orders-toggle-wrap');
+        let ordersExpanded = false;
+        let ordersLayoutFrame;
+
+        function updateOrderHistoryLayout() {
+          const cards = ordersContainer.querySelectorAll(':scope > .order-card');
+          const hasMultipleOrders = cards.length > 1;
+          if (!hasMultipleOrders) ordersExpanded = false;
+          ordersToggleWrap.hidden = !hasMultipleOrders;
+          ordersToggle.textContent = ordersExpanded ? 'Show Less' : 'View All';
+          ordersToggle.setAttribute('aria-expanded', String(ordersExpanded));
+          const firstCard = cards[0] || ordersContainer.firstElementChild;
+          const height = ordersExpanded
+            ? ordersContainer.getBoundingClientRect().height
+            : firstCard?.getBoundingClientRect().height || 0;
+          ordersViewport.style.height = `${Math.ceil(height)}px`;
+        }
+
+        const ordersResizeObserver = new ResizeObserver(() => {
+          cancelAnimationFrame(ordersLayoutFrame);
+          ordersLayoutFrame = requestAnimationFrame(updateOrderHistoryLayout);
+        });
+
+        function refreshOrderHistoryLayout() {
+          ordersResizeObserver.disconnect();
+          ordersResizeObserver.observe(ordersContainer);
+          if (ordersContainer.firstElementChild) {
+            ordersResizeObserver.observe(ordersContainer.firstElementChild);
+          }
+          updateOrderHistoryLayout();
+        }
+
+        ordersToggle.addEventListener('click', () => {
+          ordersExpanded = !ordersExpanded;
+          ordersViewport.scrollTop = 0;
+          updateOrderHistoryLayout();
+        });
+
         // Render multiple orders in order history
         function renderOrderHistory(ordersList) {
           const container = document.getElementById('dashboard-orders-container');
@@ -428,6 +475,7 @@
                 <p class="cc-small-text m-0 text-muted-cc">Previous orders will appear here after they are placed.</p>
               </div>
             `;
+            refreshOrderHistoryLayout();
             return;
           }
 
@@ -589,6 +637,7 @@
               </div>
             `;
           }).join('');
+          refreshOrderHistoryLayout();
         }
 
         // Fetch Orders from Server for the authenticated user

@@ -1,0 +1,37 @@
+.cc-order-history-viewport {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cc-accent) var(--cc-surface);
+  transition: height 320ms ease;
+}
+
+.cc-order-history-viewport::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cc-order-history-viewport::-webkit-scrollbar-track {
+  background: var(--cc-surface);
+}
+
+.cc-order-history-viewport::-webkit-scrollbar-thumb {
+  background: var(--cc-accent);
+  border-radius: 3px;
+}
+
+.cc-order-history-viewport::-webkit-scrollbar-thumb:hover {
+  background: var(--cc-accent-hover);
+}
+
+.cc-order-history-viewport:focus-visible {
+  outline: 2px solid var(--cc-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-order-history-viewport {
+    transition: none;
+  }
+}
