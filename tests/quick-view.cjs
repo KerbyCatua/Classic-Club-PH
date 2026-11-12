@@ -1,9 +1,29 @@
 // Run with Playwright installed: node tests/quick-view.cjs
 // Uses the live read-only catalog; cart writes are intercepted below.
-const { chromium } = require('playwright');
+const { chromium } = require(process.env.CC_PLAYWRIGHT_PATH || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
+async function moveMagnifier(page, x, y) {
+  await page.mouse.move(x, y);
+  // Wait for the frame-coalesced update and entrance animation before measuring.
+  await page.waitForFunction(({ x, y }) => {
+    const zoom = document.querySelector('.cc-qv-zoom');
+    const scale = getComputedStyle(zoom).scale;
+    if (zoom.hidden || (scale !== 'none' && Number(scale) !== 1)) return false;
+    const bounds = zoom.getBoundingClientRect();
+    const right = x + 24 + bounds.width <= document.documentElement.clientWidth - 16;
+    return Math.abs(bounds.x - (right ? x + 24 : x - 24 - bounds.width)) < 1;
+  }, { x, y });
+  const preview = await page.locator('.cc-qv-zoom').boundingBox();
+  const viewport = page.viewportSize();
+  assert.ok(preview.x >= 15 && preview.y >= 15, 'Preview stays within top/left viewport edges');
+  assert.ok(preview.x + preview.width <= viewport.width - 15 && preview.y + preview.height <= viewport.height - 15, 'Preview stays within bottom/right viewport edges');
+  assert.ok(x < preview.x || x > preview.x + preview.width, 'Preview leaves the pointer clear');
+  assert.equal(await page.locator('.cc-qv-zoom').evaluate(e => getComputedStyle(e).pointerEvents), 'none');
+  assert.equal(await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('.cc-qv-media'), { x, y }), true, 'Source image receives pointer interactions');
+  return preview;
+}
 (async () => {
   const browser = await chromium.launch(process.env.CC_BROWSER_PATH ? { executablePath: process.env.CC_BROWSER_PATH } : {});
   try {
@@ -14,7 +34,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     }
     const pages = ['index', 'shop-all', 'new-arrivals', 'tops-tees', 'bottoms-accessories', 'outerwear-hoodies', 'lookbook', 'cart', 'product-detail', 'wishlist'];
     for (const name of pages) {
-      await page.goto(`${base}${name}.html`);
+      await page.goto(`${base}${name}.html`, { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => typeof CCStore !== 'undefined' && Object.keys(CCStore.getProducts()).length > 0);
       if (name === 'wishlist') {
         await page.evaluate(() => {
@@ -53,6 +73,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
         assert.ok(cardFit.scale >= 1.06 && cardFit.scale <= 1.14);
         assert.match(decodeURI(await page.locator('.cc-qv-photo').getAttribute('src')), /CC-Products JPG HIGH QUALITY\/.*\.jpg$/);
         await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.body.style.overflow === '');
         assert.equal(await page.locator('dialog[open]').count(), 0);
         tested++;
       }
@@ -65,10 +86,12 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     assert.equal(await page.locator('.cc-qv-size-label').textContent(), 'Size — L');
     await page.waitForFunction(() => document.querySelector('.cc-qv-photo').complete);
     const rect = await page.locator('.cc-qv-photo').boundingBox();
-    await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2);
+    const firstPreview = await moveMagnifier(page, rect.x + rect.width / 2, rect.y + rect.height / 2);
     assert.equal(await page.locator('.cc-qv-zoom').isVisible(), true);
     const firstPosition = await page.locator('.cc-qv-zoom').evaluate(e => e.style.backgroundPosition);
-    await page.mouse.move(rect.x + rect.width / 2 + 40, rect.y + rect.height / 2 + 30);
+    const nextPreview = await moveMagnifier(page, rect.x + rect.width / 2 + 40, rect.y + rect.height / 2 + 30);
+    assert.ok(Math.abs(nextPreview.x - firstPreview.x - 40) < 1, 'Preview follows horizontal cursor movement');
+    assert.ok(Math.abs(nextPreview.y - firstPreview.y - 30) < 1, 'Preview follows vertical cursor movement');
     assert.notEqual(await page.locator('.cc-qv-zoom').evaluate(e => e.style.backgroundPosition), firstPosition);
     const geometry = await page.evaluate(() => {
       const img = document.querySelector('.cc-qv-photo'), lens = document.querySelector('.cc-qv-lens'), zoom = document.querySelector('.cc-qv-zoom');
@@ -95,6 +118,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     assert.equal(payload.catalog_key, 'essential-hw-tee-chalk');
     assert.equal(payload.size, 'L');
     await page.locator('.cc-qv-close').click();
+    await page.waitForFunction(() => document.body.style.overflow === '');
     for (const width of [390, 600, 700, 768, 1920]) {
       await page.setViewportSize({ width, height: 844 });
       await page.evaluate(() => CCQuickView.open('structured-overshirt-graphite'));
@@ -114,13 +138,26 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
       assert.ok(fit.x < 0.03 && fit.y < 0.077, `Background-only crop at ${width}px: ${JSON.stringify(fit)}`);
       const bounds = await page.locator('.cc-qv').boundingBox();
       assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width);
+      const media = await page.locator('.cc-qv-media').boundingBox();
+      for (const [horizontal, vertical] of [[.25, .15], [.75, .15], [.25, .85], [.75, .85]]) {
+        await moveMagnifier(page, media.x + media.width * horizontal, media.y + media.height * vertical);
+      }
+      await page.locator('.cc-qv-media').dispatchEvent('pointercancel');
+      assert.equal(await page.locator('.cc-qv-zoom').isVisible(), false);
       await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.body.style.overflow === '');
     }
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.evaluate(() => CCQuickView.open('structured-overshirt-graphite'));
     const reducedFit = await page.locator('.cc-qv-photo').evaluate(image => getComputedStyle(image).transform);
     assert.notEqual(reducedFit, 'none');
+    const reducedMedia = await page.locator('.cc-qv-media').boundingBox();
+    await moveMagnifier(page, reducedMedia.x + reducedMedia.width / 2, reducedMedia.y + reducedMedia.height / 2);
+    assert.equal(await page.locator('.cc-qv-zoom').evaluate(e => getComputedStyle(e).animationName), 'none');
+    await page.locator('.cc-qv-media').dispatchEvent('pointermove', { pointerType: 'touch', clientX: reducedMedia.x + 20, clientY: reducedMedia.y + 20 });
+    assert.equal(await page.locator('.cc-qv-zoom').isVisible(), false);
     await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.body.style.overflow === '');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => CCQuickView.open('textured-knit-polo-oat'));
     const mobile = await page.locator('.cc-qv').boundingBox();
@@ -128,7 +165,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     await page.locator('.cc-qv-details').scrollIntoViewIfNeeded();
     assert.equal(await page.locator('.cc-qv-details').isVisible(), true);
     await page.keyboard.press('Escape');
-    assert.equal(await page.evaluate(() => document.body.style.overflow), '');
-    console.log(`PASS: ${tested} product cards, safe image fit across 5 viewport widths, reduced motion, variant/size switching, magnifier geometry, keyboard containment, mocked server cart integration, mobile layout.`);
+    await page.waitForFunction(() => document.body.style.overflow === '');
+    console.log(`PASS: ${tested} product cards, safe image fit and cursor-following magnifier across 5 viewport widths, reduced motion, touch/cancel cleanup, variant/size switching, magnifier geometry, keyboard containment, mocked server cart integration, mobile layout.`);
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

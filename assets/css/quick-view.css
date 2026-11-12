@@ -35,18 +35,24 @@
 .cc-qv-add { background: #028090; border-color: #028090; }
 .cc-qv-note { border-top: 1px solid #303334; margin: 22px 0 0; padding-top: 18px; color: #878d8b; font-size: 9px; }
 .cc-qv-status { font-size: 11px; margin-top: 8px; }
-.cc-qv-lens { position: absolute; border: 1px solid #59c7d5; background: rgb(2 128 144 / 12%); pointer-events: none; }
-.cc-qv-zoom { position: absolute; z-index: 3; top: 70px; right: 24px; width: min(36%, 360px); aspect-ratio: 1; border: 1px solid #59c7d5; background-color: #1b1d1e; background-repeat: no-repeat; box-shadow: 0 10px 35px #0009; pointer-events: none; }
+.cc-qv-lens { position: absolute; border: 1px solid #59c7d5; border-radius: 6px; background: rgb(2 128 144 / 10%); pointer-events: none; }
+/* Fixed coordinates keep the floating preview aligned with the pointer, even in a scrolling dialog. */
+.cc-qv-zoom { position: fixed; z-index: 3; top: 0; left: 0; box-sizing: border-box; width: clamp(160px, 22vw, 300px); max-width: calc(50vw - 40px); max-height: calc(100dvh - 32px); aspect-ratio: 1; border: 1px solid rgb(89 199 213 / 75%); border-radius: 12px; background-color: #1b1d1e; background-repeat: no-repeat; box-shadow: 0 16px 40px #0008, 0 2px 8px #0004; pointer-events: none; user-select: none; will-change: translate; transform-origin: center; animation: cc-qv-magnifier-enter 140ms ease-out; }
+@keyframes cc-qv-magnifier-enter {
+  from { opacity: 0; scale: .96; }
+  to { opacity: 1; scale: 1; }
+}
 .cc-qv [hidden] { display: none !important; }
 @media (max-width: 700px) {
   .cc-qv { width: calc(100% - 24px); max-height: calc(100dvh - 24px); }
   .cc-qv-layout { grid-template-columns: 1fr; min-height: 0; }
   .cc-qv-media { height: 48dvh; min-height: 260px; }
   .cc-qv-info { padding: 28px 24px; }
-  .cc-qv-zoom { position: fixed; width: 160px; top: 60px; right: 24px; }
+  .cc-qv-zoom { width: 160px; }
 }
 @media (hover: none) { .cc-qv-hint { display: none; } }
 @media (prefers-reduced-motion: reduce) {
+  .cc-qv-zoom { animation: none; }
   .cc-qv-image-link img, .cc-qv-overlay { transition: none; }
   .cc-product-card:hover .cc-qv-image-link img { transform: scale(var(--cc-product-fit-scale, 1.06)); }
   .cc-qv-overlay { transform: none !important; }

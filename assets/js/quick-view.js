@@ -3,6 +3,7 @@
   'use strict';
   if (window.CCQuickView) return;
   let modal, product, selectedSize, opener, previousOverflow, pending = false;
+  let magnifyFrame = 0, magnifyPointer;
   const colors = { obsidian: '#181a1b', graphite: '#444647', charcoal: '#383a3b', oat: '#c8c0a9', chalk: '#eeeae0', ivory: '#e5dfcc', stone: '#b5ae9d', ash: '#8d8e89', natural: '#d3c6a6', black: '#111' };
   const find = selector => modal.querySelector(selector);
   const fittedImages = new WeakSet();
@@ -114,12 +115,14 @@
     };
     find('.cc-qv-media').addEventListener('pointermove', magnify);
     find('.cc-qv-media').addEventListener('pointerleave', hideZoom);
+    find('.cc-qv-media').addEventListener('pointercancel', hideZoom);
     find('.cc-qv-photo').addEventListener('error', () => {
       hideZoom();
       find('.cc-qv-status').textContent = 'Product image could not be loaded.';
     });
     modal.addEventListener('scroll', hideZoom);
     window.addEventListener('resize', hideZoom);
+    window.addEventListener('blur', hideZoom);
   }
   function updateAction() {
     find('.cc-qv-size-label').textContent = `Size — ${selectedSize || 'Unavailable'}`;
@@ -174,12 +177,23 @@
     modal.scrollTop = 0;
   }
   function hideZoom() {
+    cancelAnimationFrame(magnifyFrame);
+    magnifyFrame = 0;
+    magnifyPointer = null;
     if (!modal) return;
     find('.cc-qv-lens').hidden = true;
     find('.cc-qv-zoom').hidden = true;
   }
   function magnify(event) {
-    if (event.pointerType === 'touch') return;
+    if (event.pointerType === 'touch') return hideZoom();
+    magnifyPointer = { x: event.clientX, y: event.clientY };
+    // Coalesce pointer events into one synchronized position/image update per frame.
+    if (!magnifyFrame) magnifyFrame = requestAnimationFrame(updateMagnifier);
+  }
+  function updateMagnifier() {
+    magnifyFrame = 0;
+    if (!magnifyPointer || !modal.open) return;
+    const pointer = magnifyPointer;
     const img = find('.cc-qv-photo');
     if (!img.complete || !img.naturalWidth) return hideZoom();
     const rect = img.getBoundingClientRect();
@@ -189,10 +203,23 @@
     const width = img.naturalWidth * scale, height = img.naturalHeight * scale;
     const left = rect.left - media.left + (rect.width - width) / 2;
     const top = rect.top - media.top + (rect.height - height) / 2;
-    const x = event.clientX - media.left - left, y = event.clientY - media.top - top;
+    const x = pointer.x - media.left - left, y = pointer.y - media.top - top;
     if (x < 0 || y < 0 || x > width || y > height) return hideZoom();
     const zoom = find('.cc-qv-zoom'), lens = find('.cc-qv-lens');
     zoom.hidden = false;
+    const gap = 24, edge = 16;
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const previewWidth = zoom.offsetWidth, previewHeight = zoom.offsetHeight;
+    // Prefer upper-right, flip at viewport edges, and always leave the pointer clear.
+    const previewX = pointer.x + gap + previewWidth <= viewportWidth - edge
+      ? pointer.x + gap : pointer.x - gap - previewWidth;
+    const previewY = pointer.y - gap - previewHeight >= edge
+      ? pointer.y - gap - previewHeight : pointer.y + gap;
+    const positionX = Math.max(edge, Math.min(viewportWidth - previewWidth - edge, previewX));
+    const positionY = Math.max(edge, Math.min(viewportHeight - previewHeight - edge, previewY));
+    // Separate translation from the entrance scale so animation cannot pull it over the cursor.
+    zoom.style.translate = `${positionX}px ${positionY}px 0`;
     const factor = 2.5;
     const minX = Math.max(0, -left), minY = Math.max(0, -top);
     const maxX = Math.min(width, media.width - left), maxY = Math.min(height, media.height - top);
