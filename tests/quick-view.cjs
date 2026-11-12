@@ -33,8 +33,24 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
         assert.equal(await page.locator('.cc-qv').count(), 1);
         await page.waitForFunction(() => {
           const image = document.querySelector('.cc-qv-photo');
-          return image.complete && image.naturalWidth > 0;
+          return image.complete && image.naturalWidth > 0 && image.style.getPropertyValue('--cc-product-fit-scale');
         });
+        const fit = await page.evaluate(() => {
+          const image = document.querySelector('.cc-qv-photo');
+          const rect = image.getBoundingClientRect();
+          const media = document.querySelector('.cc-qv-media').getBoundingClientRect();
+          const contained = Math.min(media.width / image.naturalWidth, media.height / image.naturalHeight);
+          const displayed = Math.min(rect.width / image.naturalWidth, rect.height / image.naturalHeight);
+          return { fit: getComputedStyle(image).objectFit, zoom: displayed / contained };
+        });
+        assert.equal(fit.fit, 'contain');
+        assert.ok(fit.zoom >= 1.059 && fit.zoom <= 1.181, `Safe quick-view zoom: ${fit.zoom}`);
+        const cardFit = await card.locator('.cc-qv-image-link img').evaluate(image => ({
+          fit: getComputedStyle(image).objectFit,
+          scale: Number(image.style.getPropertyValue('--cc-product-fit-scale'))
+        }));
+        assert.equal(cardFit.fit, 'contain');
+        assert.ok(cardFit.scale >= 1.06 && cardFit.scale <= 1.14);
         assert.match(decodeURI(await page.locator('.cc-qv-photo').getAttribute('src')), /CC-Products JPG HIGH QUALITY\/.*\.jpg$/);
         await page.keyboard.press('Escape');
         assert.equal(await page.locator('dialog[open]').count(), 0);
@@ -56,8 +72,9 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     assert.notEqual(await page.locator('.cc-qv-zoom').evaluate(e => e.style.backgroundPosition), firstPosition);
     const geometry = await page.evaluate(() => {
       const img = document.querySelector('.cc-qv-photo'), lens = document.querySelector('.cc-qv-lens'), zoom = document.querySelector('.cc-qv-zoom');
-      const scale = Math.min(img.clientWidth / img.naturalWidth, img.clientHeight / img.naturalHeight);
-      const left = (img.clientWidth - img.naturalWidth * scale) / 2;
+      const rect = img.getBoundingClientRect(), media = document.querySelector('.cc-qv-media').getBoundingClientRect();
+      const scale = Math.min(rect.width / img.naturalWidth, rect.height / img.naturalHeight);
+      const left = rect.left - media.left + (rect.width - img.naturalWidth * scale) / 2;
       return { actual: parseFloat(zoom.style.backgroundPositionX), expected: -(parseFloat(lens.style.left) - left) * 2.5 };
     });
     assert.ok(Math.abs(geometry.actual - geometry.expected) < 1);
@@ -78,6 +95,32 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     assert.equal(payload.catalog_key, 'essential-hw-tee-chalk');
     assert.equal(payload.size, 'L');
     await page.locator('.cc-qv-close').click();
+    for (const width of [390, 600, 700, 768, 1920]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.evaluate(() => CCQuickView.open('structured-overshirt-graphite'));
+      await page.waitForFunction(() => {
+        const image = document.querySelector('.cc-qv-photo');
+        return image.complete && image.naturalWidth > 0;
+      });
+      // Wait for the observer to update the fit after a viewport change.
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const fit = await page.locator('.cc-qv-photo').evaluate(image => {
+        const rect = image.getBoundingClientRect(), box = image.parentElement.getBoundingClientRect();
+        const scale = Math.min(rect.width / image.naturalWidth, rect.height / image.naturalHeight);
+        const width = image.naturalWidth * scale, height = image.naturalHeight * scale;
+        // Catalog products have at least this much background around their silhouette.
+        return { x: Math.max(0, (width - box.width) / (2 * width)), y: Math.max(0, (height - box.height) / (2 * height)) };
+      });
+      assert.ok(fit.x < 0.03 && fit.y < 0.077, `Background-only crop at ${width}px: ${JSON.stringify(fit)}`);
+      const bounds = await page.locator('.cc-qv').boundingBox();
+      assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width);
+      await page.keyboard.press('Escape');
+    }
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(() => CCQuickView.open('structured-overshirt-graphite'));
+    const reducedFit = await page.locator('.cc-qv-photo').evaluate(image => getComputedStyle(image).transform);
+    assert.notEqual(reducedFit, 'none');
+    await page.keyboard.press('Escape');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => CCQuickView.open('textured-knit-polo-oat'));
     const mobile = await page.locator('.cc-qv').boundingBox();
@@ -86,6 +129,6 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     assert.equal(await page.locator('.cc-qv-details').isVisible(), true);
     await page.keyboard.press('Escape');
     assert.equal(await page.evaluate(() => document.body.style.overflow), '');
-    console.log(`PASS: ${tested} product cards, variant/size switching, magnifier geometry, keyboard containment, mocked server cart integration, mobile layout.`);
+    console.log(`PASS: ${tested} product cards, safe image fit across 5 viewport widths, reduced motion, variant/size switching, magnifier geometry, keyboard containment, mocked server cart integration, mobile layout.`);
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

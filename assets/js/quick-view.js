@@ -5,6 +5,24 @@
   let modal, product, selectedSize, opener, previousOverflow, pending = false;
   const colors = { obsidian: '#181a1b', graphite: '#444647', charcoal: '#383a3b', oat: '#c8c0a9', chalk: '#eeeae0', ivory: '#e5dfcc', stone: '#b5ae9d', ash: '#8d8e89', natural: '#d3c6a6', black: '#111' };
   const find = selector => modal.querySelector(selector);
+  const fittedImages = new WeakSet();
+  const fitObserver = new ResizeObserver(entries => entries.forEach(({ target }) => fitImage(target)));
+  function fitImage(image) {
+    const width = image.clientWidth, height = image.clientHeight;
+    if (!image.naturalWidth || !width || !height) return;
+    const contained = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+    // Fill side gaps where possible, but cap background cropping to protect the product.
+    const limit = image.classList.contains('cc-qv-photo') ? 1.18 : 1.14;
+    const scale = Math.min(limit, Math.max(1.06, width / (image.naturalWidth * contained)));
+    image.style.setProperty('--cc-product-fit-scale', scale.toFixed(4));
+  }
+  function watchImage(image) {
+    if (!image || fittedImages.has(image)) return;
+    fittedImages.add(image);
+    image.addEventListener('load', () => fitImage(image));
+    fitObserver.observe(image);
+    fitImage(image);
+  }
   function cardId(card) {
     return card.dataset.productId || card.closest('[data-product-id]')?.dataset.productId ||
       card.querySelector('[data-product-id]')?.dataset.productId ||
@@ -28,6 +46,7 @@
         link.querySelector('img').src = item.srcImage;
         link.querySelector('img').alt = `${item.name} / ${item.color}`;
       }
+      watchImage(link?.querySelector('img'));
       if (!link || link.classList.contains('cc-qv-image-link')) return;
       link.classList.add('cc-qv-image-link');
       link.setAttribute('aria-haspopup', 'dialog');
@@ -57,6 +76,7 @@
         </div>
       </div><div class="cc-qv-zoom" aria-hidden="true" hidden></div>`;
     document.body.append(modal);
+    watchImage(find('.cc-qv-photo'));
     modal.addEventListener('keydown', event => {
       if (event.key !== 'Tab') return;
       const controls = [...modal.querySelectorAll('button:not(:disabled), a[href], [tabindex="0"]')]
@@ -163,18 +183,22 @@
     const img = find('.cc-qv-photo');
     if (!img.complete || !img.naturalWidth) return hideZoom();
     const rect = img.getBoundingClientRect();
-    // Account for the exact object-fit: contain rectangle, including letterboxing.
+    const media = find('.cc-qv-media').getBoundingClientRect();
+    // Include the fitted image's scale and centered crop in the magnifier coordinates.
     const scale = Math.min(rect.width / img.naturalWidth, rect.height / img.naturalHeight);
     const width = img.naturalWidth * scale, height = img.naturalHeight * scale;
-    const left = (rect.width - width) / 2, top = (rect.height - height) / 2;
-    const x = event.clientX - rect.left - left, y = event.clientY - rect.top - top;
+    const left = rect.left - media.left + (rect.width - width) / 2;
+    const top = rect.top - media.top + (rect.height - height) / 2;
+    const x = event.clientX - media.left - left, y = event.clientY - media.top - top;
     if (x < 0 || y < 0 || x > width || y > height) return hideZoom();
     const zoom = find('.cc-qv-zoom'), lens = find('.cc-qv-lens');
     zoom.hidden = false;
     const factor = 2.5;
-    const lensWidth = Math.min(width, zoom.clientWidth / factor), lensHeight = Math.min(height, zoom.clientHeight / factor);
-    const lx = Math.max(0, Math.min(width - lensWidth, x - lensWidth / 2));
-    const ly = Math.max(0, Math.min(height - lensHeight, y - lensHeight / 2));
+    const minX = Math.max(0, -left), minY = Math.max(0, -top);
+    const maxX = Math.min(width, media.width - left), maxY = Math.min(height, media.height - top);
+    const lensWidth = Math.min(maxX - minX, zoom.clientWidth / factor), lensHeight = Math.min(maxY - minY, zoom.clientHeight / factor);
+    const lx = Math.max(minX, Math.min(maxX - lensWidth, x - lensWidth / 2));
+    const ly = Math.max(minY, Math.min(maxY - lensHeight, y - lensHeight / 2));
     lens.hidden = false;
     Object.assign(lens.style, { left: `${left + lx}px`, top: `${top + ly}px`, width: `${lensWidth}px`, height: `${lensHeight}px` });
     zoom.style.backgroundImage = `url("${img.src}")`;
