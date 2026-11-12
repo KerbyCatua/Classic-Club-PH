@@ -4,7 +4,10 @@
 .cc-qv-image-link img { transition: transform 300ms ease; }
 .cc-product-card:hover .cc-qv-image-link img { transform: scale(calc(var(--cc-product-fit-scale, 1.06) * 1.035)); }
 .cc-qv-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: rgb(16 17 18 / 88%); color: #f4f1ea; text-align: center; font-size: 12px; letter-spacing: .08em; opacity: 0; transform: translateY(8px); transition: opacity 220ms ease, transform 220ms ease; }
-.cc-product-card:hover .cc-qv-overlay, .cc-product-card:focus-within .cc-qv-overlay { opacity: 1; transform: none; }
+/* Reveal only for card hover; wishlist hover and retained focus are independent. */
+@media (hover: hover) {
+  .cc-product-card:hover:not(:has(.cc-wishlist-btn:hover)) .cc-qv-overlay { opacity: 1; transform: none; }
+}
 .cc-qv { width: min(1100px, calc(100% - 48px)); max-width: none; max-height: calc(100dvh - 48px); padding: 0; border: 1px solid #303334; background: #121414; color: #f4f1ea; overflow: auto; }
 .cc-qv::backdrop { background: rgb(0 0 0 / 85%); backdrop-filter: blur(5px); }
 .cc-qv-layout { display: grid; grid-template-columns: 56% 44%; min-height: 660px; }
@@ -42,7 +45,7 @@
   .cc-qv-info { padding: 28px 24px; }
   .cc-qv-zoom { position: fixed; width: 160px; top: 60px; right: 24px; }
 }
-@media (hover: none) { .cc-qv-overlay { opacity: 1; transform: none; } .cc-qv-hint { display: none; } }
+@media (hover: none) { .cc-qv-hint { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .cc-qv-image-link img, .cc-qv-overlay { transition: none; }
   .cc-product-card:hover .cc-qv-image-link img { transform: scale(var(--cc-product-fit-scale, 1.06)); }
