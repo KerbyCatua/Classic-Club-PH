@@ -1,155 +1,193 @@
-/**
- * Scroll Reveal — bidirectional scroll-triggered reveal animations
- * Classic Club PH
- *
- * Uses IntersectionObserver to add/remove the `.is-visible` class on
- * `.cc-reveal` elements whenever they enter or leave the viewport.
- * The animation repeats in both scroll directions.
- */
+/** Shared bidirectional reveals, with individual product-card sequences. */
 (function () {
   'use strict';
 
-  // ── Accessibility gate ──
-  // If the user prefers reduced motion, make everything visible and bail out.
   var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (motionQuery && motionQuery.matches) {
-    document.addEventListener('DOMContentLoaded', function () {
-      var els = document.querySelectorAll('.cc-reveal');
-      for (var i = 0; i < els.length; i++) {
-        els[i].classList.add('is-visible');
-      }
-    });
-    return;
-  }
+  var STAGGER_MS = 120;
+  var observer;
+  var productObserver;
+  var mutationObserver;
+  var refreshFrame;
+  var revealFrame;
+  var observedElements = new Set();
+  var products = new Map();
+  var pendingProducts = new Set();
+  var sequenceEnds = new WeakMap();
 
-  // ── Selectors to auto-tag ──
-  // Every element matching these selectors inside <main> (or the whole body
-  // if no <main> exists) will receive the `.cc-reveal` class automatically
-  // so authors don't need to add it by hand.
   var SELECTORS = [
     'section',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'p',
-    'img',
-    'figure',
-    'blockquote',
-    'ul', 'ol',
-    'table',
-    'form',
+    'p', 'img', 'figure', 'blockquote', 'ul', 'ol', 'table', 'form',
     'nav[aria-label="breadcrumb"]',
-    '.card',
-    '.btn-cc-teal',
-    '.btn-cc-outline',
-    '.btn-cc-dark',
-    '.cc-asset-box',
-    '[class*="col-"]  > div',
-    '.d-flex.flex-column.gap-4 > div',
-    '.row'
-  ];
+    '.card', '.btn-cc-teal', '.btn-cc-outline', '.btn-cc-dark',
+    '.cc-asset-box', '[class*="col-"] > div',
+    '.d-flex.flex-column.gap-4 > div', '.row'
+  ].join(', ');
 
-  // ── Elements to NEVER animate ──
-  // These selectors are excluded from auto-tagging to avoid visual glitches,
-  // broken layouts, or conflicts with existing behaviour.
   var EXCLUDE_SELECTORS = [
-    '#header-partial',
-    '#header-partial *',
-    '#footer-partial',
-    '#footer-partial *',
-    '#adminLoadingOverlay',
-    '#adminLoadingOverlay *',
-    '.toast-container',
-    '.toast-container *',
-    '.cc-global-loader',
-    '.cc-global-loader *',
-    '.modal',
-    '.modal *',
-    '.modal-backdrop',
-    '.offcanvas',
-    '.offcanvas *',
-    '.dropdown-menu',
-    '.dropdown-menu *',
-    '.tooltip',
-    '.popover',
-    '[aria-hidden="true"]',
-    '.cc-reveal *'           // don't double-tag nested children
-  ];
+    '#header-partial', '#footer-partial', '#adminLoadingOverlay',
+    '.toast-container', '.cc-global-loader', '.modal', '.modal-backdrop',
+    '.offcanvas', '.dropdown-menu', '.tooltip', '.popover',
+    '[aria-hidden="true"]'
+  ].join(', ');
 
-  /**
-   * Returns true if the element matches any of the exclude selectors.
-   */
-  function isExcluded(el) {
-    for (var i = 0; i < EXCLUDE_SELECTORS.length; i++) {
-      try {
-        if (el.matches(EXCLUDE_SELECTORS[i])) return true;
-      } catch (_) { /* ignore invalid selectors */ }
-    }
-    return false;
+  function untagElement(element) {
+    element.classList.remove('cc-reveal', 'is-visible');
+    if (observedElements.delete(element)) observer.unobserve(element);
   }
 
-  /**
-   * Tag qualifying elements with the `.cc-reveal` class.
-   * Called once on DOMContentLoaded.
-   */
-  function tagElements() {
-    var scope = document.querySelector('main') || document.body;
-    var joined = SELECTORS.join(', ');
-    var candidates = scope.querySelectorAll(joined);
-
-    for (var i = 0; i < candidates.length; i++) {
-      var el = candidates[i];
-
-      // Skip elements that are already tagged or should be excluded.
-      if (el.classList.contains('cc-reveal')) continue;
-      if (isExcluded(el)) continue;
-
-      // Skip tiny / invisible utility elements (e.g., separators, spacers).
-      // We only animate elements that have meaningful rendered size.
-      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
-
-      el.classList.add('cc-reveal');
+  function resetProduct(state, entry) {
+    pendingProducts.delete(state);
+    state.intersecting = false;
+    state.card.classList.remove('is-visible');
+    state.card.style.removeProperty('--cc-product-reveal-delay');
+    // Exit above: slide down on the next upward visit. Exit below: slide up.
+    if (entry && entry.rootBounds) {
+      state.card.style.setProperty('--cc-product-reveal-offset',
+        entry.boundingClientRect.bottom <= entry.rootBounds.top ? '-24px' : '24px');
     }
   }
 
-  /**
-   * Create and start the IntersectionObserver.
-   */
-  function initObserver() {
-    var options = {
-      root: null,           // viewport
-      rootMargin: '0px 0px -40px 0px', // trigger slightly before bottom edge
-      threshold: 0.08       // at least 8% visible
-    };
+  function revealProducts() {
+    revealFrame = null;
+    var groups = new Map();
+    pendingProducts.forEach(function (state) {
+      if (!state.intersecting || !state.card.isConnected) return;
+      var group = state.card.closest('.row') || state.card.parentElement;
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group).push(state);
+    });
+    pendingProducts.clear();
 
-    var observer = new IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        var entry = entries[i];
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        } else {
-          entry.target.classList.remove('is-visible');
+    groups.forEach(function (states, group) {
+      // DOM order also follows the collection's current filter/sort order.
+      states.sort(function (a, b) {
+        return a.card.compareDocumentPosition(b.card) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+      });
+      var now = performance.now();
+      var next = Math.max(now, sequenceEnds.get(group) || 0);
+      states.forEach(function (state) {
+        var delay = motionQuery.matches ? 0 : Math.round(next - now);
+        state.card.style.setProperty('--cc-product-reveal-delay', delay + 'ms');
+        state.card.classList.add('is-visible');
+        next += motionQuery.matches ? 0 : STAGGER_MS;
+      });
+      sequenceEnds.set(group, next);
+    });
+  }
+
+  function initObservers() {
+    observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        entry.target.classList.toggle('is-visible', entry.isIntersecting);
+      });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0.08 });
+
+    productObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var state = products.get(entry.target);
+        if (!state) return;
+        if (!entry.isIntersecting) {
+          resetProduct(state, entry);
+        } else if (!state.intersecting) {
+          state.intersecting = true;
+          pendingProducts.add(state);
         }
+      });
+      // Drop the old queue when a grid has left the viewport entirely.
+      var activeGroups = new Set();
+      products.forEach(function (state) {
+        if (state.intersecting) activeGroups.add(state.card.closest('.row') || state.card.parentElement);
+      });
+      products.forEach(function (state) {
+        var group = state.card.closest('.row') || state.card.parentElement;
+        if (!activeGroups.has(group)) sequenceEnds.delete(group);
+      });
+      if (pendingProducts.size && !revealFrame) {
+        revealFrame = window.requestAnimationFrame(revealProducts);
       }
-    }, options);
+    }, { rootMargin: '0px', threshold: 0 });
+  }
 
-    var elements = document.querySelectorAll('.cc-reveal');
-    for (var i = 0; i < elements.length; i++) {
-      observer.observe(elements[i]);
+  function refresh() {
+    refreshFrame = null;
+    var scope = document.querySelector('main') || document.body;
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.cc-reveal').forEach(function (element) {
+        element.classList.add('is-visible');
+      });
+      return;
     }
+    if (!observer) initObservers();
 
-    return observer;
+    // Reuse observers on refresh, and release removed wishlist/catalog nodes.
+    observedElements.forEach(function (element) {
+      if (!element.isConnected) {
+        observer.unobserve(element);
+        observedElements.delete(element);
+      }
+    });
+    products.forEach(function (state, target) {
+      if (!state.card.isConnected || !target.contains(state.card)) {
+        resetProduct(state);
+        productObserver.unobserve(target);
+        products.delete(target);
+      }
+    });
+
+    scope.querySelectorAll('.cc-product-card').forEach(function (card) {
+      if (card.closest(EXCLUDE_SELECTORS)) return;
+
+      // Containers and card contents must not mask the individual reveals.
+      var parent = card.parentElement;
+      while (parent && parent !== scope) {
+        if (parent.classList.contains('cc-reveal')) untagElement(parent);
+        parent = parent.parentElement;
+      }
+      card.querySelectorAll('.cc-reveal').forEach(untagElement);
+      if (observedElements.has(card)) untagElement(card);
+      card.classList.add('cc-reveal', 'cc-product-reveal');
+
+      // Observe the stationary grid cell, not the translated card itself.
+      var target = card.closest('.product-item, .col') || card;
+      var state = products.get(target);
+      if (state && state.card === card) return;
+      if (state) resetProduct(state);
+      products.set(target, { card: card, intersecting: false });
+      productObserver.observe(target);
+    });
+
+    scope.querySelectorAll(SELECTORS).forEach(function (element) {
+      if (element.classList.contains('cc-reveal') ||
+          element.closest(EXCLUDE_SELECTORS) || element.closest('.cc-reveal') ||
+          element.closest('.cc-product-card') || element.querySelector('.cc-product-card')) return;
+      if (element.offsetHeight === 0 && element.offsetWidth === 0) return;
+      element.classList.add('cc-reveal');
+    });
+    scope.querySelectorAll('.cc-reveal:not(.cc-product-reveal)').forEach(function (element) {
+      if (observedElements.has(element)) return;
+      observedElements.add(element);
+      observer.observe(element);
+    });
   }
 
-  // ── Bootstrap ──
-  // Wait for the DOM (and the page loader) before running so we don't
-  // cause a flash of hidden content while the loader overlay is active.
   function boot() {
-    tagElements();
-    initObserver();
+    refresh();
+    if (mutationObserver || !('IntersectionObserver' in window)) return;
+    // Catalog additions, wishlist replacements, and sorted cards share this path.
+    mutationObserver = new MutationObserver(function (records) {
+      var changedProducts = records.some(function (record) {
+        return Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).some(function (node) {
+          return node.nodeType === 1 &&
+            (node.matches('.cc-product-card') || node.querySelector('.cc-product-card'));
+        });
+      });
+      if (changedProducts && !refreshFrame) refreshFrame = window.requestAnimationFrame(refresh);
+    });
+    mutationObserver.observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
   }
 
-  // Expose global refresh function so dynamic pages can re-scan and observe newly added elements
-  window.refreshScrollReveal = boot;
-
+  window.refreshScrollReveal = refresh;
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot, { once: true });
   } else {

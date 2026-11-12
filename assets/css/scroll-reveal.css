@@ -27,10 +27,37 @@
 .cc-reveal-stagger > .cc-reveal:nth-child(5)  { transition-delay: 320ms; }
 .cc-reveal-stagger > .cc-reveal:nth-child(6)  { transition-delay: 400ms; }
 
+/* Product cards reset offscreen without an exit delay, then enter individually.
+   JS assigns delays per viewport entry rather than fixed child/row indexes. */
+.cc-product-card.cc-product-reveal {
+  transform: translateY(var(--cc-product-reveal-offset, 24px));
+  transition: none;
+  will-change: auto;
+}
+
+.cc-product-card.cc-product-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition-delay: var(--cc-product-reveal-delay, 0ms);
+}
+
+/* Keyboard navigation should never wait for a queued reveal. */
+.cc-product-card.cc-product-reveal:focus-visible,
+.cc-product-card.cc-product-reveal:has(:focus-visible) {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0ms;
+}
+
 /* ----- Accessibility: respect prefers-reduced-motion ----- */
 @media (prefers-reduced-motion: reduce) {
   .cc-reveal,
-  .cc-reveal.is-visible {
+  .cc-reveal.is-visible,
+  .cc-product-card.cc-product-reveal,
+  .cc-product-card.cc-product-reveal.is-visible {
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
