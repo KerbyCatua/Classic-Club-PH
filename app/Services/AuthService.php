@@ -59,7 +59,7 @@ final class AuthService
             ?? throw new RuntimeException('Unable to load the new account.');
     }
 
-    public function login(array $data): array
+    public function login(array $data, bool $superAdminOnly = false): array
     {
         global $pdo;
         if ($pdo instanceof \PDO) {
@@ -81,6 +81,13 @@ final class AuthService
 
         if ($user['status'] !== 'active') {
             throw new RuntimeException('This account is not active.');
+        }
+
+        $roles = array_column($this->users->getRoles((int) $user['id']), 'name');
+        // The maintenance sign-in must reject other roles before creating a session.
+        if ($superAdminOnly && !in_array('super_admin', $roles, true)) {
+            $this->auditLogger->record('auth.login_denied', (int) $user['id'], 'user', (int) $user['id'], ['reason' => 'super_admin_required']);
+            throw new RuntimeException('Access denied. Only Super Admin accounts can manage maintenance.', 403);
         }
 
         if (
@@ -114,7 +121,7 @@ final class AuthService
         );
 
         unset($user['password_hash']);
-        $user['roles'] = array_column($this->users->getRoles($userId), 'name');
+        $user['roles'] = $roles;
 
         return $user;
     }

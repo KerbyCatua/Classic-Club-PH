@@ -31,14 +31,15 @@ try {
     }
     \ClassicClub\Middleware\CsrfMiddleware::require();
 
-    $data = (new AuthValidator())->login($request->json());
+    $payload = $request->json();
+    $data = (new AuthValidator())->login($payload);
 
     $service = new AuthService(
         new UserRepository($pdo),
         new AuditLogger($pdo)
     );
 
-    $user = $service->login($data);
+    $user = $service->login($data, ($payload['context'] ?? null) === 'maintenance');
 
     JsonResponse::success([
         'user' => $user,
@@ -51,7 +52,7 @@ try {
         $exception->errors()
     )->send();
 } catch (RuntimeException $exception) {
-    JsonResponse::error($exception->getMessage(), 401)->send();
+    JsonResponse::error($exception->getMessage(), $exception->getCode() === 403 ? 403 : 401)->send();
 } catch (Throwable $exception) {
     error_log($exception->getMessage());
     JsonResponse::error(

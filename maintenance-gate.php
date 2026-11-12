@@ -55,7 +55,7 @@ if ($state['active'] && !$isAdminRoute) {
         $showOnPage = in_array($announcement['location'] ?? '', ['Application-wide', 'Maintenance page only'], true);
         $title = $showOnPage ? trim((string) ($announcement['title'] ?? '')) : '';
         $message = $showOnPage ? trim((string) ($announcement['message'] ?? '')) : '';
-        $title = $title ?: 'Scheduled maintenance';
+        $title = $title ?: 'Scheduled Maintenance';
         $message = $message ?: 'Classic Club PH is temporarily unavailable. Please try again shortly.';
         if (str_ends_with($resource, '.php')) {
             header('Content-Type: application/json; charset=utf-8');
@@ -66,20 +66,26 @@ if ($state['active'] && !$isAdminRoute) {
             http_response_code(500);
             exit('Unable to load page.');
         }
-        $modal = '<div id="cc-maintenance-overlay" role="presentation">'
-            . '<section class="cc-maintenance-dialog" role="dialog" aria-modal="true" aria-labelledby="cc-maintenance-title" aria-describedby="cc-maintenance-message">'
-            . '<span class="cc-maintenance-eyebrow">CLASSIC CLUB PH · SYSTEM STATUS</span>'
-            . '<h1 id="cc-maintenance-title">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>'
-            . '<p id="cc-maintenance-message">' . nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8')) . '</p>'
-            . '<div class="cc-maintenance-divider"></div>'
-            . '<h2>Super Admin sign in</h2>'
-            . '<p class="cc-maintenance-help">Sign in with your Super Admin account to manage maintenance mode.</p>'
-            . '<form id="cc-maintenance-login">'
-            . '<label for="cc-maintenance-email">Email address</label><input id="cc-maintenance-email" type="email" autocomplete="username" required>'
-            . '<label for="cc-maintenance-password">Password</label><input id="cc-maintenance-password" type="password" autocomplete="current-password" required>'
-            . '<p id="cc-maintenance-error" role="alert" hidden></p>'
-            . '<button type="submit">Sign in to Maintenance</button>'
-            . '</form></section></div>';
+        $modal = '<div id="cc-maintenance-overlay" class="modal show" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="cc-maintenance-title" aria-describedby="cc-maintenance-message">'
+            . '<div class="modal-dialog modal-dialog-centered cc-maintenance-dialog">'
+            . '<section class="modal-content"><div class="modal-body d-flex flex-column">'
+            . '<span class="cc-maintenance-eyebrow">CLASSIC CLUB PH &middot; SYSTEM STATUS</span>'
+            . '<h1 id="cc-maintenance-title" class="m-0">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>'
+            . '<p id="cc-maintenance-message" class="m-0">' . nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8')) . '</p>'
+            . '<div class="cc-maintenance-manage">'
+            . '<button id="cc-maintenance-toggle" class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#cc-maintenance-admin" aria-expanded="false" aria-controls="cc-maintenance-admin">Manage Maintenance</button></div>'
+            . '<div id="cc-maintenance-admin" class="collapse">'
+            . '<section class="cc-maintenance-admin" aria-labelledby="cc-maintenance-admin-title">'
+            . '<h2 id="cc-maintenance-admin-title" class="m-0">Super admin sign-in</h2>'
+            . '<form id="cc-maintenance-login" class="d-flex flex-column">'
+            . '<div><label class="form-label" for="cc-maintenance-email">Email</label>'
+            . '<input class="form-control" id="cc-maintenance-email" type="email" placeholder="Enter your email" autocomplete="username" required></div>'
+            . '<div><label class="form-label" for="cc-maintenance-password">Password</label>'
+            . '<input class="form-control" id="cc-maintenance-password" type="password" placeholder="Enter your password" autocomplete="current-password" required></div>'
+            . '<button class="btn btn-cc-teal w-100" type="submit">Sign In</button>'
+            . '<p class="cc-maintenance-note m-0">Authorized super admins only.</p>'
+            . '<p id="cc-maintenance-feedback" class="cc-maintenance-note m-0" role="alert" hidden></p>'
+            . '</form></section></div></div></section></div></div>';
         $html = preg_replace_callback('/(<head\b[^>]*>)/i', static fn (array $match): string => $match[1]
             . '<link rel="stylesheet" href="assets/css/maintenance-access.css">', $html, 1);
         $html = preg_replace_callback('/(<body\b[^>]*>)/i', static fn (array $match): string => $match[1] . $modal, $html, 1);
