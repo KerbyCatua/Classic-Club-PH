@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="catalog-filter-panel" class="cc-catalog-filter-panel" hidden>
       <label class="cc-xs-text" for="filter-size">Size<select id="filter-size" class="cc-catalog-input"><option value="">All sizes</option></select></label>
       <label class="cc-xs-text" for="filter-colour">Colour<select id="filter-colour" class="cc-catalog-input"><option value="">All colours</option></select></label>
-      <fieldset class="cc-catalog-price"><legend class="cc-xs-text">Price (PHP)</legend><div class="cc-catalog-price-inputs">
+      <fieldset class="cc-catalog-price"><legend class="cc-xs-text invisible">Price (PHP)</legend><div class="cc-catalog-price-inputs">
         <label class="cc-xs-text" for="filter-min-price">Min<input id="filter-min-price" class="cc-catalog-input" type="number" min="0" step="0.01" placeholder="No minimum" inputmode="decimal"></label>
         <label class="cc-xs-text" for="filter-max-price">Max<input id="filter-max-price" class="cc-catalog-input" type="number" min="0" step="0.01" placeholder="No maximum" inputmode="decimal"></label>
       </div></fieldset>
