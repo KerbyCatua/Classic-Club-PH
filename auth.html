@@ -69,6 +69,13 @@
       outline: 2px solid var(--cc-accent);
       outline-offset: 3px;
     }
+
+    @media (min-width: 992px) {
+      #signin-form {
+        position: sticky;
+        top: min(var(--signin-start, 24px), calc((100dvh - var(--signin-height, 100dvh)) / 2), calc(100dvh - var(--signin-height, 100dvh) - 24px));
+      }
+    }
   </style>
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261112-1">
   <script src="assets/js/quick-view.js?v=20261112-1" defer></script>
@@ -149,16 +156,6 @@
                   Show
                 </button>
               </div>
-            </div>
-
-            <!-- Options Row -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <label class="d-flex align-items-center gap-3 m-0" style="cursor: pointer;">
-                <input type="checkbox" class="d-none cc-custom-check">
-                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px;"></span>
-                <span class="cc-xs-text text-muted-cc">Keep me signed in</span>
-              </label>
-              <!-- <a href="#" class="cc-underline-link m-0">Forgot password?</a> -->
             </div>
 
             <!-- Submit Button -->
@@ -346,6 +343,16 @@
   <!-- Micro-interactions Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Keep Login's bottom visible until the taller Registration column ends.
+      const signinForm = document.getElementById('signin-form');
+      const signinObserver = new ResizeObserver(() => {
+        signinForm.style.setProperty('--signin-height', `${signinForm.offsetHeight}px`);
+        const start = signinForm.parentElement.getBoundingClientRect().top + window.scrollY;
+        signinForm.style.setProperty('--signin-start', `${start}px`);
+      });
+      signinObserver.observe(signinForm);
+      signinObserver.observe(document.body);
+
       const notice = new URLSearchParams(window.location.search).get('notice');
       const noticePanel = document.getElementById('auth-gate-notice');
       const noticeText = document.getElementById('auth-gate-notice-text');
