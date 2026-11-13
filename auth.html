@@ -60,6 +60,15 @@
     }
 
     .auth-snackbar-close:hover { color: var(--cc-text, #f5f5f3); }
+
+    #register-form .registration-error,
+    #register-form .password-requirement { color: #ff8c94; }
+    #register-form .password-requirement.is-met { color: #70dfa0; }
+    #register-form [aria-invalid="true"] { border-color: #ff8c94; }
+    #register-form #create-terms:focus-visible + .cc-check-box {
+      outline: 2px solid var(--cc-accent);
+      outline-offset: 3px;
+    }
   </style>
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261112-1">
   <script src="assets/js/quick-view.js?v=20261112-1" defer></script>
@@ -149,26 +158,26 @@
                 <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px;"></span>
                 <span class="cc-xs-text text-muted-cc">Keep me signed in</span>
               </label>
-              <a href="#" class="cc-underline-link m-0">Forgot password?</a>
+              <!-- <a href="#" class="cc-underline-link m-0">Forgot password?</a> -->
             </div>
 
             <!-- Submit Button -->
             <button type="submit" class="btn-cc-teal w-100 mt-2">
               <span>Sign in</span>
-              <i class="bi bi-arrow-right"></i>
+              <!-- <i class="bi bi-arrow-right"></i> -->
             </button>
 
             <hr class="border-cc m-0 opacity-100 my-2">
 
             <!-- Password Help Text -->
             <div class="d-flex flex-column gap-3">
-              <span class="cc-eyebrow">PASSWORD HELP</span>
-              <p class="cc-small-text m-0">
+              <!-- <span class="cc-eyebrow">PASSWORD HELP</span> -->
+              <!-- <p class="cc-small-text m-0">
                 Forgotten your password? Use the reset link to request an email. Check your spam folder before requesting another.
-              </p>
-              <div>
+              </p> -->
+              <!-- <div>
                 <a href="#" class="cc-underline-link">Request a password reset ↗</a>
-              </div>
+              </div> -->
               <p class="cc-eyebrow text-transform-none m-0 pt-2" style="text-transform: none; line-height: 18.15px;">
                 For your privacy, do not share your password or verification emails with anyone.
               </p>
@@ -180,7 +189,7 @@
         <!-- Right Column: Create Account Form -->
         <div class="col-12 col-lg-7 col-xl-6">
           <div class="bg-cc-surface p-4 p-md-5">
-            <form id="register-form" class="d-flex flex-column gap-4">
+            <form id="register-form" class="d-flex flex-column gap-4" novalidate>
               
               <div class="d-flex flex-column gap-3 mb-2">
                 <span class="cc-eyebrow-teal">NEW TO THE CLUB</span>
@@ -194,48 +203,57 @@
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="create-fname" class="cc-xs-text text-light-cc">First name *</label>
-                  <input type="text" id="create-fname" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="Your first name" required>
+                  <input type="text" id="create-fname" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="Your first name" autocomplete="given-name" aria-describedby="create-fname-error" required>
+                  <span id="create-fname-error" class="registration-error cc-xs-text" hidden></span>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="create-lname" class="cc-xs-text text-light-cc">Last name *</label>
-                  <input type="text" id="create-lname" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="Your last name" required>
+                  <input type="text" id="create-lname" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="Your last name" autocomplete="family-name" aria-describedby="create-lname-error" required>
+                  <span id="create-lname-error" class="registration-error cc-xs-text" hidden></span>
                 </div>
               </div>
 
               <!-- Email Input -->
               <div class="d-flex flex-column gap-2">
                 <label for="create-email" class="cc-xs-text text-light-cc">Email address *</label>
-                <input type="email" id="create-email" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="you@example.com" required>
+                <input type="email" id="create-email" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="you@gmail.com" autocomplete="email" aria-describedby="create-email-error" required>
+                <span id="create-email-error" class="registration-error cc-xs-text" hidden></span>
               </div>
 
               <!-- Password Create -->
               <div class="d-flex flex-column gap-2">
                 <label for="create-password" class="cc-xs-text text-light-cc">Create password *</label>
                 <div class="position-relative">
-                  <input type="password" id="create-password" class="form-control cc-input bg-cc-dark w-100 pe-5" style="height: 50px;" placeholder="At least 12 characters" required>
+                  <input type="password" id="create-password" class="form-control cc-input bg-cc-dark w-100 pe-5" style="height: 50px;" placeholder="At least 8 characters" autocomplete="new-password" aria-describedby="password-requirements create-password-error" required>
                   <button type="button" class="btn p-0 border-0 position-absolute text-light-cc cc-xs-text top-50 translate-middle-y password-toggle-btn" style="right: 16px; background: transparent;">
                     Show
                   </button>
                 </div>
+                <ul id="password-requirements" class="list-unstyled cc-xs-text m-0" aria-live="polite">
+                  <li class="password-requirement" data-rule="lowercase">* At least one lowercase letter.</li>
+                  <li class="password-requirement" data-rule="uppercase">* At least one uppercase letter.</li>
+                  <li class="password-requirement" data-rule="number">* At least one number.</li>
+                  <li class="password-requirement" data-rule="special">* At least one special character.</li>
+                  <li class="password-requirement" data-rule="length">* At least 8 characters long.</li>
+                </ul>
+                <span id="create-password-error" class="registration-error cc-xs-text" hidden></span>
               </div>
-
-              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
-                Use a unique password with a mix of letters, numbers and symbols.
-              </p>
 
               <!-- Password Confirm -->
               <div class="d-flex flex-column gap-2">
                 <label for="confirm-password" class="cc-xs-text text-light-cc">Confirm password *</label>
-                <input type="password" id="confirm-password" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="Re-enter your password" required>
+                <input type="password" id="confirm-password" class="form-control cc-input bg-cc-dark" style="height: 50px;" placeholder="Re-enter your password" autocomplete="new-password" aria-describedby="confirm-password-error" required>
+                <span id="confirm-password-error" class="registration-error cc-xs-text" hidden></span>
               </div>
 
               <!-- Terms and Newsletter Checkboxes -->
               <div class="d-flex flex-column gap-3 mt-1">
                 <label class="d-flex align-items-center gap-3 m-0" style="cursor: pointer;">
-                  <input type="checkbox" class="d-none cc-custom-check" required>
+                  <input type="checkbox" id="create-terms" class="visually-hidden cc-custom-check" aria-describedby="create-terms-error" required>
                   <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px;"></span>
                   <span class="cc-xs-text text-muted-cc">I agree to the terms of use and privacy notice.</span>
                 </label>
+                <span id="create-terms-error" class="registration-error cc-xs-text" hidden></span>
                 <label class="d-flex align-items-center gap-3 m-0" style="cursor: pointer;">
                   <input type="checkbox" class="d-none cc-custom-check">
                   <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px;"></span>
@@ -244,9 +262,10 @@
               </div>
 
               <!-- Submit Button -->
+              <p id="registration-error" class="registration-error cc-xs-text m-0" role="alert" hidden></p>
               <button type="submit" class="btn-cc-teal w-100 mt-2">
                 <span>Create account</span>
-                <i class="bi bi-arrow-right"></i>
+                <!-- <i class="bi bi-arrow-right"></i> -->
               </button>
 
               <p class="cc-eyebrow text-transform-none m-0 pt-2" style="text-transform: none; line-height: 18.15px;">
@@ -490,12 +509,86 @@
         }
       });
 
-    document
-      .getElementById('register-form')
+    const registrationForm = document.getElementById('register-form');
+    const registrationError = document.getElementById('registration-error');
+    const registrationFields = ['create-fname', 'create-lname', 'create-email', 'create-password', 'confirm-password', 'create-terms'];
+    const passwordRules = {
+      lowercase: value => /[a-z]/.test(value),
+      uppercase: value => /[A-Z]/.test(value),
+      number: value => /[0-9]/.test(value),
+      special: value => /[\p{P}\p{S}]/u.test(value),
+      length: value => Array.from(value).length >= 8
+    };
+    const normalizeName = value => value.replace(/^ +| +$/g, '').replace(/ +/g, ' ');
+
+    function updatePasswordRequirements() {
+      const password = document.getElementById('create-password').value;
+      registrationForm.querySelectorAll('[data-rule]').forEach(item => {
+        const met = passwordRules[item.dataset.rule](password);
+        item.classList.toggle('is-met', met);
+        item.setAttribute('aria-label', item.textContent + (met ? ' Met.' : ' Not met.'));
+      });
+    }
+
+    function validateRegistrationField(id) {
+      const input = document.getElementById(id);
+      const value = input.value;
+      let message = '';
+      if (id === 'create-fname' || id === 'create-lname') {
+        const name = normalizeName(value);
+        if (Array.from(name).length > 100 || /\p{C}/u.test(name) || !/^\p{L}[\p{L}\p{M}]*(?:[ '\u2019-]\p{L}[\p{L}\p{M}]*)*$/u.test(name)) {
+          message = 'Enter 1-100 letters, with spaces, apostrophes or hyphens between names.';
+        }
+      } else if (id === 'create-email') {
+        const email = value.replace(/^ +| +$/g, '').toLowerCase();
+        if (email.split('@')[0].length > 64 || !/^[a-z0-9]+(?:\.[a-z0-9]+)*(?:\+[a-z0-9]+(?:[._-][a-z0-9]+)*)?@gmail\.com$/.test(email)) {
+          message = 'Enter a valid @gmail.com address (for example, your.name@gmail.com).';
+        }
+      } else if (id === 'create-password') {
+        if (!Object.values(passwordRules).every(rule => rule(value))) {
+          message = 'Please meet all five password requirements below Create password.';
+        }
+        if (new TextEncoder().encode(value).length > 72 || /\p{C}/u.test(value)) {
+          message = 'Use a password of at most 72 bytes without control or invisible formatting characters.';
+        }
+      } else if (id === 'confirm-password') {
+        if (!value || value !== document.getElementById('create-password').value) message = 'Passwords do not match.';
+      } else if (!input.checked) {
+        message = 'Please agree to the terms of use and privacy notice to create your account.';
+      }
+      const error = document.getElementById(id + '-error');
+      error.textContent = message;
+      error.hidden = !message;
+      input.setAttribute('aria-invalid', String(Boolean(message)));
+      return !message;
+    }
+
+    registrationFields.forEach(id => {
+      const input = document.getElementById(id);
+      input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', () => {
+        registrationError.hidden = true;
+        validateRegistrationField(id);
+        if (id === 'create-password') {
+          updatePasswordRequirements();
+          if (document.getElementById('confirm-password').value) validateRegistrationField('confirm-password');
+        }
+      });
+    });
+    updatePasswordRequirements();
+
+    registrationForm
       .addEventListener('submit', async function (event) {
         event.preventDefault();
+        registrationError.hidden = true;
+        updatePasswordRequirements();
+        const invalidFields = registrationFields.filter(id => !validateRegistrationField(id));
+        if (invalidFields.length) {
+          document.getElementById(invalidFields[0]).focus();
+          return;
+        }
 
         const button = this.querySelector('button[type="submit"]');
+        if (button.disabled) return;
         button.disabled = true;
 
         try {
@@ -504,16 +597,18 @@
           }
 
           await sendAuthRequest('public/api/auth/register.php', {
-            first_name: document.getElementById('create-fname').value,
-            last_name: document.getElementById('create-lname').value,
-            email: document.getElementById('create-email').value,
+            first_name: normalizeName(document.getElementById('create-fname').value),
+            last_name: normalizeName(document.getElementById('create-lname').value),
+            email: document.getElementById('create-email').value.replace(/^ +| +$/g, '').toLowerCase(),
             password: document.getElementById('create-password').value,
-            password_confirmation: document.getElementById('confirm-password').value
+            password_confirmation: document.getElementById('confirm-password').value,
+            terms_accepted: document.getElementById('create-terms').checked
           });
 
           window.location.href = 'account-dashboard.html';
         } catch (error) {
-          alert(error.message);
+          registrationError.textContent = error.message || 'Unable to create your account. Please try again.';
+          registrationError.hidden = false;
           button.disabled = false;
         }
       });
