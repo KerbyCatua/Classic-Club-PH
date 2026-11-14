@@ -152,6 +152,56 @@ h1, h2, h3, h4, .font-lora {
   display: block;
 }
 
+/* Value proposition: equal groups travel one full width for a seamless loop. */
+.cc-value-marquee {
+  overflow: hidden;
+}
+
+.cc-value-track {
+  display: flex;
+  min-height: 76px;
+}
+
+.cc-value-group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-around;
+  min-width: 100%;
+  gap: clamp(3rem, 6vw, 6rem);
+  padding: 1rem clamp(1.5rem, 3vw, 3rem);
+  animation: cc-value-marquee 80s linear infinite;
+}
+
+.cc-value-group > .cc-eyebrow {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@keyframes cc-value-marquee {
+  to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-value-group {
+    animation: none;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    min-width: 0;
+    gap: 1rem 2rem;
+    padding-inline: 0;
+  }
+
+  .cc-value-group[aria-hidden="true"] {
+    display: none;
+  }
+
+  .cc-value-group > .cc-eyebrow {
+    flex-shrink: 1;
+    white-space: normal;
+  }
+}
+
 .cc-hero-title {
   font-family: var(--font-serif);
   font-size: clamp(2.75rem, 5.5vw, 80px);
