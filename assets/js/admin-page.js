@@ -172,7 +172,8 @@ async function initDashboard() {
   async function loadAllDashboardData() {
     await Promise.allSettled([
       loadOverview(),
-      loadProducts(),
+      // Product request state is initialized later in this synchronous setup.
+      Promise.resolve().then(() => loadProducts()),
       loadInventory(),
       loadMovements(),
       loadReports(),
@@ -315,229 +316,236 @@ async function initDashboard() {
   // ==========================================
   // SECTION 20.2: PRODUCT MANAGEMENT
   // ==========================================
+  let productsRequest = 0;
+  const productsModule = document.getElementById('module-products');
+  const productsBody = document.getElementById('productsTableBody');
+  const statusModal = document.getElementById('modalProductStatus');
+  const snackbar = document.getElementById('productsSnackbar');
+  let snackbarTimer, snackbarClearTimer, snackbarFrame;
+  let pendingStatus = null;
+
+  function showProductSnackbar(message) {
+    clearTimeout(snackbarTimer);
+    clearTimeout(snackbarClearTimer);
+    cancelAnimationFrame(snackbarFrame);
+    snackbar.textContent = message;
+    snackbarFrame = requestAnimationFrame(() => snackbar.classList.add('is-visible'));
+    snackbarTimer = setTimeout(() => {
+      snackbar.classList.remove('is-visible');
+      snackbarClearTimer = setTimeout(() => { snackbar.textContent = ''; }, 250);
+    }, 3500);
+  }
+
+  // Only product-owned dialogs use this backdrop and submission lifecycle.
+  document.querySelectorAll('.cc-product-modal').forEach(modal => {
+    let trigger;
+    modal.addEventListener('show.bs.modal', event => {
+      trigger = event.relatedTarget || document.activeElement;
+      modal.querySelector('.product-form-error').hidden = true;
+      document.body.classList.add('cc-product-modal-open');
+    });
+    modal.addEventListener('shown.bs.modal', () => {
+      modal.querySelector('input:not([type="hidden"]), #cancelProductStatus')?.focus();
+    });
+    modal.addEventListener('hide.bs.modal', event => {
+      if (modal.dataset.saving === 'true') event.preventDefault();
+    });
+    modal.addEventListener('hidden.bs.modal', () => {
+      document.body.classList.remove('cc-product-modal-open');
+      const target = trigger?.isConnected ? trigger : productsModule.querySelector('#prodSearchInput');
+      target?.focus({ preventScroll: true });
+    });
+  });
+
   async function loadProducts() {
-    const search = document.getElementById('prodSearchInput').value;
-    const category = document.getElementById('prodCategoryFilter').value;
-    const availability = document.getElementById('prodAvailabilityFilter').value;
-    const sort = document.getElementById('prodSortFilter').value;
-
+    const request = ++productsRequest;
     const params = new URLSearchParams();
-    if (search) params.append('search', search);
-    if (category) params.append('category', category);
-    if (availability) params.append('availability', availability);
-    if (sort) params.append('sort', sort);
-
+    for (const [key, id] of [['search', 'prodSearchInput'], ['category', 'prodCategoryFilter'], ['availability', 'prodAvailabilityFilter'], ['sort', 'prodSortFilter']]) {
+      const value = document.getElementById(id).value.trim();
+      if (value) params.set(key, value);
+    }
+    productsModule.querySelector('.products-table-viewport').setAttribute('aria-busy', 'true');
+    document.getElementById('productsLoadError').hidden = true;
     try {
-      const data = await CCAdmin.apiRequest(`public/api/admin/products.php?${params.toString()}`);
+      const data = await CCAdmin.apiRequest('public/api/admin/products.php?' + params);
+      if (request !== productsRequest) return;
       currentProducts = data.products || [];
       renderProductsTable(currentProducts);
-    } catch (e) {
-      console.warn('Load products error:', e);
+      document.getElementById('productsResultCount').textContent = currentProducts.length + (currentProducts.length === 1 ? ' product' : ' products');
+    } catch (error) {
+      if (request !== productsRequest) return;
+      document.getElementById('productsLoadError').hidden = false;
+      document.getElementById('productsResultCount').textContent = 'Products could not be refreshed';
+    } finally {
+      if (request === productsRequest) productsModule.querySelector('.products-table-viewport').setAttribute('aria-busy', 'false');
     }
   }
 
   function renderProductsTable(products) {
-    const tbody = document.getElementById('productsTableBody');
     if (!products.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted-cc">No products match your filter criteria.</td></tr>`;
+      productsBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted-cc">No products match your filters. Try a different search or category.</td></tr>';
       return;
     }
-
-    tbody.innerHTML = products.map(p => {
-      const isActive = Number(p.is_active) === 1;
+    const value = text => '<span class="product-cell-value" title="' + escapeHtml(text) + '">' + escapeHtml(text) + '</span>';
+    productsBody.innerHTML = products.map(p => {
+      const id = escapeHtml(String(p.id));
+      const active = Number(p.is_active) === 1;
+      const archived = p.availability_status === 'archived';
       const stock = Number(p.stock_qty ?? p.stock ?? 0);
       const min = Number(p.min_stock_threshold ?? 10);
-      let statusClass = 'admin-badge-active';
-      if (!isActive) {
-        statusClass = 'admin-badge-inactive';
-      } else if (stock === 0) {
-        statusClass = 'admin-badge-out';
-      } else if (stock <= min) {
-        statusClass = 'admin-badge-low';
-      }
-      const statusLabel = p.stock_status || (isActive ? 'Active · Available' : 'Inactive · Unavailable');
-
-      return `
-        <tr>
-          <td>
-            <div class="fw-medium text-light-cc">${escapeHtml(p.name)}</div>
-            <div class="text-muted-cc font-monospace" style="font-size: 11px;">${escapeHtml(p.sku || '')}</div>
-          </td>
-          <td class="text-light-cc">${escapeHtml(p.category_name || 'Tops & tees')}</td>
-          <td class="text-light-cc fw-medium">${CCAdmin.formatPhp(p.price)}</td>
-          <td class="text-light-cc">${p.stock_qty ?? p.stock ?? 0}</td>
-          <td><span class="badge ${statusClass}">${statusLabel}</span></td>
-          <td class="text-end">
-            ${can('can_manage_products') ? `
-              <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
-                <a href="javascript:void(0)" class="admin-action-link btn-edit-prod" data-id="${p.id}">Edit</a>
-                ${isActive ? `
-                  <a href="javascript:void(0)" class="admin-action-link text-warning btn-toggle-prod" data-id="${p.id}" data-action="deactivate">Deactivate</a>
-                ` : `
-                  <a href="javascript:void(0)" class="admin-action-link text-success btn-toggle-prod" data-id="${p.id}" data-action="activate">Activate</a>
-                `}
-                <a href="javascript:void(0)" class="admin-action-link text-danger btn-toggle-prod" data-id="${p.id}" data-action="archive">Archive</a>
-              </div>
-            ` : `
-              <span class="text-muted-cc" style="font-size: 12px;">View only</span>
-            `}
-          </td>
-        </tr>
-      `;
+      const statusClass = archived || !active ? 'admin-badge-inactive' : stock === 0 ? 'admin-badge-out' : stock <= min ? 'admin-badge-low' : 'admin-badge-active';
+      const status = archived ? 'Archived' : !active ? 'Inactive' : stock === 0 ? 'Out of stock' : stock <= min ? 'Low stock' : 'Active';
+      const actionButton = (action, label, color = '') => '<button type="button" class="admin-action-link ' + color + '" data-product-action="' + action + '" data-id="' + id + '" aria-haspopup="dialog" aria-label="' + label + ' ' + escapeHtml(p.name) + '">' + label + '</button>';
+      const actions = can('can_manage_products') ? '<div class="d-inline-flex gap-2 justify-content-end">' +
+        (archived ? '' : actionButton('edit', 'Edit')) +
+        actionButton(active ? 'deactivate' : 'activate', active ? 'Deactivate' : 'Activate', active ? 'text-warning' : 'text-success') +
+        (archived ? '' : actionButton('archive', 'Archive', 'text-danger')) + '</div>' : '<span class="text-muted-cc">View only</span>';
+      return '<tr data-product-id="' + id + '"><td><div class="fw-medium text-light-cc">' + value(p.name) + '</div><div class="text-muted-cc font-monospace small">' + value(p.sku || '') + '</div></td>' +
+        '<td>' + value(p.category_name || 'Uncategorized') + '</td><td class="fw-medium">' + CCAdmin.formatPhp(p.price) + '</td><td>' + stock + '</td>' +
+        '<td><span class="admin-badge ' + statusClass + '">' + status + '</span></td><td class="text-end">' + actions + '</td></tr>';
     }).join('');
-
-    // Attach row events
-    tbody.querySelectorAll('.btn-edit-prod').forEach(btn => {
-      btn.addEventListener('click', () => openEditProductModal(btn.dataset.id));
-    });
-
-    tbody.querySelectorAll('.btn-toggle-prod').forEach(btn => {
-      btn.addEventListener('click', () => handleProductStatusChange(btn.dataset.id, btn.dataset.action));
-    });
   }
 
-  // Filter triggers
-  document.getElementById('prodSearchInput').addEventListener('input', debounce(loadProducts, 250));
+  productsBody.addEventListener('click', event => {
+    const button = event.target.closest('[data-product-action]');
+    if (!button || !can('can_manage_products')) return;
+    if (button.dataset.productAction === 'edit') openEditProductModal(button.dataset.id, button);
+    else openProductStatusModal(button.dataset.id, button.dataset.productAction, button);
+  });
+  document.getElementById('productsRetry').addEventListener('click', loadProducts);
+  // Invalidate pending responses immediately, including the search debounce interval.
+  const searchProducts = debounce(loadProducts, 250);
+  document.getElementById('prodSearchInput').addEventListener('input', () => { productsRequest++; searchProducts(); });
   ['prodCategoryFilter', 'prodAvailabilityFilter', 'prodSortFilter'].forEach(id => {
     document.getElementById(id).addEventListener('change', loadProducts);
   });
 
   async function readProductImage(input) {
     const file = input.files[0];
-    if (!file) {
-      CCAdmin.showToast('A square product image is required.', 'error');
-      return null;
-    }
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      CCAdmin.showToast('Use a JPG, PNG, or WebP image.', 'error');
-      return null;
-    }
-    const dimensions = await new Promise((resolve) => {
-      const image = new Image();
-      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
-      image.onerror = () => resolve(null);
-      image.src = URL.createObjectURL(file);
-    });
-    if (!dimensions || dimensions.width !== dimensions.height) {
-      CCAdmin.showToast('Product images must be exactly 1:1 square.', 'error');
-      return null;
-    }
-    return await new Promise((resolve) => {
+    if (!file) throw new Error('A square product image is required.');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Use a JPG, PNG, or WebP image.');
+    if (file.size > 5 * 1024 * 1024) throw new Error('Product image must be no larger than 5 MB.');
+    const url = URL.createObjectURL(file);
+    try {
+      const dimensions = await new Promise(resolve => {
+        const image = new Image();
+        image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+        image.onerror = () => resolve(null);
+        image.src = url;
+      });
+      if (!dimensions) throw new Error('Unable to read the selected image. Choose a valid JPG, PNG, or WebP image.');
+      if (dimensions.width !== dimensions.height) throw new Error('Product images must be exactly 1:1 square.');
+    } finally { URL.revokeObjectURL(url); }
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => {
-        CCAdmin.showToast('Unable to read the selected image.', 'error');
-        resolve(null);
-      };
+      reader.onerror = () => reject(new Error('Unable to read the selected image.'));
       reader.readAsDataURL(file);
     });
   }
 
-  // Modal: Create Product Form
-  document.getElementById('formAddProduct').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const image = await readProductImage(document.getElementById('newProdImage'));
-    if (!image) return;
-    const payload = {
-      action: 'create',
-      name: document.getElementById('newProdName').value,
-      sku: document.getElementById('newProdSku').value,
-      category_id: parseInt(document.getElementById('newProdCategory').value, 10) || 1,
-      price: parseFloat(document.getElementById('newProdPrice').value),
-      initial_stock: parseInt(document.getElementById('newProdStock').value || '0', 10),
-      min_stock_threshold: parseInt(document.getElementById('newProdThreshold').value || '10', 10),
-      is_active: parseInt(document.getElementById('newProdStatus').value || '1', 10),
-      description: document.getElementById('newProdDescription').value,
-      image
+  async function saveProductAction(modal, buildPayload, successMessage) {
+    if (!modal.classList.contains('show') || modal.dataset.saving === 'true' || !can('can_manage_products')) return;
+    const error = modal.querySelector('.product-form-error');
+    const submit = modal.querySelector('[type="submit"], #confirmProductStatus');
+    const label = submit.textContent;
+    const controls = [...modal.querySelectorAll('button, input, select, textarea')].map(control => [control, control.disabled]);
+    const restore = () => {
+      modal.dataset.saving = 'false';
+      modal.removeAttribute('aria-busy');
+      controls.forEach(([control, disabled]) => { control.disabled = disabled; });
+      submit.textContent = label;
     };
-
+    modal.dataset.saving = 'true';
+    modal.setAttribute('aria-busy', 'true');
+    error.hidden = true;
+    controls.forEach(([control]) => { control.disabled = true; });
+    submit.textContent = 'Saving…';
     try {
-      await CCAdmin.apiRequest('public/api/admin/products.php', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      bootstrap.Modal.getInstance(document.getElementById('modalAddProduct')).hide();
-      document.getElementById('formAddProduct').reset();
-      CCAdmin.showToast('Product created successfully.');
-      await loadProducts();
-      await loadInventory();
-      await loadMovements();
-      await loadOverview();
-      await loadReports(currentReportPeriod);
-    } catch (err) {
-      CCAdmin.showToast(err.message, 'error');
+      const payload = await buildPayload();
+      await CCAdmin.apiRequest('public/api/admin/products.php', { method: 'POST', body: JSON.stringify(payload) });
+    } catch (failure) {
+      restore();
+      error.textContent = failure.message || 'Unable to save this product. Please try again.';
+      error.hidden = false;
+      error.scrollIntoView({ block: 'nearest' });
+      return;
     }
+    restore();
+    bootstrap.Modal.getOrCreateInstance(modal).hide();
+    if (modal.id === 'modalAddProduct') modal.querySelector('form').reset();
+    showProductSnackbar(successMessage);
+    // Preserve the dashboard's existing dependent refreshes after a product mutation.
+    await Promise.allSettled([loadProducts(), loadInventory(), loadMovements(), loadOverview(), loadReports(currentReportPeriod)]);
+  }
+
+  function productFormValues(prefix) {
+    const get = suffix => document.getElementById(prefix + suffix).value.trim();
+    const name = get('Name');
+    if (!name) throw new Error('Product name is required.');
+    return { name, category_id: Number(get('Category')), price: Number(get('Price')), min_stock_threshold: Number(get('Threshold') || '10') };
+  }
+
+  document.getElementById('formAddProduct').addEventListener('submit', event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (form.closest('.modal').dataset.saving === 'true' || !form.reportValidity()) return;
+    saveProductAction(form.closest('.modal'), async () => {
+      const values = productFormValues('newProd');
+      const sku = document.getElementById('newProdSku').value.trim();
+      if (!sku) throw new Error('SKU is required.');
+      return { action: 'create', ...values, sku,
+        initial_stock: Number(document.getElementById('newProdStock').value || '0'),
+        is_active: Number(document.getElementById('newProdStatus').value),
+        description: document.getElementById('newProdDescription').value.trim(),
+        image: await readProductImage(document.getElementById('newProdImage')) };
+    }, 'Product created successfully.');
   });
 
-  // Open Edit Product Modal
-  function openEditProductModal(productId) {
+  function openEditProductModal(productId, trigger) {
     const p = currentProducts.find(item => String(item.id) === String(productId));
     if (!p) return;
-
-    document.getElementById('editProdId').value = p.id;
-    document.getElementById('editProdName').value = p.name;
-    document.getElementById('editProdSku').value = p.sku;
-    document.getElementById('editProdCategory').value = p.category_id || 1;
-    document.getElementById('editProdPrice').value = p.price;
-    document.getElementById('editProdThreshold').value = p.min_stock_threshold || 10;
-    document.getElementById('editProdDesc').value = p.description || '';
-    document.getElementById('editProdImage').value = '';
-
-    const modal = new bootstrap.Modal(document.getElementById('modalEditProduct'));
-    modal.show();
+    const modal = document.getElementById('modalEditProduct');
+    modal.querySelector('form').reset();
+    for (const [suffix, val] of Object.entries({ Id: p.id, Name: p.name, Sku: p.sku, Category: p.category_id || 1, Price: p.price, Threshold: p.min_stock_threshold ?? 10, Desc: p.description || '' })) {
+      document.getElementById('editProd' + suffix).value = val;
+    }
+    bootstrap.Modal.getOrCreateInstance(modal).show(trigger);
   }
 
-  // Modal: Save Edit Product
-  document.getElementById('formEditProduct').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('editProdId').value;
-    const image = await readProductImage(document.getElementById('editProdImage'));
-    if (!image) return;
-    const payload = {
-      action: 'update',
-      product_id: parseInt(id, 10),
-      name: document.getElementById('editProdName').value,
-      category_id: parseInt(document.getElementById('editProdCategory').value, 10) || 1,
-      price: parseFloat(document.getElementById('editProdPrice').value),
-      min_stock_threshold: parseInt(document.getElementById('editProdThreshold').value, 10),
-      description: document.getElementById('editProdDesc').value,
-      image
-    };
-
-    try {
-      await CCAdmin.apiRequest('public/api/admin/products.php', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-
-      bootstrap.Modal.getInstance(document.getElementById('modalEditProduct')).hide();
-      CCAdmin.showToast('Product updated successfully.');
-      await loadProducts();
-      await loadInventory();
-      await loadOverview();
-      await loadReports(currentReportPeriod);
-    } catch (err) {
-      CCAdmin.showToast(err.message, 'error');
-    }
+  document.getElementById('formEditProduct').addEventListener('submit', event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (form.closest('.modal').dataset.saving === 'true' || !form.reportValidity()) return;
+    saveProductAction(form.closest('.modal'), async () => ({ action: 'update', ...productFormValues('editProd'),
+      product_id: Number(document.getElementById('editProdId').value),
+      description: document.getElementById('editProdDesc').value.trim(),
+      image: await readProductImage(document.getElementById('editProdImage'))
+    }), 'Product updated successfully.');
   });
 
-  async function handleProductStatusChange(productId, action) {
-    if (!confirm(`Are you sure you want to ${action} this product?`)) return;
-    try {
-      await CCAdmin.apiRequest('public/api/admin/products.php', {
-        method: 'POST',
-        body: JSON.stringify({ action, product_id: parseInt(productId, 10) })
-      });
-      CCAdmin.showToast(`Product ${action}d successfully.`);
-      await loadProducts();
-      await loadInventory();
-      await loadMovements();
-      await loadOverview();
-      await loadReports(currentReportPeriod);
-    } catch (err) {
-      CCAdmin.showToast(err.message, 'error');
-    }
+  function openProductStatusModal(productId, action, trigger) {
+    const product = currentProducts.find(item => String(item.id) === String(productId));
+    const labels = { activate: 'Activate', deactivate: 'Deactivate', archive: 'Archive' };
+    if (!product || !labels[action]) return;
+    pendingStatus = { action, product_id: Number(productId) };
+    document.getElementById('productStatusTitle').textContent = labels[action] + ' product?';
+    const details = {
+      activate: 'The listing will be active in the catalog. Purchase availability depends on stock.',
+      deactivate: 'The listing will be unavailable to customers. You can activate it again anytime.',
+      archive: 'The listing will be unavailable to customers. Its record and stock will be retained; you can activate it again later.'
+    };
+    document.getElementById('productStatusDescription').textContent = labels[action] + ' “' + product.name + '”? ' + details[action];
+    document.getElementById('confirmProductStatus').textContent = labels[action];
+    bootstrap.Modal.getOrCreateInstance(statusModal).show(trigger);
   }
+
+  document.getElementById('confirmProductStatus').addEventListener('click', () => {
+    if (!pendingStatus) return;
+    const payload = { ...pendingStatus };
+    const result = { activate: 'activated', deactivate: 'deactivated', archive: 'archived' };
+    saveProductAction(statusModal, () => payload, 'Product ' + result[payload.action] + ' successfully.');
+  });
 
   // ==========================================
   // SECTION 20.3: INVENTORY & STOCK

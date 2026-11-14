@@ -147,6 +147,32 @@
   background-color: rgba(2, 128, 144, 0.08);
 }
 
+/* Products only: a fixed header and exactly six 73px records. */
+#module-products .products-table-viewport { height: 483px; min-width: 1050px; overflow-y: auto; }
+#module-products :is(.products-table-viewport, .admin-table-container) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
+#module-products :is(.products-table-viewport, .admin-table-container)::-webkit-scrollbar { width: 8px; height: 8px; }
+#module-products :is(.products-table-viewport, .admin-table-container)::-webkit-scrollbar-track { background: var(--cc-bg); }
+#module-products :is(.products-table-viewport, .admin-table-container)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+#module-products .admin-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+#module-products .admin-table th { position: sticky; top: 0; z-index: 1; height: 45px; line-height: 16px; background: var(--cc-placeholder); }
+#module-products .admin-table td { height: 73px; }
+#module-products .admin-table th:first-child { width: 25%; }
+#module-products .admin-table th:nth-child(2) { width: 18%; }
+#module-products .admin-table th:nth-child(3) { width: 13%; }
+#module-products .admin-table th:nth-child(4) { width: 7%; }
+#module-products .admin-table th:nth-child(5) { width: 17%; }
+#module-products .admin-table th:last-child { width: 20%; }
+#module-products .product-cell-value { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#module-products .products-table-summary { font-size: 12px; }
+#module-products button.admin-action-link { border: 0; background: none; padding: 0; white-space: nowrap; }
+#module-products :is(button, .products-table-viewport):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: -2px; }
+body.cc-product-modal-open > :not(.cc-product-modal):not(.modal-backdrop):not(#productsSnackbar):not(script) { filter: blur(5px); }
+body.cc-product-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+.cc-product-modal .modal-header { padding: 32px 32px 0; border: 0; align-items: flex-start; }
+.cc-product-modal .modal-footer { padding: 0 32px 32px; border: 0; }
+.cc-product-modal .modal-footer > * { margin: 0; }
+.cc-product-modal :is(.product-form-error, #productStatusDescription) { overflow-wrap: anywhere; }
+
 /* Business activity logs: six two-line records, with the header kept visible. */
 #module-logs .activity-logs-scroll {
   height: 483px; /* 45px header + six 73px rows */
