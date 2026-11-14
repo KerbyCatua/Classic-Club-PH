@@ -432,6 +432,43 @@
       #module-users .admin-card { padding: 20px; }
     }
 
+    /* Monitoring only: a sticky 45px header and four 64px records. */
+    #module-monitoring .monitor-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+    #module-monitoring .monitor-filter-field { display: grid; gap: 6px; min-width: 160px; }
+    #module-monitoring .monitor-filters button { min-height: 44px; }
+    #module-monitoring #btnExportMonitoring { margin-left: auto; }
+    #module-monitoring .admin-card { padding: 20px; min-width: 0; }
+    #module-monitoring h3 { font-size: 22px; }
+    #module-monitoring :is(.monitor-note, #monitorStatus) { font-size: 12px; line-height: 19px; }
+    #module-monitoring .monitor-table-viewport { height: 301px; overflow-y: auto; scrollbar-gutter: stable; }
+    #module-monitoring .monitor-services-viewport { min-width: 1100px; }
+    #module-monitoring .monitor-failures-viewport { min-width: 340px; }
+    #module-monitoring .admin-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+    #module-monitoring .admin-table th { position: sticky; top: 0; z-index: 1; height: 45px; padding: 0 14px; line-height: 16px; background: var(--cc-placeholder); }
+    #module-monitoring .admin-table td { height: 64px; padding: 10px 14px; border-top: 0; border-bottom: 1px solid var(--cc-border); }
+    #module-monitoring .monitor-services-viewport th:nth-child(1) { width: 130px; }
+    #module-monitoring .monitor-services-viewport th:nth-child(2) { width: 165px; }
+    #module-monitoring .monitor-services-viewport th:nth-child(3) { width: 145px; }
+    #module-monitoring .monitor-services-viewport th:nth-child(4) { width: 200px; }
+    #module-monitoring .monitor-services-viewport th:nth-child(5) { width: 190px; }
+    #module-monitoring .monitor-services-viewport .sa-badge { max-width: 100%; white-space: normal; }
+    #module-monitoring .monitor-cell-value { max-height: 40px; overflow-y: auto; overflow-wrap: anywhere; }
+    #module-monitoring .monitor-list-viewport { max-height: 301px; overflow-y: auto; scrollbar-gutter: stable; }
+    #module-monitoring .monitor-list-viewport .sa-list-row { height: 75.25px; padding: 10px 0; overflow-y: auto; overflow-wrap: anywhere; border-bottom: 1px solid var(--cc-border); }
+    #module-monitoring .monitor-list-viewport .sa-list-row:last-child { border-bottom: 0; }
+    #module-monitoring :is(.sa-chart-y, .sa-chart-plot) { height: 150px; }
+    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
+    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll)::-webkit-scrollbar { width: 8px; height: 8px; }
+    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll)::-webkit-scrollbar-track { background: var(--cc-bg); }
+    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+    #module-monitoring :is(button, select, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: -2px; }
+    #module-monitoring button:disabled { opacity: .6; cursor: not-allowed; }
+    @media (max-width: 575.98px) {
+      #module-monitoring .monitor-filter-field { flex: 1 1 100%; min-width: 0; }
+      #module-monitoring .monitor-filters button { flex: 1 1 auto; }
+      #module-monitoring .admin-select-filter { font-size: 16px; width: 100%; }
+    }
+
     .sa-ticket-subject {
       font-size: 12px;
       color: var(--cc-muted);
@@ -1230,20 +1267,16 @@
       </div>
       <h2 class="admin-section-title mb-2">System monitoring &amp; health</h2>
       <p class="admin-section-desc mb-2" id="monitorSnapshot">Loading live health checks…</p>
-      <p class="text-muted-cc mb-4" id="monitorStatus" role="status" aria-live="polite">Connecting to monitoring.</p>
-      <div class="admin-card mb-4">
-        <div class="d-flex flex-wrap gap-3 align-items-end">
-          <div><label class="sa-tiny-label mb-1" for="monitorRange">Range</label>
+      <p class="text-muted-cc mb-3" id="monitorStatus" role="status" aria-live="polite">Connecting to monitoring.</p>
+      <div class="monitor-filters mb-3" role="group" aria-label="Monitoring filters and actions">
+          <div class="monitor-filter-field"><label class="sa-tiny-label" for="monitorRange">Range</label>
             <select id="monitorRange" class="admin-select-filter"><option value="7d">Last 7 days</option><option value="24h">Last 24 hours</option><option value="30d">Last 30 days</option></select>
           </div>
-          <div><label class="sa-tiny-label mb-1" for="monitorService">Service</label>
+          <div class="monitor-filter-field"><label class="sa-tiny-label" for="monitorService">Service</label>
             <select id="monitorService" class="admin-select-filter"><option value="all">All services</option><option value="application">Application</option><option value="api">Catalog API</option><option value="database">Database</option><option value="server">PHP runtime</option></select>
           </div>
-          <button type="button" class="btn-admin-outline" id="btnRefreshMonitoring">Refresh health checks</button>
-          <button type="button" class="btn-admin-outline" id="btnMonitoringHistory">View performance history</button>
-          <button type="button" class="btn-admin-outline" id="btnExportMonitoring" disabled>Export history CSV</button>
-        </div>
-        <div class="text-muted-cc mt-3" style="font-size: 12px;">Environment: <span id="monitorEnvironment">Current application</span></div>
+          <button type="button" class="btn-admin-primary" id="btnRefreshMonitoring">Refresh checks</button>
+          <button type="button" class="btn-admin-outline" id="btnExportMonitoring" disabled>Export CSV</button>
       </div>
       <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
@@ -1259,39 +1292,41 @@
           <span class="admin-card-label">Active maintenance</span><div class="admin-card-stat" id="monitorMaintenanceValue">—</div><span class="admin-card-sub" id="monitorMaintenanceSub">Loading maintenance state</span>
         </div></div>
       </div>
-      <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Service checks</h3>
+      <h3 class="font-lora text-light-cc mb-3" id="monitorServicesTitle">Service checks</h3>
       <div class="admin-table-container mb-4">
+        <div class="monitor-table-viewport monitor-services-viewport" tabindex="0" role="region" aria-labelledby="monitorServicesTitle">
         <table class="admin-table sa-table-wide"><thead><tr><th>Service</th><th>Status</th><th>Response / latency</th><th>Resource usage</th><th>Checked at · PHT</th><th>Context</th></tr></thead>
           <tbody id="monitorServices"><tr><td colspan="6">Loading health checks…</td></tr></tbody>
         </table>
+        </div>
       </div>
-      <div id="monitorHistory" class="row g-4 mb-4">
+      <div id="monitorHistory" class="row g-3 mb-3">
         <div class="col-12 col-xl-6"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-2" style="font-size: 24px;">API performance history</h3>
-          <p class="text-muted-cc" style="font-size: 12px;">Catalog GET probe p95 · milliseconds · selected range · PHT</p>
-          <div class="sa-chart-scroll" id="monitorApiChart" role="img" aria-label="Catalog API latency history">No samples loaded.</div>
+          <h3 class="font-lora text-light-cc mb-2">API performance</h3>
+          <p class="text-muted-cc monitor-note mb-2">Catalog probe p95 · milliseconds · PHT</p>
+          <div class="sa-chart-scroll" id="monitorApiChart" tabindex="0" role="img" aria-label="Catalog API latency history">No samples loaded.</div>
         </div></div>
         <div class="col-12 col-xl-6"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-2" style="font-size: 24px;">Resource usage history</h3>
-          <p class="text-muted-cc" style="font-size: 12px;">Monitoring PHP request peak memory · mean MiB · selected range · PHT</p>
-          <div class="sa-chart-scroll" id="monitorResourceChart" role="img" aria-label="PHP monitoring request peak memory history">No samples loaded.</div>
+          <h3 class="font-lora text-light-cc mb-2">PHP memory</h3>
+          <p class="text-muted-cc monitor-note mb-2">Request peak memory · mean MiB · PHT</p>
+          <div class="sa-chart-scroll" id="monitorResourceChart" tabindex="0" role="img" aria-label="PHP monitoring request peak memory history">No samples loaded.</div>
         </div></div>
       </div>
-      <div class="row g-4 mb-4">
-        <div class="col-12 col-xl-6"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Failed health check history</h3>
-          <div class="admin-table-container" style="max-height: 400px; overflow: auto;"><table class="admin-table"><thead><tr><th>Period · PHT</th><th>Failed / checks</th><th>Failure rate</th></tr></thead><tbody id="monitorFailureHistory"><tr><td colspan="3">Loading history…</td></tr></tbody></table></div>
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-4"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-3" id="monitorFailuresTitle">Failure history</h3>
+          <div class="admin-table-container"><div class="monitor-table-viewport monitor-failures-viewport" tabindex="0" role="region" aria-labelledby="monitorFailuresTitle"><table class="admin-table"><thead><tr><th>Period · PHT</th><th>Failed / checks</th><th>Failure rate</th></tr></thead><tbody id="monitorFailureHistory"><tr><td colspan="3">Loading history…</td></tr></tbody></table></div></div>
         </div></div>
-        <div class="col-12 col-xl-6"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Recent failed checks</h3><div id="monitorIncidents">Loading recorded failures…</div>
+        <div class="col-12 col-xl-4"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-3" id="monitorIncidentsTitle">Recent failed checks</h3><div id="monitorIncidents" class="monitor-list-viewport" tabindex="0" role="region" aria-labelledby="monitorIncidentsTitle">Loading recorded failures…</div>
+        </div></div>
+        <div class="col-12 col-xl-4"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-2" id="monitorEventsTitle">Audit events</h3>
+          <p class="text-muted-cc monitor-note mb-2">Maintenance &amp; failures · all services</p>
+          <div id="monitorEvents" class="monitor-list-viewport" tabindex="0" role="region" aria-labelledby="monitorEventsTitle">Loading audit events…</div>
         </div></div>
       </div>
-      <div class="admin-card mb-4"><h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Maintenance &amp; failure audit events</h3><div id="monitorEvents">Loading audit events…</div></div>
-      <div class="admin-callout">
-        <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Measured health checks</span>
-        <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">Availability and failures reflect stored storefront, catalog API and database checks, including maintenance. API timing measures the catalog probe. Memory measures the monitoring PHP request. Missing periods show no samples. Checks run while this dashboard is open; gaps are not counted as uptime. Audit events use the selected date range across the application.</span>
-      </div>
-      <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc"><span class="sa-tiny-label">LIVE CHECKS · DATABASE HISTORY · PHT</span><a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a></div>
+      <p class="text-muted-cc monitor-note mb-0">Availability covers observed application, API and database checks, including maintenance. Gaps have no samples and do not count as uptime. Checks run every 60 seconds while this dashboard is visible. Audit events follow the range filter across all services.</p>
     </section>
     <!-- SECTION 21.6: ERROR & DEBUG MANAGEMENT -->
     <section id="module-errors" class="admin-section px-4 px-lg-5">
