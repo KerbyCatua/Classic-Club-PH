@@ -1056,7 +1056,91 @@ async function initDashboard() {
   // ==========================================
   // SECTION 20.6: BUSINESS NOTIFICATIONS
   // ==========================================
+  const notificationsModule = document.getElementById('module-notifications');
+  const notificationsBody = notificationsModule.querySelector('#notificationsTableBody');
+  const notificationReadModal = notificationsModule.querySelector('#notificationReadModal');
+  const confirmNotificationRead = notificationReadModal.querySelector('#confirmNotificationRead');
+  const cancelNotificationRead = notificationReadModal.querySelector('#cancelNotificationRead');
+  const notificationReadError = notificationReadModal.querySelector('#notificationReadError');
+  let notificationItems = [];
+  let notificationsRequest = 0;
+  let pendingNotificationAction = null;
+  let notificationReadTrigger = null;
+
+  // Escape the section's scroll-reveal transform so the overlay matches account sign-out.
+  document.body.appendChild(notificationReadModal);
+  notificationReadModal.addEventListener('show.bs.modal', () => document.body.classList.add('cc-notification-read-modal-open'));
+  notificationReadModal.addEventListener('shown.bs.modal', () => cancelNotificationRead.focus());
+  notificationReadModal.addEventListener('hide.bs.modal', event => {
+    if (confirmNotificationRead.disabled) event.preventDefault();
+  });
+  notificationReadModal.addEventListener('hidden.bs.modal', () => {
+    document.body.classList.remove('cc-notification-read-modal-open');
+    pendingNotificationAction = null;
+    const target = notificationReadTrigger?.isConnected ? notificationReadTrigger : notificationsModule.querySelector('.btn-read-notif, #notifStatusFilter');
+    target?.focus({ preventScroll: true });
+  });
+
+  function requestNotificationRead(trigger, notification = null) {
+    if (!can('can_view_notifications') || notificationReadModal.classList.contains('show')) return;
+    notificationReadTrigger = trigger;
+    pendingNotificationAction = notification
+      ? { action: 'mark_read', notification_id: Number(notification.id) }
+      : { action: 'mark_all_read' };
+    notificationReadModal.querySelector('#notificationReadTitle').textContent = notification ? 'Mark as read?' : 'Mark all as read?';
+    notificationReadModal.querySelector('#notificationReadDescription').textContent = notification
+      ? 'Mark this notification as read? It will no longer appear when filtering by unread notifications.'
+      : 'This will mark all notifications for your business as read, including those hidden by the current filters. They will remain available under All or Read only.';
+    const summary = notificationReadModal.querySelector('#notificationReadSummary');
+    summary.hidden = !notification;
+    summary.textContent = notification ? `${notification.title}\n${notification.message}` : '';
+    notificationReadError.hidden = true;
+    confirmNotificationRead.textContent = notification ? 'Mark as Read' : 'Mark All as Read';
+    bootstrap.Modal.getOrCreateInstance(notificationReadModal).show();
+  }
+
+  notificationsBody.addEventListener('click', event => {
+    const button = event.target.closest('.btn-read-notif');
+    if (!button) return;
+    const notification = notificationItems.find(item => String(item.id) === button.dataset.id);
+    if (notification && Number(notification.is_read) !== 1) requestNotificationRead(button, notification);
+  });
+
+  confirmNotificationRead.addEventListener('click', async () => {
+    if (!pendingNotificationAction || confirmNotificationRead.disabled || !can('can_view_notifications')) return;
+    const payload = { ...pendingNotificationAction };
+    const label = confirmNotificationRead.textContent;
+    confirmNotificationRead.disabled = cancelNotificationRead.disabled = true;
+    confirmNotificationRead.textContent = 'Saving...';
+    notificationReadModal.setAttribute('aria-busy', 'true');
+    notificationReadError.hidden = true;
+    let saved = false;
+    try {
+      const result = await CCAdmin.apiRequest('public/api/admin/notifications.php', {
+        method: 'POST', body: JSON.stringify(payload)
+      });
+      if (result.success === false) throw new Error('Unable to mark notifications as read. Please try again.');
+      saved = true;
+    } catch (error) {
+      notificationReadError.textContent = error.message || 'Unable to mark notifications as read. Please try again.';
+      notificationReadError.hidden = false;
+    } finally {
+      confirmNotificationRead.disabled = cancelNotificationRead.disabled = false;
+      confirmNotificationRead.textContent = label;
+      notificationReadModal.removeAttribute('aria-busy');
+    }
+    if (!saved) return;
+    pendingNotificationAction = null;
+    bootstrap.Modal.getOrCreateInstance(notificationReadModal).hide();
+    CCAdmin.showToast(payload.action === 'mark_all_read' ? 'All notifications marked as read.' : 'Notification marked as read.');
+    await loadNotifications();
+    await loadOverview();
+  });
+
   async function loadNotifications() {
+    // Initial hydration starts before the module's controls and state are bound.
+    await Promise.resolve();
+    const requestId = ++notificationsRequest;
     const status = document.getElementById('notifStatusFilter').value;
     const type = document.getElementById('notifTypeFilter').value;
     const params = new URLSearchParams();
@@ -1065,8 +1149,10 @@ async function initDashboard() {
 
     try {
       const data = await CCAdmin.apiRequest(`public/api/admin/notifications.php?${params.toString()}`);
-      const tbody = document.getElementById('notificationsTableBody');
+      if (requestId !== notificationsRequest) return;
+      const tbody = notificationsBody;
       const items = data.notifications || [];
+      notificationItems = items;
 
       if (!items.length) {
         tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted-cc">No notifications found.</td></tr>`;
@@ -1076,23 +1162,23 @@ async function initDashboard() {
       tbody.innerHTML = items.map(n => {
         const isRead = Number(n.is_read) === 1;
         return `
-          <tr>
+          <tr class="${isRead ? 'notification-read' : 'notification-unread'}">
             <td>
               <span class="badge ${isRead ? 'admin-badge-inactive' : 'admin-badge-unread'}">
                 ${isRead ? 'Read' : 'Unread'}
               </span>
             </td>
             <td>
-              <div class="fw-medium text-light-cc">${escapeHtml(n.title)}</div>
-              <div class="text-muted-cc" style="font-size: 11px;">Type: ${escapeHtml(n.type)}</div>
+              <div class="notification-title fw-medium text-light-cc" title="${escapeHtml(n.title)}">${escapeHtml(n.title)}</div>
+              <div class="notification-title notification-type text-muted-cc">${escapeHtml(String(n.type || '').replace(/_/g, ' '))}</div>
             </td>
-            <td class="text-light-cc" style="font-size: 13px;">${escapeHtml(n.message)}</td>
-            <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(n.created_at)}</td>
+            <td class="text-light-cc"><span class="notification-value" title="${escapeHtml(n.message)}">${escapeHtml(n.message)}</span></td>
+            <td><span class="notification-value notification-time text-muted-cc">${escapeHtml(n.created_at)}</span></td>
             <td class="text-end">
               ${!can('can_view_notifications') ? `
                 <span class="text-muted-cc" style="font-size: 12px;">View only</span>
               ` : (!isRead ? `
-                <a href="javascript:void(0)" class="admin-action-link btn-read-notif" data-id="${n.id}">Mark read</a>
+                <button type="button" class="btn-read-notif cc-underline-link text-accent" data-id="${escapeHtml(n.id)}" aria-haspopup="dialog" aria-label="Mark as read: ${escapeHtml(n.title)}">Mark as Read</button>
               ` : `
                 <span class="text-muted-cc" style="font-size: 12px;">Archived</span>
               `)}
@@ -1100,21 +1186,6 @@ async function initDashboard() {
           </tr>
         `;
       }).join('');
-
-      tbody.querySelectorAll('.btn-read-notif').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          try {
-            await CCAdmin.apiRequest('public/api/admin/notifications.php', {
-              method: 'POST',
-              body: JSON.stringify({ action: 'mark_read', notification_id: parseInt(btn.dataset.id, 10) })
-            });
-            await loadNotifications();
-            await loadOverview();
-          } catch (err) {
-            CCAdmin.showToast(err.message, 'error');
-          }
-        });
-      });
 
     } catch (e) {
       console.warn('Load notifications error:', e);
@@ -1125,18 +1196,8 @@ async function initDashboard() {
     document.getElementById(id).addEventListener('change', loadNotifications);
   });
 
-  document.getElementById('markAllNotifsBtn').addEventListener('click', async () => {
-    try {
-      await CCAdmin.apiRequest('public/api/admin/notifications.php', {
-        method: 'POST',
-        body: JSON.stringify({ action: 'mark_all_read' })
-      });
-      CCAdmin.showToast('All notifications marked as read.');
-      await loadNotifications();
-      await loadOverview();
-    } catch (err) {
-      CCAdmin.showToast(err.message, 'error');
-    }
+  document.getElementById('markAllNotifsBtn').addEventListener('click', event => {
+    requestNotificationRead(event.currentTarget);
   });
 
   // ==========================================
