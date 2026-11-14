@@ -77,26 +77,19 @@ async function expectProducts(page, expected, ordered = false) {
         await expectProducts(page, collectionItems);
         const baseline = await page.locator(visible).evaluateAll(elements => elements.map(element => element.dataset.productId || element.querySelector('[data-product-id]').dataset.productId));
         const featured = baseline.map(id => collectionItems.find(item => key(item) === id));
-        await page.locator('[data-filter-toggle="all"]').click();
-        assert.equal(await page.locator('#catalog-filter-panel').isVisible(), true);
-        await page.locator('#filter-size').press('Escape');
-        assert.equal(await page.locator('#catalog-filter-panel').isVisible(), false);
-        for (const [button, control] of [['size', 'size'], ['colour', 'colour'], ['price', 'min-price'], ['availability', 'availability']]) {
-          await page.locator(`[data-filter-toggle="${button}"]`).click();
-          assert.equal(await page.locator('#filter-' + control).evaluate(element => element === document.activeElement), true);
+        assert.equal(await page.locator('#clear-filters-btn').isVisible(), false);
+        assert.equal(await page.locator('[data-filter-toggle], #size-filter-group, #filter-min-price, #filter-max-price').count(), 0);
+        assert.equal(await page.locator('#piece-count').count(), 1);
+        await page.locator('#product-search').focus();
+        for (const id of ['filter-size', 'filter-colour', 'filter-in-stock', 'product-sort']) {
+          await page.keyboard.press('Tab');
+          assert.equal(await page.locator('#' + id).evaluate(element => element === document.activeElement), true);
         }
         const sizeValues = [...new Set(collectionItems.flatMap(item => Object.keys(sizes(item))))];
         assert.deepEqual((await page.locator('#filter-size option').evaluateAll(options => options.map(option => option.value).filter(Boolean))).sort(), [...sizeValues].sort());
         for (const size of sizeValues) {
           await page.selectOption('#filter-size', size);
           await expectProducts(page, collectionItems.filter(item => size in sizes(item)));
-          if (collection === 'shop-all') {
-            await page.locator('#size-filter-group [data-size="All"]').click();
-            await expectProducts(page, collectionItems);
-            await page.locator(`#size-filter-group [data-size="${size}"]`).click();
-            assert.equal(await page.locator('#filter-size').inputValue(), size);
-            await expectProducts(page, collectionItems.filter(item => size in sizes(item)));
-          }
         }
         await page.locator('#clear-filters-btn').click();
         const colours = [...new Set(collectionItems.map(item => item.color_name))];
@@ -106,27 +99,15 @@ async function expectProducts(page, expected, ordered = false) {
           await expectProducts(page, collectionItems.filter(item => item.color_name === colour));
         }
         await page.locator('#clear-filters-btn').click();
-        const prices = [...new Set(collectionItems.map(item => Number(item.price)))].sort((a, b) => a - b);
-        for (const price of prices) {
-          await page.fill('#filter-min-price', String(price));
-          await expectProducts(page, collectionItems.filter(item => Number(item.price) >= price));
-          await page.fill('#filter-min-price', '');
-          await page.fill('#filter-max-price', String(price));
-          await expectProducts(page, collectionItems.filter(item => Number(item.price) <= price));
-          await page.fill('#filter-min-price', String(price));
-          await expectProducts(page, collectionItems.filter(item => Number(item.price) === price));
-          await page.fill('#filter-min-price', '');
-          await page.fill('#filter-max-price', '');
-        }
-        for (const availability of ['in-stock', 'out-of-stock', '']) {
-          await page.selectOption('#filter-availability', availability);
-          await expectProducts(page, collectionItems.filter(item => !availability || (availability === 'in-stock' ? Number(item.stock_qty) > 0 : Number(item.stock_qty) <= 0)));
+        for (const checked of [true, false]) {
+          await page.locator('#filter-in-stock').setChecked(checked);
+          await expectProducts(page, collectionItems.filter(item => !checked || Number(item.stock_qty) > 0));
         }
         for (const size of sizeValues) {
           await page.selectOption('#filter-size', size);
-          for (const availability of ['in-stock', 'out-of-stock']) {
-            await page.selectOption('#filter-availability', availability);
-            await expectProducts(page, collectionItems.filter(item => size in sizes(item) && (availability === 'in-stock' ? sizes(item)[size] > 0 : sizes(item)[size] <= 0)));
+          for (const checked of [true, false]) {
+            await page.locator('#filter-in-stock').setChecked(checked);
+            await expectProducts(page, collectionItems.filter(item => size in sizes(item) && (!checked || sizes(item)[size] > 0)));
           }
         }
         await page.locator('#clear-filters-btn').click();
@@ -135,32 +116,30 @@ async function expectProducts(page, expected, ordered = false) {
           const tokens = term.trim().toLowerCase().split(/\s+/).filter(Boolean);
           await expectProducts(page, collectionItems.filter(item => tokens.every(token => [item.name, item.color_name, item.sku, item.category_name, item.description].join(' ').toLowerCase().includes(token))));
         }
-        await page.locator('.cc-catalog-empty button').click();
+        await page.locator('#clear-filters-btn').click();
         await expectProducts(page, collectionItems);
         const candidate = collectionItems.find(item => Number(item.stock_qty) > 0);
         const size = Object.keys(sizes(candidate)).find(size => sizes(candidate)[size] > 0);
         await page.selectOption('#filter-size', size);
         await page.selectOption('#filter-colour', candidate.color_name);
-        await page.fill('#filter-min-price', candidate.price);
-        await page.fill('#filter-max-price', candidate.price);
-        await page.selectOption('#filter-availability', 'in-stock');
+        await page.locator('#filter-in-stock').check();
         await page.fill('#product-search', candidate.name.toUpperCase());
-        const combined = collectionItems.filter(item => sizes(item)[size] > 0 && item.color_name === candidate.color_name && Number(item.price) === Number(candidate.price) && item.name === candidate.name);
+        const combined = collectionItems.filter(item => sizes(item)[size] > 0 && item.color_name === candidate.color_name && item.name === candidate.name);
         await expectProducts(page, combined);
-        for (const mode of ['featured', 'price-asc', 'price-desc', 'name-asc', 'name-desc', 'newest']) {
+        for (const mode of ['featured', 'price-asc', 'price-desc']) {
           await page.selectOption('#product-sort', mode);
           await expectProducts(page, combined);
         }
         await page.locator('#clear-filters-btn').click();
-        assert.equal(await page.locator('#product-sort').inputValue(), 'featured');
+        assert.equal(await page.locator('#product-sort').inputValue(), 'price-desc');
+        assert.equal(await page.locator('#clear-filters-btn').isVisible(), false);
+        assert.equal(await page.locator('#product-search').evaluate(element => element === document.activeElement), true);
+        await page.selectOption('#product-sort', 'featured');
         assert.equal(await page.locator('#product-search').inputValue(), '');
         await expectProducts(page, featured, true);
         const sorters = {
           'price-asc': (a, b) => Number(a.price) - Number(b.price),
-          'price-desc': (a, b) => Number(b.price) - Number(a.price),
-          'name-asc': (a, b) => a.name.localeCompare(b.name),
-          'name-desc': (a, b) => b.name.localeCompare(a.name),
-          newest: (a, b) => Number(b.is_new) - Number(a.is_new) || Number(b.id) - Number(a.id)
+          'price-desc': (a, b) => Number(b.price) - Number(a.price)
         };
         for (const [mode, compare] of Object.entries(sorters)) {
           await page.selectOption('#product-sort', mode);
@@ -168,8 +147,8 @@ async function expectProducts(page, expected, ordered = false) {
         }
         // Catalog refresh must preserve both active criteria and original featured order.
         await page.evaluate(() => window.dispatchEvent(new CustomEvent('cc:catalogReady')));
-        await expectProducts(page, [...featured].sort(sorters.newest), true);
-        await page.locator('#clear-filters-btn').click();
+        await expectProducts(page, [...featured].sort(sorters['price-desc']), true);
+        await page.selectOption('#product-sort', 'featured');
         await expectProducts(page, featured, true);
         if (collection === 'new-arrivals') {
           for (const category of ['tops-tees', 'outerwear', 'bottoms', 'all']) {
@@ -209,15 +188,17 @@ async function expectProducts(page, expected, ordered = false) {
         }
         await page.locator('.cc-qv-close').click();
         await page.setViewportSize({ width: 390, height: 844 });
-        await page.locator('[data-filter-toggle="colour"]').click();
         await page.selectOption('#filter-colour', colours[0]);
         await expectProducts(page, collectionItems.filter(item => item.color_name === colours[0]));
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-        assert.equal(await page.locator('#catalog-filter-panel').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+        for (const width of [320, 390, 768]) {
+          await page.setViewportSize({ width, height: 844 });
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+          assert.equal(await page.locator('.cc-catalog-fields').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+        }
         await page.locator('#clear-filters-btn').click();
         await expectProducts(page, featured, true);
         assert.equal(counts().navigations, 1, 'Filtering and sorting must not navigate');
-        console.log(`${label} ${collection}: sizes, colours, price boundaries, availability, search, combinations, all sorting, reset, links, wishlist, cart and mobile passed (${collectionItems.length} products)`);
+        console.log(`${label} ${collection}: sizes, colours, stock by size, search, combinations, all sorting, reset, links, wishlist, cart and mobile passed (${collectionItems.length} products)`);
       } finally { await context.close(); }
     }
     for (const collection of pages) await exercise(catalog, collection, 'Live API');
@@ -250,12 +231,9 @@ async function expectProducts(page, expected, ordered = false) {
           window.dispatchEvent(new CustomEvent('cc:catalogReady'));
         });
         await expectProducts(page, [{ catalog_key: 'runtime-added-product' }]);
-        await page.locator('[data-filter-toggle="size"]').click();
         await page.selectOption('#filter-size', 'Custom fit');
         await page.selectOption('#filter-colour', 'Runtime green');
-        await page.fill('#filter-min-price', '42');
-        await page.fill('#filter-max-price', '42');
-        await page.selectOption('#filter-availability', 'in-stock');
+        await page.locator('#filter-in-stock').check();
         await expectProducts(page, [{ catalog_key: 'runtime-added-product' }]);
         for (const query of ['nothing-matches', 'runtime', 'nothing-matches', 'runtime-added-product']) await page.fill('#product-search', query);
         await expectProducts(page, [{ catalog_key: 'runtime-added-product' }]);
@@ -276,7 +254,9 @@ async function expectProducts(page, expected, ordered = false) {
         await page.goto(base + collection + '.html', { waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => document.querySelector('#product-grid')?.getAttribute('aria-busy') === 'false');
         await expectProducts(page, []);
-        await page.locator('.cc-catalog-empty button').click();
+        assert.equal(await page.locator('#clear-filters-btn').isVisible(), false);
+        await page.fill('#product-search', 'test');
+        await page.locator('#clear-filters-btn').click();
         await expectProducts(page, []);
         console.log(`Empty catalog ${collection}: empty state and reset passed`);
       } finally { await context.close(); }

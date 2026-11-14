@@ -4,69 +4,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('#product-grid[data-collection]');
   if (!grid || typeof CCStore === 'undefined') return;
   const section = grid.closest('section');
-  const state = { size: '', colour: '', min: '', max: '', availability: '', search: '', category: 'all', sort: 'featured' };
+  const state = { size: '', colour: '', inStock: false, search: '', category: 'all', sort: 'featured' };
   const categoryAliases = { outerwear: 'outerwear-hoodies', bottoms: 'bottoms-accessories' };
   let records = [];
   let nextOrder = 1;
   let animation;
 
-  const controls = document.createElement('div');
-  controls.className = 'cc-collection-controls';
+  const controls = section.querySelector('.cc-collection-controls');
   controls.innerHTML = `
-    <div class="cc-catalog-search-row">
-      <label class="cc-catalog-search cc-xs-text" for="product-search">Search products
+    <div class="cc-catalog-fields" role="group" aria-label="Filter and sort products">
+      <label class="cc-catalog-search cc-xs-text" for="product-search">Search
         <input id="product-search" type="search" class="cc-catalog-input" placeholder="Search this collection" autocomplete="off">
       </label>
-      ${section.querySelector('#clear-filters-btn') ? '' : '<button type="button" id="clear-filters-btn" class="btn p-0 border-0 cc-underline-link">Clear all</button>'}
-    </div>
-    <div id="catalog-filter-panel" class="cc-catalog-filter-panel" hidden>
       <label class="cc-xs-text" for="filter-size">Size<select id="filter-size" class="cc-catalog-input"><option value="">All sizes</option></select></label>
       <label class="cc-xs-text" for="filter-colour">Colour<select id="filter-colour" class="cc-catalog-input"><option value="">All colours</option></select></label>
-      <fieldset class="cc-catalog-price"><legend class="cc-xs-text invisible">Price (PHP)</legend><div class="cc-catalog-price-inputs">
-        <label class="cc-xs-text" for="filter-min-price">Min<input id="filter-min-price" class="cc-catalog-input" type="number" min="0" step="0.01" placeholder="No minimum" inputmode="decimal"></label>
-        <label class="cc-xs-text" for="filter-max-price">Max<input id="filter-max-price" class="cc-catalog-input" type="number" min="0" step="0.01" placeholder="No maximum" inputmode="decimal"></label>
-      </div></fieldset>
-      <label class="cc-xs-text" for="filter-availability">Availability<select id="filter-availability" class="cc-catalog-input">
-        <option value="">All products</option><option value="in-stock">In stock</option><option value="out-of-stock">Out of stock</option>
-      </select></label>
+      <label class="cc-catalog-stock cc-xs-text" for="filter-in-stock"><input id="filter-in-stock" type="checkbox">In stock only</label>
+      <label class="cc-catalog-sort cc-xs-text" for="product-sort">Sort by
+        <select id="product-sort" class="cc-catalog-input">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price: Low to high</option>
+          <option value="price-desc">Price: High to low</option>
+        </select>
+      </label>
+    </div>
+    <div class="cc-catalog-summary">
+      <div id="catalog-results-status" class="cc-xs-text text-muted-cc" role="status" aria-live="polite" aria-atomic="true"></div>
+      <button type="button" id="clear-filters-btn" class="cc-catalog-clear cc-underline-link" hidden>Clear filters</button>
     </div>`;
-  const toolbar = section.querySelector('[data-filter-toggle="all"]').closest('.justify-content-between');
-  toolbar.after(controls);
-  const panel = controls.querySelector('#catalog-filter-panel');
   const search = controls.querySelector('#product-search');
   const fields = {
-    size: controls.querySelector('#filter-size'), colour: controls.querySelector('#filter-colour'),
-    min: controls.querySelector('#filter-min-price'), max: controls.querySelector('#filter-max-price'),
-    availability: controls.querySelector('#filter-availability')
+    size: controls.querySelector('#filter-size'), colour: controls.querySelector('#filter-colour')
   };
-  const sortButton = section.querySelector('[data-sort-toggle]');
-  const sortLabel = document.createElement('label');
-  sortLabel.className = 'cc-catalog-sort cc-xs-text text-muted-cc';
-  sortLabel.textContent = 'Sort: ';
-  const sort = document.createElement('select');
-  sort.id = 'product-sort';
-  sort.className = 'cc-catalog-sort-select';
-  sort.setAttribute('aria-label', 'Sort products');
-  const sortOptions = [
-    ['featured', 'Featured'], ['price-asc', 'Price: Low to high'], ['price-desc', 'Price: High to low'],
-    ['name-asc', 'Name: A to Z'], ['name-desc', 'Name: Z to A'], ['newest', 'Newest']
-  ];
-  sortOptions.forEach(([value, label]) => sort.add(new Option(label, value)));
-  sortLabel.append(sort);
-  sortButton.replaceWith(sortLabel);
+  const inStock = controls.querySelector('#filter-in-stock');
+  const sort = controls.querySelector('#product-sort');
+  const clear = controls.querySelector('#clear-filters-btn');
 
   const empty = document.createElement('div');
   empty.className = 'cc-catalog-empty text-center py-5';
-  empty.innerHTML = '<h2 class="cc-service-title">No products found</h2><p class="cc-small-text">Try another search or clear your filters.</p><button type="button" class="btn-cc-outline">Clear filters</button>';
+  empty.innerHTML = '<h2 class="cc-service-title">No products found</h2><p class="cc-small-text">Try another search or clear your filters.</p>';
   empty.hidden = true;
   grid.after(empty);
-  const status = document.createElement('div');
-  status.id = 'catalog-results-status';
-  status.className = 'cc-xs-text text-muted-cc';
-  status.setAttribute('role', 'status');
-  status.setAttribute('aria-live', 'polite');
-  status.setAttribute('aria-atomic', 'true');
-  grid.before(status);
+  const status = controls.querySelector('#catalog-results-status');
   grid.setAttribute('aria-describedby', status.id);
   const retry = document.createElement('button');
   retry.type = 'button';
@@ -111,18 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setOptions(fields.size, sizes, 'All sizes', state.size);
     const colours = [...new Set(records.map(({ product }) => product.color))].sort((a, b) => a.localeCompare(b));
     setOptions(fields.colour, colours, 'All colours', state.colour);
-    const quickSizes = section.querySelector('#size-filter-group');
-    if (quickSizes) {
-      const template = quickSizes.querySelector('button');
-      quickSizes.replaceChildren(...['All', ...sizes].map(size => {
-        const button = template.cloneNode(false);
-        button.dataset.size = size;
-        button.textContent = size;
-        button.style.minWidth = '42px';
-        button.style.width = 'auto';
-        return button;
-      }));
-    }
     grid.setAttribute('aria-busy', 'false');
     retry.hidden = CCStore.isCatalogLoaded();
     render(false);
@@ -136,18 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return (!state.category || state.category === 'all' || product.categorySlug === (categoryAliases[state.category] || state.category)) &&
         (!state.size || CCStore.getSizes(product.id).some(size => size.code === state.size)) &&
         (!state.colour || product.color === state.colour) &&
-        (state.min === '' || product.price >= Number(state.min)) &&
-        (state.max === '' || product.price <= Number(state.max)) &&
-        (!state.availability || (state.availability === 'in-stock' ? stock > 0 : stock <= 0)) &&
+        (!state.inStock || stock > 0) &&
         tokens.every(token => haystack.includes(token));
     });
     matches.sort((a, b) => {
       switch (state.sort) {
         case 'price-asc': return a.product.price - b.product.price || a.index - b.index;
         case 'price-desc': return b.product.price - a.product.price || a.index - b.index;
-        case 'name-asc': return a.product.name.localeCompare(b.product.name) || a.index - b.index;
-        case 'name-desc': return b.product.name.localeCompare(a.product.name) || a.index - b.index;
-        case 'newest': return Number(b.product.isNew) - Number(a.product.isNew) || Number(b.product.productGroup) - Number(a.product.productGroup) || a.index - b.index;
         default: return a.index - b.index;
       }
     });
@@ -155,35 +116,24 @@ document.addEventListener('DOMContentLoaded', () => {
     records.forEach(({ element }) => { element.hidden = !visible.has(element); });
     matches.forEach(({ element }) => grid.append(element));
     const count = matches.length;
-    section.querySelector('#piece-count').textContent = count;
     const loaded = CCStore.isCatalogLoaded();
     empty.hidden = count > 0 || !loaded;
-    status.textContent = loaded ? `${count} ${count === 1 ? 'product' : 'products'} found` :
-      (grid.getAttribute('aria-busy') === 'true' ? 'Loading products…' : 'Unable to load products. Please try again.');
-    const sizeStatus = section.querySelector('#size-status-text');
-    if (sizeStatus) sizeStatus.textContent = `${state.size ? 'Size ' + state.size : 'All sizes'} · ${count} pieces in the collection`;
+    if (loaded) {
+      status.innerHTML = `<span id="piece-count">${count}</span> ${count === 1 ? 'product' : 'products'}`;
+    } else {
+      status.textContent = grid.getAttribute('aria-busy') === 'true' ? 'Loading products…' : 'Unable to load products. Please try again.';
+    }
+    clear.hidden = !state.size && !state.colour && !state.inStock && !state.search && state.category === 'all';
+    Object.entries(fields).forEach(([key, field]) => field.classList.toggle('is-active', Boolean(state[key])));
     const summary = section.querySelector('#viewed-summary-text');
     if (summary) summary.textContent = `You have viewed all ${count} pieces.`;
-    section.querySelectorAll('[data-size]').forEach(button => {
-      const active = button.dataset.size === (state.size || 'All');
-      button.classList.toggle('active', active);
-      button.classList.toggle('bg-cc-dark', !active);
-      button.setAttribute('aria-pressed', String(active));
-    });
     section.querySelectorAll('.category-tab').forEach(tab => {
       const active = tab.dataset.category === state.category;
       tab.classList.toggle('active', active);
-      tab.setAttribute('role', 'tab');
-      tab.setAttribute('aria-selected', String(active));
+      tab.setAttribute('aria-pressed', String(active));
       tab.querySelector('.tab-label').classList.toggle('text-light-cc', active);
       tab.querySelector('.tab-label').classList.toggle('text-muted-cc', !active);
       tab.querySelector('.tab-indicator').style.backgroundColor = active ? 'var(--cc-accent)' : 'transparent';
-    });
-    section.querySelectorAll('[data-filter-toggle]').forEach(button => {
-      const key = button.dataset.filterToggle;
-      const active = key === 'all' ? ['size', 'colour', 'min', 'max', 'availability', 'search'].some(field => state[field] !== '') || state.category !== 'all' :
-        key === 'price' ? state.min !== '' || state.max !== '' : state[key] !== '';
-      button.classList.toggle('text-accent', active);
     });
     if (animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       animation?.cancel();
@@ -192,48 +142,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function reset() {
-    Object.assign(state, { size: '', colour: '', min: '', max: '', availability: '', search: '', category: 'all', sort: 'featured' });
+    Object.assign(state, { size: '', colour: '', inStock: false, search: '', category: 'all' });
     Object.values(fields).forEach(field => { field.value = ''; });
     search.value = '';
-    sort.value = 'featured';
+    inStock.checked = false;
     render();
+    search.focus({ preventScroll: true });
   }
-  section.querySelector('#clear-filters-btn').addEventListener('click', reset);
-  empty.querySelector('button').addEventListener('click', reset);
+  clear.addEventListener('click', reset);
   search.addEventListener('input', () => { state.search = search.value; render(); });
   sort.addEventListener('change', () => { state.sort = sort.value; render(); });
+  inStock.addEventListener('change', () => { state.inStock = inStock.checked; render(); });
   Object.entries(fields).forEach(([key, field]) => {
-    field.addEventListener(field.tagName === 'SELECT' ? 'change' : 'input', () => {
+    field.addEventListener('change', () => {
       state[key] = field.value;
       render();
     });
   });
   section.addEventListener('click', event => {
-    const size = event.target.closest('#size-filter-group [data-size]');
-    if (size) {
-      state.size = size.dataset.size === 'All' ? '' : size.dataset.size;
-      fields.size.value = state.size;
-      render();
-    }
     const tab = event.target.closest('.category-tab');
     if (tab) { state.category = tab.dataset.category; render(); }
-  });
-  section.querySelectorAll('[data-filter-toggle]').forEach(button => {
-    button.setAttribute('aria-controls', panel.id);
-    button.setAttribute('aria-expanded', 'false');
-    button.addEventListener('click', () => {
-      const key = button.dataset.filterToggle;
-      panel.hidden = key === 'all' ? !panel.hidden : false;
-      section.querySelectorAll('[data-filter-toggle]').forEach(toggle => toggle.setAttribute('aria-expanded', String(!panel.hidden)));
-      if (!panel.hidden) (key === 'price' ? fields.min : fields[key] || fields.size).focus();
-    });
-  });
-  panel.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {
-      panel.hidden = true;
-      section.querySelectorAll('[data-filter-toggle]').forEach(button => button.setAttribute('aria-expanded', 'false'));
-      section.querySelector('[data-filter-toggle="all"]').focus();
-    }
   });
   retry.addEventListener('click', async () => {
     retry.hidden = true;
