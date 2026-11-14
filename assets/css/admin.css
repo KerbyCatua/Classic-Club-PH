@@ -205,6 +205,26 @@ body.cc-log-read-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-bac
 #activityLogReadSummary { overflow-wrap: anywhere; }
 
 /* Inventory only: editorial rows with fixed five / seven-record viewports. */
+/* Keep movement filters in normal flow, above the table's scroll container. */
+#module-inventory .inventory-movement-filters { width: 100%; max-width: 100%; min-width: 0; }
+#module-inventory #movementTypeFilter {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding-inline-end: 2.75rem; /* Reserve space for Bootstrap's dropdown arrow. */
+  background-position: right .875rem center;
+  color-scheme: dark;
+  cursor: pointer;
+}
+#module-inventory #movementTypeFilter:focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
+@media (min-width: 576px) {
+  #module-inventory .inventory-movement-filters { width: auto; }
+  #module-inventory #movementTypeFilter { width: 14rem; }
+}
+@media (max-width: 575.98px) {
+  #module-inventory #movementTypeFilter { font-size: 16px; }
+}
+
 #module-inventory .inventory-table-container { overflow-x: auto; border-block: 1px solid var(--cc-border); }
 #module-inventory .inventory-viewport { min-width: 1000px; overflow-y: auto; }
 #module-inventory .inventory-products-viewport { height: 410px; /* 45px header + five 73px rows */ }
