@@ -337,6 +337,32 @@
     .sa-table-wide { min-width: 940px; }
     .sa-table-medium { min-width: 760px; }
 
+    /* Users only: a 45px header and four 73px account rows. */
+    #module-users .users-table-viewport {
+      height: 337px;
+      min-width: 940px;
+      overflow-y: auto;
+    }
+    #module-users :is(.admin-table-container, .users-table-viewport) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--cc-accent) var(--cc-bg);
+    }
+    #module-users :is(.admin-table-container, .users-table-viewport)::-webkit-scrollbar { width: 8px; height: 8px; }
+    #module-users :is(.admin-table-container, .users-table-viewport)::-webkit-scrollbar-track { background: var(--cc-bg); }
+    #module-users :is(.admin-table-container, .users-table-viewport)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+    #module-users #usersTable { border-collapse: separate; border-spacing: 0; }
+    #module-users #usersTable th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      height: 45px;
+      padding: 0 14px;
+      line-height: 16px;
+      background: var(--cc-placeholder);
+    }
+    #module-users #usersTable td { height: 73px; }
+    #module-users #usersTable .sa-user-edit { white-space: nowrap; }
+
     .sa-ticket-subject {
       font-size: 12px;
       color: var(--cc-muted);
@@ -836,6 +862,7 @@
 
       <!-- Accounts Table -->
       <div class="admin-table-container mb-2">
+        <div class="users-table-viewport" tabindex="0" role="region" aria-label="User accounts">
         <table class="admin-table sa-table-wide" id="usersTable">
           <thead>
             <tr>
@@ -855,6 +882,7 @@
             <!-- Rendered by page script -->
           </tbody>
         </table>
+        </div>
       </div>
       <p class="text-muted-cc mb-5" style="font-size: 12px;" id="usersTableNote">
         Loading live accounts…
