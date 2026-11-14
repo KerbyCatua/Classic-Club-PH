@@ -450,6 +450,12 @@ body.cc-inventory-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-ba
 }
 
 /* Modals */
+/* Staff invite only; Bootstrap supplies the black, 50% opacity backdrop. */
+#modalInviteStaff {
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
 .modal-content.admin-modal {
   background: var(--cc-surface);
   border: 1px solid var(--cc-border);
