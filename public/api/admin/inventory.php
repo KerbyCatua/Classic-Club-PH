@@ -28,6 +28,16 @@ try {
         $action = $body['action'] ?? '';
         $productId = (int)($body['product_id'] ?? 0);
 
+        if (in_array($action, ['restock', 'adjust'], true)) {
+            // Do not silently truncate fractions or coerce missing / boolean quantities.
+            if (!is_int($body['quantity'] ?? null) || $body['quantity'] < 0 || $body['quantity'] > 2147483647) {
+                JsonResponse::error('Enter a whole stock quantity between 0 and 2147483647.', 422)->send();
+            }
+            if (!is_string($body['reason'] ?? '') || mb_strlen($body['reason'] ?? '') > 255) {
+                JsonResponse::error('The reason must be at most 255 characters.', 422)->send();
+            }
+        }
+
         if ($action === 'restock') {
             $qty = (int)($body['quantity'] ?? 0);
             $reason = (string)($body['reason'] ?? 'Routine restocking');

@@ -465,8 +465,9 @@
       </div>
 
       <!-- Inventory Table -->
-      <div class="admin-table-container mb-5">
-        <table class="admin-table" id="inventoryTable">
+      <div class="inventory-table-container mb-5">
+        <div class="inventory-viewport inventory-products-viewport" tabindex="0" role="region" aria-label="Inventory products, scroll for more records">
+        <table class="inventory-table" id="inventoryTable">
           <thead>
             <tr>
               <th>Product</th>
@@ -481,14 +482,15 @@
             <!-- Dynamically populated -->
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Stock Movement History -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3">
         <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Stock movement history</h3>
-        <div class="d-flex gap-2">
-          <input type="text" id="movementSearchInput" class="admin-input-filter" placeholder="Filter movements...">
-          <select id="movementTypeFilter" class="admin-select-filter">
+        <div class="d-flex flex-wrap gap-2">
+          <input type="text" id="movementSearchInput" class="form-control cc-input w-auto" aria-label="Filter stock movements" placeholder="Filter movements...">
+          <select id="movementTypeFilter" class="form-select cc-input w-auto" aria-label="Stock movement type">
             <option value="">All movement types</option>
             <option value="restock">Restock</option>
             <option value="adjustment">Manual adjustment</option>
@@ -496,8 +498,9 @@
         </div>
       </div>
 
-      <div class="admin-table-container">
-        <table class="admin-table" id="movementsTable">
+      <div class="inventory-table-container">
+        <div class="inventory-viewport inventory-movements-viewport" tabindex="0" role="region" aria-label="Stock movement history, scroll for more records">
+        <table class="inventory-table" id="movementsTable">
           <thead>
             <tr>
               <th>Date / Time</th>
@@ -505,12 +508,116 @@
               <th>Stock Transition</th>
               <th>Reason</th>
               <th>Administrator</th>
+              <th>Read status</th>
             </tr>
           </thead>
           <tbody id="movementsTableBody">
             <!-- Dynamically populated -->
           </tbody>
         </table>
+        </div>
+      </div>
+
+      <div class="modal fade cc-inventory-modal" id="modalRestock" tabindex="-1" aria-labelledby="modalRestockTitle" aria-describedby="modalRestockDescription" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+          <div class="modal-content">
+            <div class="modal-header align-items-start gap-3">
+              <div><p class="cc-eyebrow mb-2">INVENTORY / RESTOCK</p><h2 id="modalRestockTitle" class="font-lora inventory-modal-title mb-2">Restock inventory</h2><p id="modalRestockDescription" class="cc-xs-text mb-0">Record a supplier delivery and add units to your physical stock.</p></div>
+              <button type="button" class="btn btn-cc-outline inventory-modal-button flex-shrink-0" data-bs-dismiss="modal" aria-label="Close restock inventory">Close &times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-4">
+                <aside class="col-12 col-lg-4 d-flex flex-column gap-3">
+                  <h3 class="cc-eyebrow font-sans m-0">SELECTED PRODUCT</h3>
+                  <div class="inventory-modal-card"><h3 id="restockProdName" class="font-lora h5 text-light-cc"></h3><p id="restockCurrentStock" class="cc-xs-text mb-0"></p></div>
+                  <p class="cc-xs-text m-0">The confirmed delivery is recorded in stock movement history with your name and reference.</p>
+                </aside>
+                <div class="col-12 col-lg-8">
+                  <h3 class="font-lora h4 mb-3">Delivery details</h3>
+                  <form id="formRestock"><input type="hidden" id="restockProdId">
+                    <div class="row g-3">
+                      <div class="col-12 col-sm-6"><label for="restockQty" class="form-label">Units to add *</label><input type="number" class="form-control cc-input" id="restockQty" min="1" max="2147483647" step="1" required placeholder="e.g. 20"></div>
+                      <div class="col-12"><label for="restockReason" class="form-label">Restock reason / Supplier reference</label><input type="text" class="form-control cc-input" id="restockReason" maxlength="255" value="Routine supplier restocking"></div>
+                    </div>
+                    <p id="restockPreview" class="cc-xs-text text-accent mt-3 mb-0" aria-live="polite"></p>
+                  </form>
+                </div>
+              </div>
+              <p class="inventory-form-error text-danger cc-xs-text mt-3 mb-0" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer d-flex flex-wrap align-items-center gap-3">
+              <p class="cc-xs-text me-auto mb-0">Review the quantity before confirming this delivery.</p>
+              <button type="button" class="btn btn-cc-outline inventory-modal-button" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" form="formRestock" class="btn btn-cc-teal inventory-modal-button inventory-confirm">Confirm restock</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade cc-inventory-modal" id="modalAdjustStock" tabindex="-1" aria-labelledby="modalAdjustStockTitle" aria-describedby="modalAdjustStockDescription" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+          <div class="modal-content">
+            <div class="modal-header align-items-start gap-3">
+              <div><p class="cc-eyebrow mb-2">INVENTORY / ADJUST</p><h2 id="modalAdjustStockTitle" class="font-lora inventory-modal-title mb-2">Manual stock adjustment</h2><p id="modalAdjustStockDescription" class="cc-xs-text mb-0">Reconcile a recount or record a change in your physical stock.</p></div>
+              <button type="button" class="btn btn-cc-outline inventory-modal-button flex-shrink-0" data-bs-dismiss="modal" aria-label="Close manual stock adjustment">Close &times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-4">
+                <aside class="col-12 col-lg-4 d-flex flex-column gap-3">
+                  <h3 class="cc-eyebrow font-sans m-0">SELECTED PRODUCT</h3>
+                  <div class="inventory-modal-card"><h3 id="adjustProdName" class="font-lora h5 text-light-cc"></h3><p id="adjustCurrentStock" class="cc-xs-text mb-0"></p></div>
+                  <p class="cc-xs-text m-0">Set stock replaces the current total. Increase or decrease changes it by the quantity entered. Stock cannot fall below zero.</p>
+                </aside>
+                <div class="col-12 col-lg-8">
+                  <h3 class="font-lora h4 mb-3">Adjustment details</h3>
+                  <form id="formAdjustStock"><input type="hidden" id="adjustProdId">
+                    <fieldset class="mb-3"><legend class="form-label">Adjustment type</legend>
+                      <div class="d-flex flex-column gap-2 cc-xs-text text-light-cc">
+                        <label class="form-check"><input class="form-check-input" type="radio" name="adjustType" value="set" checked> Set stock to entered quantity (recount)</label>
+                        <label class="form-check"><input class="form-check-input" type="radio" name="adjustType" value="increase"> Increase stock by entered quantity</label>
+                        <label class="form-check"><input class="form-check-input" type="radio" name="adjustType" value="decrease"> Decrease stock by entered quantity (damage / return)</label>
+                      </div>
+                    </fieldset>
+                    <div class="row g-3">
+                      <div class="col-12 col-sm-6"><label for="adjustQty" class="form-label">Quantity *</label><input type="number" class="form-control cc-input" id="adjustQty" min="0" max="2147483647" step="1" required placeholder="e.g. 22"></div>
+                      <div class="col-12"><label for="adjustReason" class="form-label">Reason for manual adjustment *</label><input type="text" class="form-control cc-input" id="adjustReason" required maxlength="255" placeholder="e.g. Damaged units pulled from floor"></div>
+                    </div>
+                    <p id="adjustPreview" class="cc-xs-text text-accent mt-3 mb-0" aria-live="polite"></p>
+                  </form>
+                </div>
+              </div>
+              <p class="inventory-form-error text-danger cc-xs-text mt-3 mb-0" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer d-flex flex-wrap align-items-center gap-3">
+              <p class="cc-xs-text me-auto mb-0">Every confirmed adjustment is recorded in stock movement history.</p>
+              <button type="button" class="btn btn-cc-outline inventory-modal-button" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" form="formAdjustStock" class="btn btn-cc-teal inventory-modal-button inventory-confirm">Apply adjustment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade cc-inventory-modal" id="movementReadModal" tabindex="-1" aria-labelledby="movementReadModalTitle" aria-describedby="movementReadModalDescription" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+          <div class="modal-content">
+            <div class="modal-header align-items-start gap-3">
+              <div><p class="cc-eyebrow mb-2">INVENTORY / STOCK MOVEMENT</p><h2 id="movementReadModalTitle" class="font-lora inventory-modal-title mb-2">Mark as read?</h2><p id="movementReadModalDescription" class="cc-xs-text mb-0">Mark this movement as read? It will be removed from your unread list.</p></div>
+              <button type="button" class="btn btn-cc-outline inventory-modal-button flex-shrink-0" data-bs-dismiss="modal" aria-label="Close mark as read?">Close &times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-4">
+                <aside class="col-12 col-lg-4"><h3 class="cc-eyebrow font-sans m-0">SELECTED MOVEMENT</h3></aside>
+                <div class="col-12 col-lg-8"><div id="movementReadSummary" class="inventory-modal-card cc-xs-text text-light-cc"></div></div>
+              </div>
+              <p class="inventory-form-error text-danger cc-xs-text mt-3 mb-0" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer d-flex flex-wrap align-items-center gap-3">
+              <p class="cc-xs-text me-auto mb-0">The original stock movement remains in the audit history.</p>
+              <button type="button" class="btn btn-cc-outline inventory-modal-button" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" id="confirmMovementRead" class="btn btn-cc-teal inventory-modal-button inventory-confirm">Mark as Read</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1169,96 +1276,6 @@
     </div>
   </div>
   <div id="productsSnackbar" class="cc-wishlist-snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- Modal: Restock Product -->
-  <div class="modal fade" id="modalRestock" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content admin-modal">
-        <div class="modal-header">
-          <h5 class="modal-title font-lora">Restock inventory</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form id="formRestock">
-          <input type="hidden" id="restockProdId">
-          <div class="modal-body d-flex flex-column gap-3">
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Product</label>
-              <div class="text-light-cc fw-medium" id="restockProdName">Product Name</div>
-              <div class="text-muted-cc" style="font-size: 12px;" id="restockCurrentStock">Current stock: 0</div>
-            </div>
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Quantity to add *</label>
-              <input type="number" class="admin-input-filter w-100" id="restockQty" min="1" required placeholder="e.g. 20">
-            </div>
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Restock reason / Supplier reference</label>
-              <input type="text" class="admin-input-filter w-100" id="restockReason" value="Routine supplier restocking">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn-admin-primary">Confirm restock</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Manual Stock Adjustment -->
-  <div class="modal fade" id="modalAdjustStock" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content admin-modal">
-        <div class="modal-header">
-          <h5 class="modal-title font-lora">Manual stock adjustment</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form id="formAdjustStock">
-          <input type="hidden" id="adjustProdId">
-          <div class="modal-body d-flex flex-column gap-3">
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Product</label>
-              <div class="text-light-cc fw-medium" id="adjustProdName">Product Name</div>
-              <div class="text-muted-cc" style="font-size: 12px;" id="adjustCurrentStock">Current stock: 0</div>
-            </div>
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Adjustment type</label>
-              <div class="d-flex gap-3">
-                <label class="d-flex align-items-center gap-2 text-light-cc" style="cursor: pointer;">
-                  <input type="radio" name="adjustType" value="set" checked> Set stock to entered quantity (recount)
-                </label>
-              </div>
-              <div class="d-flex gap-3 mt-1">
-                <label class="d-flex align-items-center gap-2 text-light-cc" style="cursor: pointer;">
-                  <input type="radio" name="adjustType" value="increase"> Increase stock by entered quantity
-                </label>
-              </div>
-              <div class="d-flex gap-3 mt-1">
-                <label class="d-flex align-items-center gap-2 text-light-cc" style="cursor: pointer;">
-                  <input type="radio" name="adjustType" value="decrease"> Decrease stock by entered quantity (damage / return)
-                </label>
-              </div>
-            </div>
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Quantity *</label>
-              <input type="number" class="admin-input-filter w-100" id="adjustQty" min="0" required placeholder="e.g. 22">
-            </div>
-            <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Reason for manual adjustment *</label>
-              <input type="text" class="admin-input-filter w-100" id="adjustReason" required placeholder="e.g. Damaged units pulled from floor">
-            </div>
-            <div class="admin-callout">
-              <span class="text-accent fw-medium d-block" style="font-size: 11px;">INTEGRITY SAFEGUARD</span>
-              <span class="text-light-cc" style="font-size: 11px;">The system prevents negative stock. Selecting "Set stock" replaces the current total with the quantity you enter; increase/decrease adjust it relatively.</span>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn-admin-primary">Apply adjustment</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <!-- Modal: Reply to Customer Review -->
   <div class="modal fade" id="modalReplyReview" tabindex="-1" aria-hidden="true">

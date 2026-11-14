@@ -174,8 +174,8 @@ async function initDashboard() {
       loadOverview(),
       // Product request state is initialized later in this synchronous setup.
       Promise.resolve().then(() => loadProducts()),
-      loadInventory(),
-      loadMovements(),
+      Promise.resolve().then(loadInventory), // Wait for Inventory controls and request state.
+      Promise.resolve().then(loadMovements),
       loadReports(),
       loadReviews(),
       loadNotifications(),
@@ -550,9 +550,84 @@ async function initDashboard() {
   // ==========================================
   // SECTION 20.3: INVENTORY & STOCK
   // ==========================================
+  const inventoryModule = document.getElementById('module-inventory');
+  const inventoryModals = [...inventoryModule.querySelectorAll('.cc-inventory-modal')];
+  const inventoryTriggers = new WeakMap();
+  let inventoryRequest = 0;
+  let movementRequest = 0;
+  let movements = [];
+  let pendingMovement = null;
+  const confirmedMovementIds = new Set();
+  const movementBody = inventoryModule.querySelector('#movementsTableBody');
+  const movementReadModal = inventoryModule.querySelector('#movementReadModal');
+
+  // Escape the section's scroll-reveal transform; retain Inventory-only styling.
+  inventoryModals.forEach(modal => {
+    document.body.appendChild(modal);
+    modal.addEventListener('show.bs.modal', () => {
+      inventoryTriggers.set(modal, document.activeElement);
+      document.body.classList.add('cc-inventory-modal-open');
+    });
+    modal.addEventListener('shown.bs.modal', () => {
+      const target = modal.querySelector('input[type="number"]') || modal.querySelector('.modal-footer [data-bs-dismiss]');
+      target?.focus();
+    });
+    modal.addEventListener('hide.bs.modal', event => {
+      if (modal.dataset.saving === 'true') event.preventDefault();
+    });
+    modal.addEventListener('hidden.bs.modal', () => {
+      document.body.classList.remove('cc-inventory-modal-open');
+      if (modal === movementReadModal) pendingMovement = null;
+      const trigger = inventoryTriggers.get(modal);
+      const fallback = inventoryModule.querySelector(modal === movementReadModal ? '.movement-read, #movementSearchInput' : '.btn-restock, .inventory-products-viewport');
+      (trigger?.isConnected ? trigger : fallback)?.focus({ preventScroll: true });
+    });
+  });
+
+  function inventoryError(modal, message = '') {
+    const error = modal.querySelector('.inventory-form-error');
+    error.textContent = message;
+    error.hidden = !message;
+  }
+
+  async function saveInventoryAction(modal, payload, message, onSuccess) {
+    if (modal.dataset.saving === 'true') return;
+    const controls = [...modal.querySelectorAll('button, input')];
+    const disabled = controls.map(control => control.disabled);
+    const confirm = modal.querySelector('.inventory-confirm');
+    const label = confirm.textContent;
+    modal.dataset.saving = 'true';
+    modal.setAttribute('aria-busy', 'true');
+    controls.forEach(control => { control.disabled = true; });
+    confirm.textContent = 'Saving…';
+    inventoryError(modal);
+    let saved = false;
+    try {
+      await CCAdmin.apiRequest(payload.movement_id ? 'public/api/admin/movements.php' : 'public/api/admin/inventory.php', {
+        method: 'POST', body: JSON.stringify(payload)
+      });
+      saved = true;
+      onSuccess?.();
+    } catch (error) {
+      inventoryError(modal, error.message || 'Unable to save. Please try again.');
+    } finally {
+      modal.dataset.saving = 'false';
+      modal.removeAttribute('aria-busy');
+      controls.forEach((control, i) => { control.disabled = disabled[i]; });
+      confirm.textContent = label;
+    }
+    if (saved) {
+      bootstrap.Modal.getOrCreateInstance(modal).hide();
+      CCAdmin.showToast(message);
+      if (!payload.movement_id) await Promise.all([loadInventory(), loadMovements(), loadOverview()]);
+    }
+  }
+
   async function loadInventory() {
+    const request = ++inventoryRequest;
     try {
       const data = await CCAdmin.apiRequest('public/api/admin/inventory.php');
+      if (request !== inventoryRequest) return;
       currentInventory = data.products || [];
 
       const summary = data.summary || {};
@@ -563,6 +638,9 @@ async function initDashboard() {
 
       renderInventoryTable(currentInventory);
     } catch (e) {
+      if (request !== inventoryRequest) return;
+      inventoryModule.querySelector('#inventoryTableBody').innerHTML = '<tr><td colspan="6" class="text-muted-cc">Unable to load inventory. <button type="button" class="inventory-action cc-underline-link text-accent inventory-retry">Try again</button></td></tr>';
+      inventoryModule.querySelector('.inventory-retry').addEventListener('click', loadInventory);
       console.warn('Load inventory error:', e);
     }
   }
@@ -570,33 +648,33 @@ async function initDashboard() {
   function renderInventoryTable(items) {
     const tbody = document.getElementById('inventoryTableBody');
     tbody.innerHTML = items.map(p => {
-      const stock = p.stock_qty ?? p.stock ?? 0;
-      const min = p.min_stock_threshold || 10;
+      const stock = Number(p.stock_qty ?? p.stock ?? 0);
+      const min = Number(p.min_stock_threshold ?? 10);
       const isActive = Number(p.is_active) === 1;
 
-      let stateBadge = `<span class="badge admin-badge-active">Above minimum</span>`;
+      let stateBadge = '<span class="cc-xs-text text-accent">Above minimum</span>';
       if (stock === 0) {
-        stateBadge = `<span class="badge admin-badge-out">Out of stock</span>`;
+        stateBadge = '<span class="cc-xs-text text-danger">Out of stock</span>';
       } else if (stock <= min) {
-        stateBadge = `<span class="badge admin-badge-low">Low stock</span>`;
+        stateBadge = '<span class="cc-xs-text text-warning">Low stock</span>';
       }
 
       return `
         <tr>
           <td>
-            <div class="fw-medium text-light-cc">${escapeHtml(p.name)}</div>
-            <div class="text-muted-cc font-monospace" style="font-size: 11px;">${escapeHtml(p.sku || '')}</div>
+            <div class="fw-medium text-light-cc inventory-product-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+            <div class="cc-xs-text inventory-product-name">${escapeHtml(p.sku || '')}</div>
           </td>
           <td class="text-light-cc fw-medium">${stock}</td>
           <td class="text-muted-cc">${min}</td>
           <td>${stateBadge}</td>
-          <td><span class="badge ${isActive ? 'admin-badge-active' : 'admin-badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span></td>
+          <td><span class="cc-xs-text ${isActive ? 'text-accent' : 'text-muted-cc'}">${isActive ? 'Active' : 'Inactive'}</span></td>
           <td class="text-end">
             ${can('can_adjust_stock') ? `
               <div class="d-inline-flex gap-2">
-                <a href="javascript:void(0)" class="admin-action-link btn-restock" data-id="${p.id}" data-name="${escapeHtml(p.name)}" data-stock="${stock}">Restock</a>
+                <button type="button" class="inventory-action cc-underline-link text-accent btn-restock" data-id="${p.id}" data-name="${escapeHtml(p.name)}" data-stock="${stock}" aria-haspopup="dialog">Restock</button>
                 <span class="text-muted-cc">·</span>
-                <a href="javascript:void(0)" class="admin-action-link btn-adjust" data-id="${p.id}" data-name="${escapeHtml(p.name)}" data-stock="${stock}">Adjust</a>
+                <button type="button" class="inventory-action cc-underline-link text-accent btn-adjust" data-id="${p.id}" data-name="${escapeHtml(p.name)}" data-stock="${stock}" aria-haspopup="dialog">Adjust</button>
               </div>
             ` : `
               <span class="text-muted-cc" style="font-size: 12px;">View only</span>
@@ -604,7 +682,7 @@ async function initDashboard() {
           </td>
         </tr>
       `;
-    }).join('');
+    }).join('') || '<tr><td colspan="6" class="text-muted-cc text-center">No inventory products found.</td></tr>';
 
     tbody.querySelectorAll('.btn-restock').forEach(b => {
       b.addEventListener('click', () => openRestockModal(b.dataset.id, b.dataset.name, b.dataset.stock));
@@ -615,120 +693,141 @@ async function initDashboard() {
     });
   }
 
+  function stockPreview(prefix, type = 'increase') {
+    const form = document.getElementById(prefix === 'restock' ? 'formRestock' : 'formAdjustStock');
+    const input = document.getElementById(`${prefix}Qty`);
+    input.min = type === 'set' ? '0' : '1';
+    const quantity = input.valueAsNumber;
+    const current = Number(form.dataset.currentStock);
+    const next = type === 'set' ? quantity : current + (type === 'decrease' ? -quantity : quantity);
+    document.getElementById(`${prefix}Preview`).textContent = Number.isInteger(quantity) && quantity >= Number(input.min)
+      ? (next >= 0 ? `Stock after confirmation: ${current} → ${next} units` : 'This adjustment would reduce stock below zero.')
+      : 'Enter a whole number of units to preview the stock total.';
+    return { quantity, next };
+  }
+
   function openRestockModal(id, name, currentStock) {
+    const modal = document.getElementById('modalRestock');
+    const form = document.getElementById('formRestock');
+    form.reset();
+    form.dataset.currentStock = currentStock;
     document.getElementById('restockProdId').value = id;
     document.getElementById('restockProdName').textContent = name;
     document.getElementById('restockCurrentStock').textContent = `Current physical units: ${currentStock}`;
-    document.getElementById('restockQty').value = '';
-    new bootstrap.Modal(document.getElementById('modalRestock')).show();
+    inventoryError(modal);
+    stockPreview('restock');
+    bootstrap.Modal.getOrCreateInstance(modal).show();
   }
 
-  document.getElementById('formRestock').addEventListener('submit', async (e) => {
+  document.getElementById('restockQty').addEventListener('input', () => stockPreview('restock'));
+  document.getElementById('formRestock').addEventListener('submit', e => {
     e.preventDefault();
-    const id = document.getElementById('restockProdId').value;
-    const qty = parseInt(document.getElementById('restockQty').value, 10);
-    const reason = document.getElementById('restockReason').value;
-
-    try {
-      await CCAdmin.apiRequest('public/api/admin/inventory.php', {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'restock',
-          product_id: parseInt(id, 10),
-          quantity: qty,
-          reason
-        })
-      });
-      bootstrap.Modal.getInstance(document.getElementById('modalRestock')).hide();
-      CCAdmin.showToast('Restocked successfully.');
-      await loadInventory();
-      await loadMovements();
-      await loadOverview();
-    } catch (err) {
-      CCAdmin.showToast(err.message, 'error');
+    const modal = document.getElementById('modalRestock');
+    if (modal.dataset.saving === 'true' || !e.currentTarget.reportValidity()) return;
+    const { quantity, next } = stockPreview('restock');
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || next > 2147483647) {
+      inventoryError(modal, 'Enter a whole quantity that keeps total stock at or below 2147483647.');
+      return;
     }
+    saveInventoryAction(modal, {
+      action: 'restock', product_id: Number(document.getElementById('restockProdId').value), quantity,
+      reason: document.getElementById('restockReason').value.trim()
+    }, 'Restocked successfully.');
   });
 
   function openAdjustModal(id, name, currentStock) {
+    const modal = document.getElementById('modalAdjustStock');
+    const form = document.getElementById('formAdjustStock');
+    form.reset();
+    form.dataset.currentStock = currentStock;
     document.getElementById('adjustProdId').value = id;
     document.getElementById('adjustProdName').textContent = name;
-    document.getElementById('adjustCurrentStock').textContent = `Current units: ${currentStock}`;
-    document.getElementById('adjustQty').value = '';
-    document.getElementById('adjustReason').value = '';
-    new bootstrap.Modal(document.getElementById('modalAdjustStock')).show();
+    document.getElementById('adjustCurrentStock').textContent = `Current physical units: ${currentStock}`;
+    inventoryError(modal);
+    stockPreview('adjust', 'set');
+    bootstrap.Modal.getOrCreateInstance(modal).show();
   }
 
-  document.getElementById('formAdjustStock').addEventListener('submit', async (e) => {
+  const adjustmentForm = document.getElementById('formAdjustStock');
+  adjustmentForm.addEventListener('input', () => stockPreview('adjust', adjustmentForm.querySelector('[name="adjustType"]:checked').value));
+  adjustmentForm.addEventListener('submit', e => {
     e.preventDefault();
-    const id = document.getElementById('adjustProdId').value;
-    const type = document.querySelector('input[name="adjustType"]:checked').value;
-    const qty = parseInt(document.getElementById('adjustQty').value, 10);
-    const reason = document.getElementById('adjustReason').value;
-
-    if (!Number.isInteger(qty) || qty < 0 || (type !== 'set' && qty < 1)) {
-      CCAdmin.showToast('Enter a valid stock quantity.', 'error');
+    const modal = document.getElementById('modalAdjustStock');
+    if (modal.dataset.saving === 'true' || !adjustmentForm.reportValidity()) return;
+    const type = adjustmentForm.querySelector('[name="adjustType"]:checked').value;
+    const { quantity, next } = stockPreview('adjust', type);
+    const reason = document.getElementById('adjustReason').value.trim();
+    if (!Number.isSafeInteger(quantity) || quantity < (type === 'set' ? 0 : 1) || next < 0 || next > 2147483647) {
+      inventoryError(modal, 'Enter a whole quantity that keeps total stock between 0 and 2147483647.');
       return;
     }
-
-    try {
-      await CCAdmin.apiRequest('public/api/admin/inventory.php', {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'adjust',
-          product_id: parseInt(id, 10),
-          type,
-          quantity: qty,
-          reason
-        })
-      });
-      bootstrap.Modal.getInstance(document.getElementById('modalAdjustStock')).hide();
-      CCAdmin.showToast('Stock adjusted successfully.');
-      await loadInventory();
-      await loadMovements();
-      await loadOverview();
-    } catch (err) {
-      CCAdmin.showToast(err.message, 'error');
+    if (!reason) {
+      inventoryError(modal, 'A reason is required for manual stock adjustments.');
+      document.getElementById('adjustReason').focus();
+      return;
     }
+    saveInventoryAction(modal, {
+      action: 'adjust', product_id: Number(document.getElementById('adjustProdId').value), type, quantity, reason
+    }, 'Stock adjusted successfully.');
   });
 
-  // Movements Table
+  function renderMovements() {
+    const value = text => `<span class="inventory-cell-value" title="${escapeHtml(text)}">${escapeHtml(text)}</span>`;
+    movementBody.innerHTML = movements.map(m => {
+      const delta = Number(m.quantity_delta ?? 0);
+      return `
+        <tr>
+          <td class="text-muted-cc">${value(m.created_at)}</td>
+          <td class="fw-medium text-light-cc">${value(m.product_name || 'Product')}</td>
+          <td><span class="inventory-cell-value">
+            <span class="text-muted-cc">${escapeHtml(m.previous_quantity ?? '—')}</span>
+            <span class="${delta >= 0 ? 'text-accent' : 'text-danger'} fw-medium mx-1">${delta >= 0 ? '+' : ''}${delta}</span>
+            <span class="text-light-cc">→ ${escapeHtml(m.new_quantity ?? '—')}</span>
+          </span></td>
+          <td class="text-light-cc">${value(m.reason || m.notes || 'Standard movement')}</td>
+          <td class="text-muted-cc">${value(m.admin_name || 'Admin')}</td>
+          <td><button type="button" class="inventory-action movement-read cc-underline-link text-accent" data-movement-id="${escapeHtml(m.id)}" aria-haspopup="dialog">Mark as Read</button></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="6" class="text-center text-muted-cc">No unread stock movements found.</td></tr>';
+  }
+
+  movementBody.addEventListener('click', event => {
+    const button = event.target.closest('.movement-read');
+    if (!button) return;
+    pendingMovement = movements.find(m => String(m.id) === button.dataset.movementId);
+    if (!pendingMovement) return;
+    inventoryError(movementReadModal);
+    movementReadModal.querySelector('#movementReadSummary').textContent = `${pendingMovement.product_name || 'Product'} · ${pendingMovement.created_at} · ${pendingMovement.reason || pendingMovement.notes || 'Standard movement'}`;
+    bootstrap.Modal.getOrCreateInstance(movementReadModal).show();
+  });
+
+  document.getElementById('confirmMovementRead').addEventListener('click', () => {
+    if (!pendingMovement || movementReadModal.dataset.saving === 'true') return;
+    const id = String(pendingMovement.id);
+    saveInventoryAction(movementReadModal, { movement_id: Number(id) }, 'Stock movement marked as read.', () => {
+      confirmedMovementIds.add(id);
+      movements = movements.filter(m => String(m.id) !== id);
+      renderMovements();
+    });
+  });
+
   async function loadMovements() {
+    const request = ++movementRequest;
+    const params = new URLSearchParams();
     const search = document.getElementById('movementSearchInput').value;
     const type = document.getElementById('movementTypeFilter').value;
-    const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (type) params.append('movement', type);
-
     try {
       const data = await CCAdmin.apiRequest(`public/api/admin/movements.php?${params.toString()}`);
-      const tbody = document.getElementById('movementsTableBody');
-      const items = data.movements || [];
-
-      if (!items.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted-cc">No stock movements found.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = items.map(m => {
-        const delta = Number(m.quantity_delta ?? 0);
-        return `
-          <tr>
-            <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(m.created_at)}</td>
-            <td class="fw-medium text-light-cc">${escapeHtml(m.product_name || m.reference_id || 'Product')}</td>
-            <td>
-              <span class="text-muted-cc">${m.previous_quantity ?? '—'}</span>
-              <span class="${delta >= 0 ? 'text-accent' : 'text-danger'} fw-medium mx-1">
-                ${delta >= 0 ? `+${delta}` : delta}
-              </span>
-              <span class="text-light-cc">→ ${m.new_quantity ?? '—'}</span>
-            </td>
-            <td class="text-light-cc" style="font-size: 12px;">${escapeHtml(m.reason || m.notes || 'Standard movement')}</td>
-            <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(m.admin_name || 'Admin')}</td>
-          </tr>
-        `;
-      }).join('');
-    } catch (e) {
-      console.warn('Load movements error:', e);
+      if (request !== movementRequest) return;
+      movements = (data.movements || []).filter(m => !confirmedMovementIds.has(String(m.id)));
+      renderMovements();
+    } catch (error) {
+      if (request !== movementRequest) return;
+      movementBody.innerHTML = '<tr><td colspan="6" class="text-muted-cc">Unable to load stock movements. <button type="button" class="inventory-action cc-underline-link text-accent movements-retry">Try again</button></td></tr>';
+      movementBody.querySelector('.movements-retry').addEventListener('click', loadMovements);
+      console.warn('Load movements error:', error);
     }
   }
 

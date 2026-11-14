@@ -1231,7 +1231,7 @@ final class AdminBusinessService
     /**
      * Get stock movement history
      */
-    public function getMovements(int $businessId, array $filters = []): array
+    public function getMovements(int $businessId, array $filters = [], ?int $readerId = null): array
     {
         $sql = <<<SQL
             SELECT
@@ -1248,11 +1248,18 @@ final class AdminBusinessService
                 p.name AS product_name,
                 (SELECT pv.sku FROM product_variants pv WHERE pv.product_id = p.id ORDER BY pv.id LIMIT 1) AS sku
             FROM inventory_movements im
-            LEFT JOIN products p ON p.id = im.product_id
-            WHERE (p.business_id = :bid OR im.product_id IS NULL)
+            LEFT JOIN variant_sizes movement_size ON movement_size.id = im.variant_size_id
+            LEFT JOIN product_variants movement_variant ON movement_variant.id = movement_size.variant_id
+            JOIN products p ON p.id = COALESCE(im.product_id, movement_variant.product_id)
+            WHERE p.business_id = :bid
         SQL;
 
         $params = ['bid' => $businessId];
+
+        if ($readerId !== null) {
+            $sql .= ' AND NOT EXISTS (SELECT 1 FROM inventory_movement_reads mr WHERE mr.movement_id = im.id AND mr.user_id = :reader_id)';
+            $params['reader_id'] = $readerId;
+        }
 
         if (!empty($filters['search'])) {
             $sql .= " AND (p.name LIKE :search_name OR im.reason LIKE :search_reason OR im.admin_name LIKE :search_admin)";
@@ -1281,13 +1288,39 @@ final class AdminBusinessService
 
         $sql .= " ORDER BY im.created_at DESC, im.id DESC";
 
-        $limit = isset($filters['limit']) ? max(1, min(100, (int)$filters['limit'])) : 50;
-        $sql .= " LIMIT $limit";
+        // Inventory's scrollable unread list must include every matching record.
+        if ($readerId === null || isset($filters['limit'])) {
+            $limit = isset($filters['limit']) ? max(1, min(100, (int)$filters['limit'])) : 50;
+            $sql .= " LIMIT $limit";
+        }
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
 
         return $stmt->fetchAll();
+    }
+
+    public function markMovementRead(int $businessId, int $userId, int $movementId): bool
+    {
+        $exists = $this->pdo->prepare(<<<SQL
+            SELECT im.id
+            FROM inventory_movements im
+            LEFT JOIN variant_sizes vs ON vs.id = im.variant_size_id
+            LEFT JOIN product_variants pv ON pv.id = vs.variant_id
+            JOIN products p ON p.id = COALESCE(im.product_id, pv.product_id)
+            WHERE im.id = :id AND p.business_id = :bid
+        SQL);
+        $exists->execute(['id' => $movementId, 'bid' => $businessId]);
+        if (!$exists->fetchColumn()) {
+            return false;
+        }
+        $stmt = $this->pdo->prepare(<<<SQL
+            INSERT INTO inventory_movement_reads (user_id, movement_id)
+            VALUES (:uid, :id)
+            ON DUPLICATE KEY UPDATE read_at = read_at
+        SQL);
+        $stmt->execute(['uid' => $userId, 'id' => $movementId]);
+        return true;
     }
 
     /**

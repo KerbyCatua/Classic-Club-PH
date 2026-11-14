@@ -204,6 +204,58 @@ body.cc-log-read-modal-open > :not(#activityLogReadModal):not(.modal-backdrop):n
 body.cc-log-read-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
 #activityLogReadSummary { overflow-wrap: anywhere; }
 
+/* Inventory only: editorial rows with fixed five / seven-record viewports. */
+#module-inventory .inventory-table-container { overflow-x: auto; border-block: 1px solid var(--cc-border); }
+#module-inventory .inventory-viewport { min-width: 1000px; overflow-y: auto; }
+#module-inventory .inventory-products-viewport { height: 410px; /* 45px header + five 73px rows */ }
+#module-inventory .inventory-movements-viewport { height: 556px; /* 45px header + seven 73px rows */ }
+#module-inventory :is(.inventory-table-container, .inventory-viewport) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
+#module-inventory :is(.inventory-table-container, .inventory-viewport)::-webkit-scrollbar { width: 8px; height: 8px; }
+#module-inventory :is(.inventory-table-container, .inventory-viewport)::-webkit-scrollbar-track { background: var(--cc-bg); }
+#module-inventory :is(.inventory-table-container, .inventory-viewport)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+#module-inventory .inventory-table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+#module-inventory .inventory-table th { position: sticky; top: 0; z-index: 1; height: 45px; padding: 0 16px; background: var(--cc-bg); border-bottom: 1px solid var(--cc-accent); color: var(--cc-muted); font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; line-height: 16px; }
+#module-inventory .inventory-table td { height: 73px; padding: 12px 16px; border-bottom: 1px solid var(--cc-border); font-size: 13px; line-height: 20px; vertical-align: middle; }
+#module-inventory .inventory-table tbody tr:hover { background: var(--cc-surface); }
+#module-inventory .inventory-table th:first-child { width: 25%; }
+#module-inventory #inventoryTable th:last-child { width: 16%; }
+#module-inventory #movementsTable th:first-child { width: 16%; }
+#module-inventory #movementsTable th:nth-child(2) { width: 20%; }
+#module-inventory #movementsTable th:nth-child(3) { width: 18%; }
+#module-inventory #movementsTable th:nth-child(4) { width: 20%; }
+#module-inventory #movementsTable th:last-child { width: 13%; }
+#module-inventory .inventory-cell-value { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-height: 40px; overflow: hidden; overflow-wrap: anywhere; }
+#module-inventory .inventory-product-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#module-inventory .inventory-action { background: none; border: 0; padding: 0; white-space: nowrap; }
+#module-inventory :is(.inventory-action, .inventory-viewport):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: -2px; }
+
+/* Inventory dialogs mirror Manage Address without altering other modules. */
+body.cc-inventory-modal-open > :not(.cc-inventory-modal):not(.modal-backdrop):not(.toast-container):not(script) { filter: blur(5px); }
+body.cc-inventory-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+.cc-inventory-modal .modal-dialog { max-width: 1120px; }
+.cc-inventory-modal .modal-content { background: var(--cc-surface); border: 1px solid var(--cc-border); border-radius: 0; padding: 32px; color: var(--cc-text); }
+.cc-inventory-modal :is(.modal-header, .modal-body, .modal-footer) { padding: 0; border: 0; }
+.cc-inventory-modal .modal-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+.cc-inventory-modal .modal-header > button { align-self: start; white-space: nowrap; }
+.cc-inventory-modal .modal-body { margin-top: 28px; }
+.cc-inventory-modal .modal-body > .row { margin-left: 0; margin-right: 0; }
+.cc-inventory-modal .modal-footer { border-top: 1px solid var(--cc-border); margin-top: 28px; padding-top: 20px; }
+.cc-inventory-modal .inventory-modal-title { font-size: clamp(26px, 4vw, 34px); }
+.cc-inventory-modal .form-label { font-size: 10px; color: var(--cc-muted); text-transform: uppercase; margin-bottom: 6px; }
+.cc-inventory-modal .cc-input { font-size: 12px; min-height: 44px; }
+.cc-inventory-modal .form-check-input { border-radius: 0; }
+.cc-inventory-modal .form-check-input:checked { background-color: var(--cc-accent); border-color: var(--cc-accent); }
+.cc-inventory-modal .inventory-modal-button { height: auto; padding: 13px 20px; font-weight: 400; }
+.cc-inventory-modal .btn-cc-outline { background: transparent; }
+.cc-inventory-modal .inventory-modal-button:hover { transform: none; border-color: var(--cc-accent); }
+.cc-inventory-modal .inventory-modal-card { padding: 20px; border: 1px solid var(--cc-border); overflow-wrap: anywhere; }
+.cc-inventory-modal .inventory-form-error { overflow-wrap: anywhere; }
+@media (max-width: 575.98px) {
+  .cc-inventory-modal .modal-content { padding: 20px; }
+  .cc-inventory-modal .modal-footer { gap: 12px; }
+  .cc-inventory-modal .modal-footer > p { flex-basis: 100%; }
+}
+
 /* Badges & Pills */
 .admin-badge {
   display: inline-block;
