@@ -109,10 +109,11 @@ final class ReviewRepository
             <<<'SQL'
                 SELECT id, order_id, user_id, variant_id, rating, title, content,
                        display_name, size_purchased, fit_feedback, images,
-                       is_verified_purchase, created_at
+                       is_verified_purchase, created_at,
+                       business_reply, business_reply_by, business_replied_at
                 FROM product_reviews
                 WHERE variant_id = :variant_id AND status = 'published'
-                ORDER BY created_at DESC
+                ORDER BY created_at DESC, id DESC
             SQL
         );
         $statement->execute(['variant_id' => $variantId]);

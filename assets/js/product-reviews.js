@@ -20,7 +20,9 @@ window.CCProductReviews = (() => {
       id: 'db-' + r.id, name: r.display_name, verified: Number(r.is_verified_purchase) === 1,
       date: new Date(r.created_at).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}),
       size: r.size_purchased || '', color: variant.color_name || '', fit: r.fit_feedback || '',
-      rating: Number(r.rating), title: r.title, content: r.content
+      rating: Number(r.rating), title: r.title, content: r.content,
+      ownerReply: String(r.business_reply || '').trim(),
+      ownerRepliedAt: r.business_replied_at || ''
     }));
   }
   function summary(reviews, root = document) {
@@ -39,7 +41,7 @@ window.CCProductReviews = (() => {
     container.innerHTML = reviews.length ? reviews.map(r => {
       const starsHtml = stars(r.rating);
       return `
-            <div class="review-item-row py-4 d-flex flex-column flex-md-row gap-4 gap-md-5">
+            <div class="review-item-row py-4 d-flex flex-column flex-md-row gap-4 gap-md-5" data-review-id="${escapeHtml(r.id)}">
               <div class="review-author flex-shrink-0 d-flex flex-column gap-2" >
                 <span class="text-light-cc font-sans fw-medium" style="font-size: 14px;">${escapeHtml(r.name)}</span>
                 <span class="text-accent font-sans" style="font-size: 10px; letter-spacing: 0.6px;">${r.verified ? '&#10003; VERIFIED PURCHASE &middot; DELIVERED' : 'CUSTOMER REVIEW'}</span>
@@ -47,7 +49,7 @@ window.CCProductReviews = (() => {
                 <span class="text-muted-cc font-sans" style="font-size: 12px; line-height: 1.6;">Size ${escapeHtml(r.size)} · ${escapeHtml(r.color)}</span>
                 <span class="text-muted-cc font-sans" style="font-size: 12px;">Fit — ${escapeHtml(r.fit)}</span>
               </div>
-              <div class="flex-grow-1 d-flex flex-column gap-3">
+              <div class="review-content flex-grow-1 d-flex flex-column gap-3">
                 <div class="d-flex align-items-center gap-2">
                   <div class="d-flex gap-1 text-light-cc" style="font-size: 13px;">${starsHtml}</div>
                   <span class="text-muted-cc font-sans" style="font-size: 11px;">${r.rating}.0 / 5</span>
@@ -56,6 +58,15 @@ window.CCProductReviews = (() => {
                 <p class="text-muted-cc font-sans m-0" style="font-size: 14px; line-height: 1.75; max-width: 880px;">
                   ${escapeHtml(r.content)}
                 </p>
+                ${r.ownerReply ? `
+                <aside class="review-owner-reply p-3 d-flex flex-column gap-2" aria-label="Owner response">
+                  <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="text-accent font-sans fw-medium cc-small-text">Classic Club PH</span>
+                    <span class="review-owner-label text-accent font-sans">Owner response</span>
+                    ${r.ownerRepliedAt ? `<time class="text-muted-cc font-sans cc-xs-text" datetime="${escapeHtml(r.ownerRepliedAt.replace(' ', 'T'))}">${escapeHtml(new Date(r.ownerRepliedAt.replace(' ', 'T')).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'}))}</time>` : ''}
+                  </div>
+                  <p class="review-owner-text cc-small-text text-light-cc m-0">${escapeHtml(r.ownerReply)}</p>
+                </aside>` : ''}
               </div>
             </div>`;
     }).join('') : '<p class="cc-small-text text-muted-cc py-4 m-0">' + escapeHtml(emptyMessage) + '</p>';

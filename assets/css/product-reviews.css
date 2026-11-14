@@ -72,3 +72,6 @@
 
 .review-item-row { overflow-wrap: anywhere; }
 .review-item-row > * { min-width: 0; }
+.review-owner-reply { background: var(--cc-surface); border-left: 2px solid var(--cc-accent); }
+.review-owner-label { border: 1px solid var(--cc-accent); padding: 2px 6px; font-size: 10px; }
+.review-owner-text { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -9,6 +9,8 @@ async function initDashboard() {
 
   let currentProducts = [];
   let currentInventory = [];
+  let currentReviews = [];
+  let reviewRequestSequence = 0;
   let currentReports = null;
   let currentReportPeriod = null;
   let adminPermissions = {};
@@ -920,6 +922,7 @@ async function initDashboard() {
   // SECTION 20.5: CUSTOMER REVIEWS
   // ==========================================
   async function loadReviews() {
+    const requestSequence = ++reviewRequestSequence;
     const search = document.getElementById('reviewSearchInput').value;
     const rating = document.getElementById('reviewRatingFilter').value;
     const params = new URLSearchParams();
@@ -928,6 +931,7 @@ async function initDashboard() {
 
     try {
       const data = await CCAdmin.apiRequest(`public/api/admin/reviews.php?${params.toString()}`);
+      if (requestSequence !== reviewRequestSequence) return;
       if (data.summary) {
         document.getElementById('revHighestRated').textContent = data.summary.highest_rated || '—';
         document.getElementById('revLowestRated').textContent = data.summary.lowest_rated || '—';
@@ -939,6 +943,8 @@ async function initDashboard() {
 
       const tbody = document.getElementById('reviewsTableBody');
       const items = data.reviews || [];
+      currentReviews = items;
+      document.querySelector('#module-reviews .reviews-viewport').scrollTop = 0;
 
       if (!items.length) {
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted-cc">No reviews match your filters.</td></tr>`;
@@ -946,32 +952,29 @@ async function initDashboard() {
       }
 
       tbody.innerHTML = items.map(r => `
-        <tr>
-          <td class="fw-medium text-light-cc">${escapeHtml(r.author_name || 'Customer')}</td>
-          <td class="text-muted-cc">${escapeHtml(r.product_name || 'Product')}</td>
-          <td><span class="text-accent">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span> <small class="text-muted-cc">(${r.rating}/5)</small></td>
+        <tr data-review-id="${r.id}">
+          <td class="fw-medium text-light-cc"><div class="review-cell-value" tabindex="0">${escapeHtml(r.author_name || 'Customer')}</div></td>
+          <td class="text-muted-cc"><div class="review-cell-value" tabindex="0">${escapeHtml(r.product_name || 'Product')}</div></td>
+          <td class="review-rating"><span class="text-accent">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span> <small class="text-muted-cc">(${r.rating}/5)</small></td>
           <td>
-            <div class="text-light-cc" style="font-size: 13px;">${escapeHtml(r.comment || '')}</div>
+            <div class="review-feedback" tabindex="0" aria-label="Customer feedback and business response"><div class="text-light-cc">${escapeHtml(r.comment || '')}</div>
             ${r.business_reply ? `
-              <div class="admin-callout mt-2 py-1 px-2" style="font-size: 11px;">
-                <span class="text-accent fw-medium">Business response:</span> ${escapeHtml(r.business_reply)}
+              <div class="admin-callout review-response mt-2 py-1 px-2">
+                <span class="text-accent fw-medium">Business response:</span> <span class="review-response-text">${escapeHtml(r.business_reply)}</span>
               </div>
             ` : ''}
             ${r.is_flagged ? `
               <div class="badge admin-badge-out mt-1">Flagged: ${escapeHtml(r.flag_reason || 'Under review')}</div>
             ` : ''}
+            </div>
           </td>
           <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(r.created_at)}</td>
           <td class="text-end">
             ${can('can_reply_reviews') ? `
               <div class="d-inline-flex gap-2">
-                <a href="javascript:void(0)" class="admin-action-link btn-reply-rev" 
-                  data-id="${r.id}" 
-                  data-author="${escapeHtml(r.author_name || 'Customer')}"
-                  data-rating="${r.rating}"
-                  data-comment="${escapeHtml(r.comment || '')}">Reply</a>
+                <button type="button" class="admin-action-link btn-reply-rev" data-id="${r.id}" aria-haspopup="dialog">${r.business_reply ? 'Edit reply' : 'Reply'}</button>
                 <span class="text-muted-cc">·</span>
-                <a href="javascript:void(0)" class="admin-action-link text-warning btn-flag-rev" data-id="${r.id}">Flag</a>
+                <button type="button" class="admin-action-link text-warning btn-flag-rev" data-id="${r.id}" aria-haspopup="dialog">Flag</button>
               </div>
             ` : `
               <span class="text-muted-cc" style="font-size: 12px;">View only</span>
@@ -982,23 +985,31 @@ async function initDashboard() {
 
       tbody.querySelectorAll('.btn-reply-rev').forEach(btn => {
         btn.addEventListener('click', () => {
+          const review = currentReviews.find(r => String(r.id) === btn.dataset.id);
+          if (!review) return;
           document.getElementById('replyReviewId').value = btn.dataset.id;
-          document.getElementById('replyCustomerName').textContent = btn.dataset.author;
-          document.getElementById('replyProductRating').textContent = `${btn.dataset.rating} / 5 ★`;
-          document.getElementById('replyCustomerComment').textContent = `"${btn.dataset.comment}"`;
-          document.getElementById('replyText').value = '';
-          new bootstrap.Modal(document.getElementById('modalReplyReview')).show();
+          document.getElementById('replyCustomerName').textContent = review.author_name || 'Customer';
+          document.getElementById('replyProductRating').textContent = `${review.rating} / 5 ★`;
+          document.getElementById('replyCustomerComment').textContent = `"${review.comment || ''}"`;
+          document.getElementById('replyText').value = review.business_reply || '';
+          document.getElementById('replyText').setCustomValidity('');
+          reviewModalTrigger = btn;
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalReplyReview')).show();
         });
       });
 
       tbody.querySelectorAll('.btn-flag-rev').forEach(btn => {
         btn.addEventListener('click', () => {
+          document.getElementById('formFlagReview').reset();
           document.getElementById('flagReviewId').value = btn.dataset.id;
-          new bootstrap.Modal(document.getElementById('modalFlagReview')).show();
+          reviewModalTrigger = btn;
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalFlagReview')).show();
         });
       });
 
     } catch (e) {
+      if (requestSequence !== reviewRequestSequence) return;
+      document.getElementById('reviewsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-muted-cc">Reviews could not be loaded. Please try again.</td></tr>';
       console.warn('Load reviews error:', e);
     }
   }
@@ -1006,11 +1017,39 @@ async function initDashboard() {
   document.getElementById('reviewSearchInput').addEventListener('input', debounce(loadReviews, 250));
   document.getElementById('reviewRatingFilter').addEventListener('change', loadReviews);
 
+  // Keep these dialogs outside transformed page sections and the background blur.
+  let reviewModalTrigger = null;
+  ['modalReplyReview', 'modalFlagReview'].forEach(id => {
+    const modal = document.getElementById(id);
+    document.body.appendChild(modal);
+    modal.addEventListener('show.bs.modal', () => document.body.classList.add('cc-review-modal-open'));
+    modal.addEventListener('shown.bs.modal', () => modal.querySelector('textarea, select')?.focus());
+    modal.addEventListener('hide.bs.modal', event => {
+      if (modal.querySelector('[type="submit"]').disabled) event.preventDefault();
+    });
+    modal.addEventListener('hidden.bs.modal', () => {
+      document.body.classList.remove('cc-review-modal-open');
+      const replacement = reviewModalTrigger && document.querySelector(`#reviewsTableBody [data-id="${reviewModalTrigger.dataset.id}"].${id === 'modalReplyReview' ? 'btn-reply-rev' : 'btn-flag-rev'}`);
+      (replacement || document.querySelector('#module-reviews .reviews-viewport')).focus({preventScroll: true});
+    });
+  });
+  document.getElementById('replyText').addEventListener('input', event => event.target.setCustomValidity(''));
+
   // Reply Review Submission
   document.getElementById('formReplyReview').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('replyReviewId').value;
-    const replyText = document.getElementById('replyText').value;
+    const replyInput = document.getElementById('replyText');
+    const replyText = replyInput.value.trim();
+    const submit = e.currentTarget.querySelector('[type="submit"]');
+    if (submit.disabled) return;
+    if (!replyText) {
+      replyInput.setCustomValidity('Enter a response before publishing.');
+      replyInput.reportValidity();
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = 'Publishing…';
 
     try {
       await CCAdmin.apiRequest('public/api/admin/reviews.php', {
@@ -1021,12 +1060,16 @@ async function initDashboard() {
           reply_text: replyText
         })
       });
+      submit.disabled = false;
       bootstrap.Modal.getInstance(document.getElementById('modalReplyReview')).hide();
       CCAdmin.showToast('Reply published successfully.');
       await loadReviews();
       await loadOverview();
     } catch (err) {
       CCAdmin.showToast(err.message, 'error');
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Publish response';
     }
   });
 
@@ -1035,6 +1078,10 @@ async function initDashboard() {
     e.preventDefault();
     const id = document.getElementById('flagReviewId').value;
     const reason = document.getElementById('flagReason').value;
+    const submit = e.currentTarget.querySelector('[type="submit"]');
+    if (submit.disabled) return;
+    submit.disabled = true;
+    submit.textContent = 'Submitting…';
 
     try {
       await CCAdmin.apiRequest('public/api/admin/reviews.php', {
@@ -1045,11 +1092,15 @@ async function initDashboard() {
           reason
         })
       });
+      submit.disabled = false;
       bootstrap.Modal.getInstance(document.getElementById('modalFlagReview')).hide();
       CCAdmin.showToast('Review submitted for moderation review.');
       await loadReviews();
     } catch (err) {
       CCAdmin.showToast(err.message, 'error');
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Submit flag';
     }
   });
 

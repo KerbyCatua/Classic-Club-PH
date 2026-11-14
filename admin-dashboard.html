@@ -746,36 +746,46 @@
       </div>
 
       <!-- Filters -->
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <input type="text" id="reviewSearchInput" class="admin-input-filter" placeholder="Search feedback or reviewer...">
-        <select id="reviewRatingFilter" class="admin-select-filter">
-          <option value="">Rating: All</option>
-          <option value="5">5 stars</option>
-          <option value="4">4 stars</option>
-          <option value="3">3 stars</option>
-          <option value="2">2 stars</option>
-          <option value="1">1 star</option>
-        </select>
+      <div class="review-filters d-flex flex-column flex-md-row align-items-md-end gap-3 mb-3" role="search" aria-label="Search and filter customer reviews">
+        <div class="review-search flex-grow-1">
+          <label for="reviewSearchInput" class="cc-xs-text text-muted-cc d-block mb-2">Search reviews</label>
+          <input type="search" id="reviewSearchInput" class="admin-input-filter w-100" placeholder="Search reviewer, product or feedback...">
+        </div>
+        <div class="review-rating-filter">
+          <label for="reviewRatingFilter" class="cc-xs-text text-muted-cc d-block mb-2">Customer rating</label>
+          <select id="reviewRatingFilter" class="admin-select-filter w-100">
+            <option value="">Rating: All</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1">1 star</option>
+          </select>
+        </div>
       </div>
 
       <!-- Reviews Table -->
       <div class="admin-table-container">
-        <table class="admin-table" id="reviewsTable">
-          <thead>
-            <tr>
-              <th>Customer</th>
-              <th>Product</th>
-              <th>Rating</th>
-              <th>Comment & Business Reply</th>
-              <th>Date</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="reviewsTableBody">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
+        <div class="reviews-viewport" tabindex="0" role="region" aria-label="Customer reviews, four rows visible. Scroll for more records." aria-describedby="reviewsTableHint">
+          <table class="admin-table" id="reviewsTable">
+            <caption class="visually-hidden">Customer reviews and official business responses</caption>
+            <thead>
+              <tr>
+                <th scope="col">Customer</th>
+                <th scope="col">Product</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Comment & Business Reply</th>
+                <th scope="col">Date</th>
+                <th scope="col" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
       </div>
+      <p id="reviewsTableHint" class="cc-xs-text text-muted-cc mt-2 mb-0">Four reviews at a time. Scroll for more records and full feedback.</p>
     </section>
 
     <!-- SECTION 20.6: BUSINESS NOTIFICATIONS & ALERTS -->
@@ -1299,25 +1309,25 @@
   <div id="productsSnackbar" class="cc-wishlist-snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Modal: Reply to Customer Review -->
-  <div class="modal fade" id="modalReplyReview" tabindex="-1" aria-hidden="true">
+  <div class="modal fade cc-review-modal" id="modalReplyReview" tabindex="-1" aria-labelledby="replyReviewTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content admin-modal">
         <div class="modal-header">
-          <h5 class="modal-title font-lora">Business reply to customer</h5>
+          <h5 class="modal-title font-lora" id="replyReviewTitle">Business reply to customer</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form id="formReplyReview">
           <input type="hidden" id="replyReviewId">
           <div class="modal-body d-flex flex-column gap-3">
             <div class="p-3 bg-cc-bg border-cc">
-              <div class="d-flex justify-content-between mb-1">
+              <div class="d-flex justify-content-between gap-2 mb-1">
                 <span class="text-light-cc fw-medium" id="replyCustomerName">Customer</span>
-                <span class="text-accent" id="replyProductRating">5 / 5 ★</span>
+                <span class="text-accent flex-shrink-0 text-nowrap" id="replyProductRating">5 / 5 ★</span>
               </div>
               <div class="text-muted-cc fst-italic" style="font-size: 12px;" id="replyCustomerComment">"Comment text"</div>
             </div>
             <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Official response</label>
+              <label for="replyText" class="form-label text-muted-cc" style="font-size: 12px;">Official response</label>
               <textarea class="admin-input-filter w-100" id="replyText" rows="3" required placeholder="Thank you for your feedback..."></textarea>
             </div>
           </div>
@@ -1331,11 +1341,11 @@
   </div>
 
   <!-- Modal: Flag Review for Moderation -->
-  <div class="modal fade" id="modalFlagReview" tabindex="-1" aria-hidden="true">
+  <div class="modal fade cc-review-modal" id="modalFlagReview" tabindex="-1" aria-labelledby="flagReviewTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content admin-modal">
         <div class="modal-header">
-          <h5 class="modal-title font-lora text-warning">Flag review for moderation</h5>
+          <h5 class="modal-title font-lora text-warning" id="flagReviewTitle">Flag review for moderation</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form id="formFlagReview">
@@ -1345,7 +1355,7 @@
               Business administrators cannot delete customer reviews directly. Flagging sends this entry for content moderation review.
             </p>
             <div>
-              <label class="form-label text-muted-cc" style="font-size: 12px;">Reason for moderation flag *</label>
+              <label for="flagReason" class="form-label text-muted-cc" style="font-size: 12px;">Reason for moderation flag *</label>
               <select class="admin-select-filter w-100" id="flagReason">
                 <option value="Contains abusive or profane language">Contains abusive or profane language</option>
                 <option value="Spam or promotional solicitation">Spam or promotional solicitation</option>
