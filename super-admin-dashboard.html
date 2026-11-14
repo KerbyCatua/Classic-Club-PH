@@ -337,6 +337,51 @@
     .sa-table-wide { min-width: 940px; }
     .sa-table-medium { min-width: 760px; }
 
+    /* Maintenance history: a 45px header and four 73px records. */
+    #module-maintenance .maintenance-history-viewport {
+      height: 337px;
+      min-width: 960px;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+    }
+    #module-maintenance :is(.maintenance-history-container, .maintenance-history-viewport, .maintenance-history-value) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--cc-accent) var(--cc-bg);
+    }
+    #module-maintenance :is(.maintenance-history-container, .maintenance-history-viewport, .maintenance-history-value)::-webkit-scrollbar { width: 8px; height: 8px; }
+    #module-maintenance :is(.maintenance-history-container, .maintenance-history-viewport, .maintenance-history-value)::-webkit-scrollbar-track { background: var(--cc-bg); }
+    #module-maintenance :is(.maintenance-history-container, .maintenance-history-viewport, .maintenance-history-value)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+    #module-maintenance .maintenance-history-viewport .admin-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+    #module-maintenance .maintenance-history-viewport th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      height: 45px;
+      padding: 0 14px;
+      line-height: 16px;
+      background: var(--cc-placeholder);
+    }
+    #module-maintenance .maintenance-history-viewport th:first-child { width: 250px; }
+    #module-maintenance .maintenance-history-viewport th:nth-child(3) { width: 145px; }
+    #module-maintenance .maintenance-history-viewport th:nth-child(4) { width: 95px; }
+    #module-maintenance .maintenance-history-viewport th:nth-child(5) { width: 160px; }
+    #module-maintenance .maintenance-history-viewport th:last-child { width: 80px; }
+    #module-maintenance .maintenance-history-viewport td { height: 73px; }
+    #module-maintenance .maintenance-history-value { max-height: 40px; overflow-y: auto; overflow-wrap: anywhere; }
+    #module-maintenance #announcementPreviewText { white-space: pre-wrap; }
+    #module-maintenance [hidden] { display: none !important; }
+    #module-maintenance :is(.admin-card, .sa-form-note, #announcementPreviewText) { overflow-wrap: anywhere; }
+    #module-maintenance :is(button, input, select, textarea, [role="region"], .maintenance-history-value):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
+    #module-maintenance :is(button, input, select, textarea):disabled { opacity: .6; cursor: not-allowed; }
+    @media (max-width: 575.98px) {
+      #module-maintenance .admin-card { padding: 20px; }
+      #module-maintenance :is(input, select, textarea) { font-size: 16px; }
+      #module-maintenance .admin-card button { min-height: 44px; }
+    }
+    /* Maintenance confirmation uses the shared account sign-out modal design. */
+    body.cc-maintenance-disable-modal-open > :not(#disableMaintenanceModal):not(.modal-backdrop):not(.toast-container):not(script) { filter: blur(5px); }
+    body.cc-maintenance-disable-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+
     /* Users only: a 45px header and four 73px account rows. */
     #module-users .users-table-viewport {
       height: 337px;
@@ -992,7 +1037,7 @@
     </section>
 
     <!-- SECTION 21.4: SYSTEM MAINTENANCE MANAGEMENT -->
-    <section id="module-maintenance" class="admin-section px-4 px-lg-5">
+    <section id="module-maintenance" class="admin-section px-4 px-lg-5" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.4 / CLASSIC CLUB PH</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
@@ -1006,22 +1051,22 @@
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Application availability</span>
-            <div class="admin-card-stat text-accent" id="maintenanceAvailability">Available</div>
+            <div class="admin-card-stat" id="maintenanceAvailability">Loading…</div>
             <span class="admin-card-sub">Live application state</span>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Maintenance mode</span>
-            <div class="admin-card-stat" id="maintenanceModeValue">Off</div>
-            <span class="admin-card-sub" id="maintenanceModeSub">No current restriction</span>
+            <div class="admin-card-stat" id="maintenanceModeValue">—</div>
+            <span class="admin-card-sub" id="maintenanceModeSub">Checking current state</span>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="admin-card h-100">
             <span class="admin-card-label">Next scheduled window</span>
             <div class="admin-card-stat" id="nextWindowValue">—</div>
-            <span class="admin-card-sub" id="nextWindowSub">No scheduled window</span>
+            <span class="admin-card-sub" id="nextWindowSub">Checking schedule</span>
           </div>
         </div>
       </div>
@@ -1029,24 +1074,31 @@
       <div class="row g-4 mb-4">
         <div class="col-12 col-xl-7">
           <div class="admin-card h-100">
-            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-              <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Maintenance mode / schedule editor</h3>
-              <span class="sa-badge sa-badge-neutral" id="maintenanceEditorBadge">Current: Off</span>
-            </div>
+            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Maintenance mode &amp; schedule</h3>
 
             <div class="d-flex flex-wrap gap-2 mb-4">
-              <button type="button" class="btn-admin-outline" id="btnEnableMaintenance">Enable maintenance</button>
-              <button type="button" class="btn-admin-outline" id="btnDisableMaintenance">Disable maintenance · current Off</button>
-              <button type="button" class="btn-admin-outline" id="btnEditSchedule">Edit scheduled window</button>
+              <button type="button" class="btn-admin-outline" id="btnEnableMaintenance" aria-controls="enableMaintenancePanel" aria-expanded="false" disabled>Enable maintenance now</button>
+              <button type="button" class="btn-admin-outline" id="btnDisableMaintenance" aria-haspopup="dialog" aria-controls="disableMaintenanceModal" disabled>Disable manual maintenance</button>
+            </div>
+
+            <div class="sa-danger-panel mb-4" id="enableMaintenancePanel" role="region" aria-labelledby="enableMaintenanceTitle" hidden>
+              <h4 class="sa-danger-title" id="enableMaintenanceTitle">Enable maintenance now?</h4>
+              <p class="sa-form-note mb-3">Shopping, checkout, and business administration will pause for the entire application. Authorized Super Admin access remains available.</p>
+              <label class="form-label text-muted-cc" style="font-size: 12px;" for="enableMaintenancePhrase">Type ENABLE MAINTENANCE / ENTIRE APPLICATION</label>
+              <input type="text" class="admin-input-filter w-100 mb-3" id="enableMaintenancePhrase" autocomplete="off">
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="enableMaintenanceCheck">
+                <label class="form-check-label text-light-cc" for="enableMaintenanceCheck" style="font-size: 13px;">I understand the scope and impact of this action.</label>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn-admin-outline" id="btnCancelEnableMaintenance">Cancel</button>
+                <button type="button" class="btn-admin-outline" id="btnConfirmEnableMaintenance">Confirm enable</button>
+              </div>
             </div>
 
             <form id="maintenanceForm" class="d-flex flex-column gap-3">
               <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceScope">Scope</label>
-                  <input type="text" class="admin-input-filter w-100" id="maintenanceScope" value="Entire Classic Club PH application · locked" readonly>
-                </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceState">Schedule state</label>
                   <select class="admin-select-filter w-100" id="maintenanceState">
                     <option value="Scheduled">Scheduled window</option>
@@ -1056,19 +1108,19 @@
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceStartDate">Start date</label>
-                  <input type="date" class="admin-input-filter w-100" id="maintenanceStartDate">
+                  <input type="date" class="admin-input-filter w-100" id="maintenanceStartDate" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceStartTime">Start time</label>
-                  <input type="time" class="admin-input-filter w-100" id="maintenanceStartTime">
+                  <input type="time" class="admin-input-filter w-100" id="maintenanceStartTime" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceEndDate">End date</label>
-                  <input type="date" class="admin-input-filter w-100" id="maintenanceEndDate">
+                  <input type="date" class="admin-input-filter w-100" id="maintenanceEndDate" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="maintenanceEndTime">End time</label>
-                  <input type="time" class="admin-input-filter w-100" id="maintenanceEndTime">
+                  <input type="time" class="admin-input-filter w-100" id="maintenanceEndTime" required>
                 </div>
               </div>
 
@@ -1077,22 +1129,16 @@
                 <input type="text" class="admin-input-filter w-100" id="maintenancePurpose" maxlength="160" required>
               </div>
 
-              <div class="d-flex flex-column gap-2">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="maintenanceAllowAdmin" checked disabled>
-                  <label class="form-check-label text-light-cc" for="maintenanceAllowAdmin" style="font-size: 13px;">Allow authorized Super Admin access during maintenance</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="maintenanceNotifyUsers">
-                  <label class="form-check-label text-light-cc" for="maintenanceNotifyUsers" style="font-size: 13px;">Show announcement before the scheduled window</label>
-                </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="maintenanceNotifyUsers">
+                <label class="form-check-label text-light-cc" for="maintenanceNotifyUsers" style="font-size: 13px;">Show announcement before the scheduled window</label>
               </div>
 
               <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn-admin-outline" id="btnCancelSchedule">Cancel schedule edit</button>
+                <button type="button" class="btn-admin-outline" id="btnCancelSchedule">Reset schedule edits</button>
                 <button type="submit" class="btn-admin-primary">Save schedule</button>
               </div>
-              <p class="sa-form-note mb-0">Saving a scheduled window activates it automatically at its start time. All changes create an audit record.</p>
+              <p class="sa-form-note mb-0">Scheduled windows start and end automatically in PHT. To end an active window early, choose Cancelled and save. All changes are recorded.</p>
             </form>
           </div>
         </div>
@@ -1112,11 +1158,13 @@
               <div>
                 <label class="form-label text-muted-cc" style="font-size: 12px;" for="announcementLocation">Display location</label>
                 <select class="admin-select-filter w-100" id="announcementLocation">
-                  <option value="Application-wide" selected>Application-wide maintenance page and notification banner</option>
+                  <option value="Application-wide" selected>Maintenance page and banner</option>
                   <option value="Banner only">Notification banner only</option>
                   <option value="Maintenance page only">Maintenance page only</option>
                 </select>
               </div>
+
+              <p class="sa-form-note mb-0">Banners appear before a scheduled window when its announcement option is enabled.</p>
 
               <div class="admin-callout">
                 <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Announcement preview</span>
@@ -1135,50 +1183,41 @@
       </div>
 
       <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Scheduled &amp; previous maintenance</h3>
-      <div class="admin-table-container mb-4">
-        <table class="admin-table sa-table-medium">
-          <thead>
-            <tr>
-              <th>Window / PHT</th>
-              <th>Purpose</th>
-              <th>Application scope</th>
-              <th>Status</th>
-              <th>Authorized access</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="maintenanceHistoryBody"><tr><td colspan="6">Loading maintenance history…</td></tr></tbody>
-        </table>
+      <div class="admin-table-container maintenance-history-container mb-4">
+        <div class="maintenance-history-viewport" role="region" aria-label="Scheduled and previous maintenance" tabindex="0">
+          <table class="admin-table sa-table-medium">
+            <thead>
+              <tr>
+                <th>Window / PHT</th>
+                <th>Purpose</th>
+                <th>Application scope</th>
+                <th>Status</th>
+                <th>Access / changed by</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="maintenanceHistoryBody"><tr><td colspan="6">Loading maintenance history…</td></tr></tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Enable Maintenance Confirmation -->
-      <div class="sa-danger-panel" id="enableMaintenancePanel">
-        <h3 class="sa-danger-title">Enable application-wide maintenance?</h3>
-        <p class="mb-4" style="font-size: 14px; line-height: 22px; color: var(--cc-muted);">
-          Scope: Entire application, all customer and business accounts. Customer shopping, checkout and business administration will be paused now. Authorized Super Admin access remains available.
-        </p>
-
-        <div class="row g-3 align-items-end">
-          <div class="col-12 col-lg-6">
-            <label class="form-label text-muted-cc" style="font-size: 12px;" for="enableMaintenancePhrase">Type the confirmation phrase</label>
-            <input type="text" class="admin-input-filter w-100" id="enableMaintenancePhrase" placeholder="ENABLE MAINTENANCE / ENTIRE APPLICATION" autocomplete="off">
-          </div>
-          <div class="col-12 col-lg-6">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="enableMaintenanceCheck">
-              <label class="form-check-label text-light-cc" for="enableMaintenanceCheck" style="font-size: 13px;">I understand the scope and impact of this action.</label>
+      <div class="modal fade cc-sign-out-modal" id="disableMaintenanceModal" tabindex="-1" aria-labelledby="disableMaintenanceTitle" aria-describedby="disableMaintenanceDescription" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-body d-flex flex-column">
+              <h2 id="disableMaintenanceTitle" class="font-lora text-light-cc m-0">Disable manual maintenance?</h2>
+              <p id="disableMaintenanceDescription" class="text-muted-cc m-0">This will resume access to the application. The change will be recorded.</p>
+              <div class="cc-sign-out-actions d-flex pt-2">
+                <button type="button" id="btnCancelDisableMaintenance" class="btn btn-cc-outline flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="btnConfirmDisableMaintenance" class="btn btn-cc-teal flex-grow-1" disabled>Disable</button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2 mt-3">
-          <button type="button" class="btn-admin-outline" id="btnCancelEnableMaintenance">Cancel</button>
-          <button type="button" class="btn-admin-outline" id="btnConfirmEnableMaintenance" style="background: #2A1D1D; border-color: #D19A93; color: #f4b4ae;">Confirm enable</button>
         </div>
       </div>
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
-        <span class="sa-tiny-label">LIVE MAINTENANCE DATA</span>
+        <span class="sa-tiny-label" id="maintenanceDataFootnote" role="status" aria-live="polite">Loading maintenance data…</span>
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
       </div>
     </section>
