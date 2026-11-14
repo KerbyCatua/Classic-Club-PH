@@ -2025,7 +2025,7 @@ final class AdminBusinessService
     /**
      * Activity Logs
      */
-    public function getActivityLogs(int $businessId, array $filters = []): array
+    public function getActivityLogs(int $businessId, array $filters = [], ?int $readerId = null): array
     {
         $sql = <<<SQL
             SELECT 
@@ -2050,6 +2050,11 @@ final class AdminBusinessService
         SQL;
 
         $params = ['bid' => $businessId];
+
+        if ($readerId !== null) {
+            $sql .= ' AND NOT EXISTS (SELECT 1 FROM business_activity_log_reads lr WHERE lr.log_id = al.id AND lr.user_id = :reader_id)';
+            $params['reader_id'] = $readerId;
+        }
 
         if (!empty($filters['search'])) {
             $sql .= " AND (al.action LIKE :search_action OR al.entity_type LIKE :search_resource OR al.responsible_name LIKE :search_person OR al.metadata LIKE :search_metadata)";
@@ -2086,6 +2091,22 @@ final class AdminBusinessService
         unset($log);
 
         return $logs;
+    }
+
+    public function markActivityLogRead(int $businessId, int $userId, int $logId): bool
+    {
+        $exists = $this->pdo->prepare('SELECT id FROM audit_logs WHERE id = ? AND business_id = ?');
+        $exists->execute([$logId, $businessId]);
+        if (!$exists->fetchColumn()) {
+            return false;
+        }
+        $stmt = $this->pdo->prepare(<<<SQL
+            INSERT INTO business_activity_log_reads (user_id, log_id)
+            SELECT :uid, id FROM audit_logs WHERE id = :id AND business_id = :bid
+            ON DUPLICATE KEY UPDATE read_at = read_at
+        SQL);
+        $stmt->execute(['uid' => $userId, 'id' => $logId, 'bid' => $businessId]);
+        return true;
     }
 
     public function logActivity(

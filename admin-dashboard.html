@@ -829,6 +829,7 @@
 
       <!-- Activity Logs Table -->
       <div class="admin-table-container">
+        <div class="activity-logs-scroll" tabindex="0" role="region" aria-label="Business activity logs, scroll for more records">
         <table class="admin-table" id="activityLogsTable">
           <thead>
             <tr>
@@ -838,12 +839,31 @@
               <th>Action</th>
               <th>Affected resource</th>
               <th>Change details</th>
+              <th>Read status</th>
             </tr>
           </thead>
           <tbody id="activityLogsTableBody">
             <!-- Dynamically populated -->
           </tbody>
         </table>
+        </div>
+      </div>
+
+      <div class="modal fade cc-sign-out-modal" id="activityLogReadModal" tabindex="-1" aria-labelledby="activityLogReadTitle" aria-describedby="activityLogReadDescription" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-body d-flex flex-column">
+              <h2 id="activityLogReadTitle" class="font-lora text-light-cc m-0">Mark as read?</h2>
+              <p id="activityLogReadDescription" class="text-muted-cc m-0">Mark this activity as read? It will be removed from your unread list.</p>
+              <p id="activityLogReadSummary" class="text-muted-cc m-0"></p>
+              <p id="activityLogReadError" class="text-danger m-0" role="alert" hidden></p>
+              <div class="cc-sign-out-actions d-flex pt-2">
+                <button type="button" id="cancelActivityLogRead" class="btn btn-cc-outline flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmActivityLogRead" class="btn btn-cc-teal flex-grow-1">Mark as Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

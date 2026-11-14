@@ -179,7 +179,7 @@ async function initDashboard() {
       loadReviews(),
       loadNotifications(),
       loadStaff(),
-      loadActivityLogs(),
+      Promise.resolve().then(loadActivityLogs), // Let the logs module finish binding its controls first.
       loadBusinessProfile()
     ]);
     if (typeof window.refreshScrollReveal === 'function') {
@@ -1171,7 +1171,89 @@ async function initDashboard() {
   // ==========================================
   // SECTION 20.8: ACTIVITY LOGS
   // ==========================================
+  const logsModule = document.getElementById('module-logs');
+  const logsBody = logsModule.querySelector('#activityLogsTableBody');
+  const logReadModal = logsModule.querySelector('#activityLogReadModal');
+  const confirmLogRead = logReadModal.querySelector('#confirmActivityLogRead');
+  const cancelLogRead = logReadModal.querySelector('#cancelActivityLogRead');
+  const logReadError = logReadModal.querySelector('#activityLogReadError');
+  let activityLogs = [];
+  let logsRequest = 0;
+  let pendingLog = null;
+  let logReadTrigger = null;
+  const confirmedLogIds = new Set();
+
+  // Keep the modal outside the section's scroll-reveal transform and background blur.
+  document.body.appendChild(logReadModal);
+  logReadModal.addEventListener('show.bs.modal', () => document.body.classList.add('cc-log-read-modal-open'));
+  logReadModal.addEventListener('shown.bs.modal', () => cancelLogRead.focus());
+  logReadModal.addEventListener('hide.bs.modal', event => {
+    if (confirmLogRead.disabled) event.preventDefault();
+  });
+  logReadModal.addEventListener('hidden.bs.modal', () => {
+    document.body.classList.remove('cc-log-read-modal-open');
+    pendingLog = null;
+    const focusTarget = logReadTrigger?.isConnected ? logReadTrigger : logsModule.querySelector('.activity-log-read, #logSearchInput');
+    focusTarget?.focus({ preventScroll: true });
+  });
+
+  logsBody.addEventListener('click', event => {
+    const button = event.target.closest('.activity-log-read');
+    if (!button) return;
+    pendingLog = activityLogs.find(log => String(log.id) === button.dataset.logId);
+    if (!pendingLog) return;
+    logReadTrigger = button;
+    logReadError.hidden = true;
+    logReadModal.querySelector('#activityLogReadSummary').textContent = `${pendingLog.action} · ${pendingLog.affected_resource} · ${pendingLog.created_at}`;
+    bootstrap.Modal.getOrCreateInstance(logReadModal).show();
+  });
+
+  confirmLogRead.addEventListener('click', async () => {
+    if (!pendingLog || confirmLogRead.disabled) return;
+    const logId = String(pendingLog.id);
+    confirmLogRead.disabled = cancelLogRead.disabled = true;
+    confirmLogRead.textContent = 'Saving…';
+    logReadError.hidden = true;
+    try {
+      await CCAdmin.apiRequest('public/api/admin/activity-logs.php', {
+        method: 'POST', body: JSON.stringify({ log_id: logId })
+      });
+      confirmedLogIds.add(logId);
+      activityLogs = activityLogs.filter(log => String(log.id) !== logId);
+      renderActivityLogs();
+      confirmLogRead.disabled = cancelLogRead.disabled = false;
+      bootstrap.Modal.getOrCreateInstance(logReadModal).hide();
+      CCAdmin.showToast('Activity marked as read.');
+    } catch (error) {
+      logReadError.textContent = error.message || 'Unable to mark this activity as read. Please try again.';
+      logReadError.hidden = false;
+    } finally {
+      confirmLogRead.disabled = cancelLogRead.disabled = false;
+      confirmLogRead.textContent = 'Mark as Read';
+    }
+  });
+
+  function renderActivityLogs() {
+    if (!activityLogs.length) {
+      logsBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted-cc">No unread activity logs found.</td></tr>';
+      return;
+    }
+    const value = text => `<span class="activity-log-value" title="${escapeHtml(text)}">${escapeHtml(text)}</span>`;
+    logsBody.innerHTML = activityLogs.map(log => `
+      <tr>
+        <td class="text-muted-cc" style="font-size: 12px;">${value(log.created_at)}</td>
+        <td class="fw-medium text-light-cc">${value(log.responsible_person || 'Administrator')}</td>
+        <td class="text-muted-cc" style="font-size: 12px;">${value(log.role || 'Business Admin')}</td>
+        <td class="text-light-cc fw-medium">${value(log.action)}</td>
+        <td class="text-light-cc">${value(log.affected_resource)}</td>
+        <td class="text-muted-cc" style="font-size: 12px;">${value(log.change_details || '—')}</td>
+        <td><button type="button" class="activity-log-read cc-underline-link text-accent" data-log-id="${escapeHtml(log.id)}" aria-haspopup="dialog">Mark as Read</button></td>
+      </tr>
+    `).join('');
+  }
+
   async function loadActivityLogs() {
+    const requestId = ++logsRequest;
     const search = document.getElementById('logSearchInput').value;
     const action = document.getElementById('logActionFilter').value;
     const params = new URLSearchParams();
@@ -1180,24 +1262,9 @@ async function initDashboard() {
 
     try {
       const data = await CCAdmin.apiRequest(`public/api/admin/activity-logs.php?${params.toString()}`);
-      const tbody = document.getElementById('activityLogsTableBody');
-      const items = data.logs || [];
-
-      if (!items.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted-cc">No activity logs recorded.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = items.map(l => `
-        <tr>
-          <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(l.created_at)}</td>
-          <td class="fw-medium text-light-cc">${escapeHtml(l.responsible_person || 'Administrator')}</td>
-          <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(l.role || 'Business Admin')}</td>
-          <td class="text-light-cc fw-medium">${escapeHtml(l.action)}</td>
-          <td class="text-light-cc">${escapeHtml(l.affected_resource)}</td>
-          <td class="text-muted-cc" style="font-size: 12px;">${escapeHtml(l.change_details || '—')}</td>
-        </tr>
-      `).join('');
+      if (requestId !== logsRequest) return;
+      activityLogs = (data.logs || []).filter(log => !confirmedLogIds.has(String(log.id)));
+      renderActivityLogs();
     } catch (e) {
       console.warn('Load activity logs error:', e);
     }
