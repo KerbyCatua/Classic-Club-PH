@@ -22,6 +22,8 @@ async function expectOverlay(card, opacity) {
 }
 
 async function prepare(page) {
+  // Keep server state outside the page: writes may finish during navigation.
+  page.wishlistServer = new Set();
   await page.addInitScript(() => {
     window.catalogReady = false;
     window.wishlistActions = [];
@@ -30,7 +32,11 @@ async function prepare(page) {
   });
   await page.route('**/public/api/auth/csrf.php', route => route.fulfill({ json: { success: true, data: { token: 'test' } } }));
   await page.route('**/public/api/wishlist/*.php', async route => {
-    const ids = await page.evaluate(() => JSON.parse(localStorage.getItem('cc_wishlist_data') || '[]'));
+    if (route.request().method() === 'POST') {
+      const { catalog_key: id, saved } = route.request().postDataJSON();
+      saved ? page.wishlistServer.add(id) : page.wishlistServer.delete(id);
+    }
+    const ids = [...page.wishlistServer];
     await route.fulfill({ json: { success: true, data: { items: ids.map(id => ({ id })) } } });
   });
   await page.route('**/public/api/cart/*.php', route => route.fulfill({ json: { success: true, data: { items: [] } } }));
@@ -40,10 +46,13 @@ async function visit(page, file) {
   await page.goto(new URL(file.replaceAll('\\', '/'), base).href);
   await page.waitForFunction(() => window.catalogReady);
   if (file === 'wishlist.html') {
-    await page.evaluate(() => {
-      localStorage.setItem('cc_wishlist_data', JSON.stringify(Object.keys(CCStore.getProducts())));
+    const ids = await page.evaluate(() => {
+      const ids = Object.keys(CCStore.getProducts());
+      localStorage.setItem('cc_wishlist_data', JSON.stringify(ids));
       window.dispatchEvent(new CustomEvent('cc:wishlistUpdated'));
+      return ids;
     });
+    page.wishlistServer = new Set(ids);
   }
   await page.locator('.cc-product-card .cc-qv-overlay').first().waitFor({ state: 'attached' });
 }

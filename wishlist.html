@@ -139,19 +139,9 @@
       const descLabel = document.getElementById('wishlist-hero-desc');
       const bottomNote = document.getElementById('wishlist-bottom-note');
 
-      // Strict targeted removal function that slices out the exact string matching the array
+      // All wishlist writes go through the shared persistent store.
       function removeIdFromWishlist(idToRemove) {
-        const current = CCStore.getWishlist();
-        const updated = current.filter(item => item !== idToRemove);
-        localStorage.setItem('cc_wishlist_data', JSON.stringify(updated));
-        
-        // Dispatch event so Header Bag/Wishlist numbers update instantly
-        window.dispatchEvent(new CustomEvent('cc:wishlistUpdated', { detail: updated }));
-        if (updated.length !== current.length) {
-          window.dispatchEvent(new CustomEvent('cc:wishlistChanged', {
-            detail: { productId: idToRemove, saved: false }
-          }));
-        }
+        CCStore.removeFromWishlist(idToRemove);
       }
 
       function renderWishlist() {

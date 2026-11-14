@@ -7,6 +7,7 @@ const CCStore = (function () {
     CART: 'cc_cart_data',
     CART_INIT: 'cc_cart_initialized',
     WISHLIST: 'cc_wishlist_data',
+    WISHLIST_PENDING: 'cc_wishlist_pending',
     PROMO: 'cc_promo_data',
     ORDERS: 'cc_order_history',
     LAST_ORDER: 'cc_last_order',
@@ -109,16 +110,113 @@ const CCStore = (function () {
 
   function getWishlist() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST)) || [];
+      return normalizeWishlist(JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST)));
     } catch (e) {
       return [];
     }
   }
 
   function saveWishlist(wishlistData) {
+    wishlistData = normalizeWishlist(wishlistData);
     localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(wishlistData));
     window.dispatchEvent(new CustomEvent('cc:wishlistUpdated', { detail: wishlistData }));
   }
+
+  function normalizeWishlist(ids) {
+    return Array.isArray(ids) ? [...new Set(ids.filter(id => typeof id === 'string' && id.trim()))] : [];
+  }
+
+  function pendingWishlist() {
+    try {
+      const pending = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST_PENDING));
+      return pending && typeof pending === 'object' && !Array.isArray(pending) ? pending : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  let wishlistQueue = Promise.resolve();
+  let wishlistRevision = 0;
+  let wishlistSession = 0;
+
+  // Persist explicit intent before starting a request, so navigation or a failed
+  // response cannot lose a removal. Replaying saved=false is safe; toggling isn't.
+  function setWishlistSaved(productId, saved) {
+    if (typeof productId !== 'string' || !productId.trim()) return false;
+    const wishlist = getWishlist();
+    const changed = wishlist.includes(productId) !== saved;
+    const pending = pendingWishlist();
+    pending[productId] = { saved, token: crypto.randomUUID() };
+    localStorage.setItem(STORAGE_KEYS.WISHLIST_PENDING, JSON.stringify(pending));
+    wishlistRevision++;
+    saveWishlist(saved ? [...wishlist, productId] : wishlist.filter(id => id !== productId));
+    if (changed) {
+      window.dispatchEvent(new CustomEvent('cc:wishlistChanged', { detail: { productId, saved } }));
+    }
+    syncWishlist(false);
+    return saved;
+  }
+
+  function syncWishlist(refresh = true) {
+    const session = wishlistSession;
+    const sync = async () => {
+      if (session !== wishlistSession) return;
+      try {
+        // Only acknowledge the exact intent sent. A newer click must survive
+        // an older response, including one from another tab.
+        while (session === wishlistSession) {
+          const entry = Object.entries(pendingWishlist())[0];
+          if (!entry) break;
+          const [productId, intent] = entry;
+          await apiRequest('public/api/wishlist/toggle.php', {
+            method: 'POST',
+            body: JSON.stringify({ catalog_key: productId, saved: intent.saved })
+          });
+          if (session !== wishlistSession) return;
+          const pending = pendingWishlist();
+          if (pending[productId]?.token === intent.token) {
+            delete pending[productId];
+            localStorage.setItem(STORAGE_KEYS.WISHLIST_PENDING, JSON.stringify(pending));
+          }
+        }
+        if (!refresh || session !== wishlistSession) return;
+        const revision = wishlistRevision;
+        const snapshot = localStorage.getItem(STORAGE_KEYS.WISHLIST);
+        const data = await apiRequest('public/api/wishlist/view.php');
+        // A page-load response is only authoritative when no newer local action
+        // occurred and all durable changes have reached the server.
+        if (session === wishlistSession && revision === wishlistRevision &&
+            snapshot === localStorage.getItem(STORAGE_KEYS.WISHLIST) &&
+            Object.keys(pendingWishlist()).length === 0) {
+          saveWishlist((data.items || []).map(item => item.id));
+        }
+      } catch (error) {
+        // Keep the journal for the next navigation, reconnection or user action.
+        if (!String(error.message).toLowerCase().includes('authentication')) {
+          console.warn('Wishlist changes are saved locally; server sync will retry:', error);
+        }
+      }
+    };
+    const run = () => navigator.locks
+      ? navigator.locks.request('cc-wishlist-sync', sync)
+      : sync();
+    wishlistQueue = wishlistQueue.then(run, run);
+    return wishlistQueue;
+  }
+
+  window.addEventListener('storage', event => {
+    if (event.key === STORAGE_KEYS.WISHLIST || event.key === null) {
+      wishlistRevision++;
+      window.dispatchEvent(new CustomEvent('cc:wishlistUpdated', { detail: getWishlist() }));
+    }
+  });
+  window.addEventListener('online', () => syncWishlist());
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      window.dispatchEvent(new CustomEvent('cc:wishlistUpdated', { detail: getWishlist() }));
+      syncWishlist();
+    }
+  });
 
   function getPromo() {
     try {
@@ -476,14 +574,7 @@ const CCStore = (function () {
     },
 
     moveToWishlist: function (id, color, size) {
-      const wishlist = getWishlist();
-      if (!wishlist.includes(id)) {
-        wishlist.push(id);
-        saveWishlist(wishlist);
-        window.dispatchEvent(new CustomEvent('cc:wishlistChanged', {
-          detail: { productId: id, saved: true }
-        }));
-      }
+      setWishlistSaved(id, true);
       this.removeFromCart(id, color, size);
     },
 
@@ -543,28 +634,11 @@ const CCStore = (function () {
 
     // Wishlist Methods
     getWishlist,
+    addToWishlist: productId => setWishlistSaved(productId, true),
+    removeFromWishlist: productId => setWishlistSaved(productId, false),
+    syncWishlistFromServer: syncWishlist,
     toggleWishlist: function (productId) {
-      const wishlist = getWishlist();
-      const index = wishlist.indexOf(productId);
-      if (index > -1) {
-        wishlist.splice(index, 1);
-      } else {
-        wishlist.push(productId);
-      }
-      saveWishlist(wishlist);
-      window.dispatchEvent(new CustomEvent('cc:wishlistChanged', {
-        detail: { productId, saved: index === -1 }
-      }));
-      apiRequest('public/api/wishlist/toggle.php', {
-        method: 'POST',
-        body: JSON.stringify({ catalog_key: productId })
-      }).then(data => {
-        const remoteIds = (data.items || []).map(item => item.id);
-        saveWishlist(remoteIds);
-      }).catch(error => {
-        console.error('Server wishlist update failed:', error);
-      });
-      return index === -1;
+      return setWishlistSaved(productId, !getWishlist().includes(productId));
     },
     isInWishlist: function (productId) {
       return getWishlist().includes(productId);
@@ -578,14 +652,7 @@ const CCStore = (function () {
         console.error('Server cart sync failed:', error);
       }
 
-      try {
-        const wishlistData = await apiRequest('public/api/wishlist/view.php');
-        saveWishlist((wishlistData.items || []).map(item => item.id));
-      } catch (error) {
-        if (!String(error.message).toLowerCase().includes('authentication')) {
-          console.error('Server wishlist sync failed:', error);
-        }
-      }
+      await syncWishlist();
     },
 
     // Order History Methods
@@ -604,6 +671,9 @@ const CCStore = (function () {
       window.dispatchEvent(new CustomEvent('cc:ordersUpdated', { detail: [] }));
     },
     clearAllUserData: function () {
+      wishlistSession++;
+      wishlistRevision++;
+      localStorage.removeItem(STORAGE_KEYS.WISHLIST_PENDING);
       this.clearCart();
       this.clearOrderHistory();
       saveWishlist([]);

@@ -26,15 +26,21 @@ try {
     }
     \ClassicClub\Middleware\CsrfMiddleware::require();
 
-    $catalogKey = trim((string) ($request->json()['catalog_key'] ?? ''));
+    $input = $request->json();
+    $catalogKey = trim((string) ($input['catalog_key'] ?? ''));
     if ($catalogKey === '') {
         JsonResponse::error('catalog_key is required.', 422)->send();
+    }
+
+    if (array_key_exists('saved', $input) && !is_bool($input['saved'])) {
+        JsonResponse::error('saved must be a boolean.', 422)->send();
     }
 
     JsonResponse::success(
         (new WishlistService(new WishlistRepository($pdo)))->toggle(
             AuthMiddleware::requireUser(),
-            $catalogKey
+            $catalogKey,
+            $input['saved'] ?? null
         )
     )->send();
 } catch (RuntimeException $exception) {

@@ -22,15 +22,26 @@ final class WishlistRepository
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function variantId(string $catalogKey): ?int
+    public function variantId(string $catalogKey, bool $activeOnly = true): ?int
     {
         $statement = $this->pdo->prepare(
-            "SELECT id FROM product_variants WHERE catalog_key = :catalog_key AND availability_status = 'active' LIMIT 1"
+            'SELECT id FROM product_variants WHERE catalog_key = :catalog_key'
+            . ($activeOnly ? " AND availability_status = 'active'" : '') . ' LIMIT 1'
         );
         $statement->execute(['catalog_key' => $catalogKey]);
         $id = $statement->fetchColumn();
 
         return $id === false ? null : (int) $id;
+    }
+
+    public function setSaved(int $wishlistId, int $variantId, bool $saved): void
+    {
+        // Explicit state makes retries idempotent and the existing primary key
+        // prevents duplicate saved variants.
+        $statement = $this->pdo->prepare($saved
+            ? 'INSERT INTO wishlist_items (wishlist_id, variant_id) VALUES (:wishlist_id, :variant_id) ON DUPLICATE KEY UPDATE variant_id = VALUES(variant_id)'
+            : 'DELETE FROM wishlist_items WHERE wishlist_id = :wishlist_id AND variant_id = :variant_id');
+        $statement->execute(['wishlist_id' => $wishlistId, 'variant_id' => $variantId]);
     }
 
     public function toggle(int $wishlistId, int $variantId): bool

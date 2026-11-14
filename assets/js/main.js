@@ -49,6 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
         button.getAttribute('data-id') || button.closest('[data-product-id]')?.getAttribute('data-product-id');
       if (!productId) return;
       const saved = CCStore.isInWishlist(productId);
+      const icon = button.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('bi-heart-fill', saved);
+        icon.classList.toggle('bi-heart', !saved);
+      }
+      button.classList.toggle('text-accent', saved);
+      if (button.classList.contains('cc-main-wishlist-toggle')) {
+        button.classList.toggle('text-light-cc', !saved);
+        const label = button.querySelector('.wishlist-btn-text');
+        if (label) label.textContent = saved ? 'Saved to wishlist' : 'Save to wishlist';
+      }
       button.setAttribute('aria-pressed', String(saved));
       button.setAttribute('aria-label', saved ? 'Remove from wishlist' : 'Save to wishlist');
     });
