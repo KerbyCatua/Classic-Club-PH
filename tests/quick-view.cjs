@@ -1,5 +1,5 @@
 // Run with Playwright installed: node tests/quick-view.cjs
-// Uses the live read-only catalog; cart writes are intercepted below.
+// Uses the live read-only catalog; wishlist writes are intercepted below.
 const { chromium } = require(process.env.CC_PLAYWRIGHT_PATH || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -109,14 +109,21 @@ async function moveMagnifier(page, x, y) {
     let payload;
     await page.route('**/public/api/auth/me.php', r => r.fulfill({ json: { success: true, data: {} } }));
     await page.route('**/public/api/auth/csrf.php', r => r.fulfill({ json: { success: true, data: { token: 'test' } } }));
-    await page.route('**/public/api/cart/add.php', r => {
+    await page.route('**/public/api/wishlist/toggle.php', r => {
       payload = r.request().postDataJSON();
-      return r.fulfill({ json: { success: true, data: { items: [{ id: payload.catalog_key, size: payload.size, quantity: 1 }] } } });
+      return r.fulfill({ json: { success: true, data: { items: [{ id: payload.catalog_key }] } } });
     });
+    // Earlier wishlist-card checks seeded every product as saved.
+    await page.evaluate(() => {
+      localStorage.setItem('cc_wishlist_data', '[]');
+      window.dispatchEvent(new CustomEvent('cc:wishlistUpdated'));
+    });
+    const saved = page.waitForResponse('**/public/api/wishlist/toggle.php');
     await page.locator('.cc-qv-add').click();
-    await page.waitForFunction(() => document.querySelector('.cc-qv-status').textContent === 'Added to your bag.');
+    await saved;
+    await page.waitForFunction(() => document.querySelector('.cc-qv-status').textContent === 'Added to your wishlist.');
     assert.equal(payload.catalog_key, 'essential-hw-tee-chalk');
-    assert.equal(payload.size, 'L');
+    assert.equal(payload.saved, true);
     await page.locator('.cc-qv-close').click();
     await page.waitForFunction(() => document.body.style.overflow === '');
     for (const width of [390, 600, 700, 768, 1920]) {
@@ -166,6 +173,6 @@ async function moveMagnifier(page, x, y) {
     assert.equal(await page.locator('.cc-qv-details').isVisible(), true);
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => document.body.style.overflow === '');
-    console.log(`PASS: ${tested} product cards, safe image fit and cursor-following magnifier across 5 viewport widths, reduced motion, touch/cancel cleanup, variant/size switching, magnifier geometry, keyboard containment, mocked server cart integration, mobile layout.`);
+    console.log(`PASS: ${tested} product cards, safe image fit and cursor-following magnifier across 5 viewport widths, reduced motion, touch/cancel cleanup, variant/size switching, magnifier geometry, keyboard containment, mocked server wishlist integration, mobile layout.`);
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

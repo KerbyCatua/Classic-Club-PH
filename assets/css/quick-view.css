@@ -33,6 +33,31 @@
 .cc-qv button:focus-visible, .cc-qv a:focus-visible { outline: 2px solid #38bfd0; outline-offset: 3px; }
 .cc-qv-action { display: block; width: 100%; padding: 14px 10px; margin-top: 10px; text-align: center; font: 600 11px var(--font-sans, sans-serif); text-decoration: none; border: 1px solid #303334; background: transparent; color: #f4f1ea; }
 .cc-qv-add { background: #028090; border-color: #028090; }
+/* Restrained feedback for the two primary Quick View actions. */
+.cc-qv .cc-qv-action {
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 180ms cubic-bezier(.2, .8, .2, 1), box-shadow 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cc-qv .cc-qv-action:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 18%), inset 0 1px 0 rgb(244 241 234 / 10%);
+  }
+}
+.cc-qv .cc-qv-action:not(:disabled):focus-visible {
+  box-shadow: 0 3px 10px rgb(0 0 0 / 18%), inset 0 1px 0 rgb(244 241 234 / 10%);
+}
+.cc-qv .cc-qv-action:not(:disabled):is(:active, .is-pressed) {
+  transform: translateY(0) scale(.99);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 18%);
+  transition-duration: 90ms;
+}
+.cc-qv .cc-qv-action:disabled { cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) {
+  .cc-qv .cc-qv-action { transition: none; }
+  .cc-qv .cc-qv-action:not(:disabled):is(:hover, :active, .is-pressed) { transform: none; }
+}
 .cc-qv-note { border-top: 1px solid #303334; margin: 22px 0 0; padding-top: 18px; color: #878d8b; font-size: 9px; }
 .cc-qv-status { font-size: 11px; margin-top: 8px; }
 .cc-qv-lens { position: absolute; border: 1px solid #59c7d5; border-radius: 6px; background: rgb(2 128 144 / 10%); pointer-events: none; }

@@ -77,6 +77,16 @@
         </div>
       </div><div class="cc-qv-zoom" aria-hidden="true" hidden></div>`;
     document.body.append(modal);
+    // Touch browsers may defer :active until release; give immediate press feedback.
+    modal.querySelectorAll('.cc-qv-action').forEach(action => {
+      const release = () => action.classList.remove('is-pressed');
+      action.addEventListener('pointerdown', event => {
+        if (event.isPrimary && event.pointerType !== 'mouse' && !action.matches(':disabled')) action.classList.add('is-pressed');
+      });
+      ['pointerup', 'pointercancel', 'pointerleave', 'lostpointercapture', 'blur'].forEach(type => action.addEventListener(type, release));
+      modal.addEventListener('close', release);
+      window.addEventListener('blur', release);
+    });
     watchImage(find('.cc-qv-photo'));
     modal.addEventListener('keydown', event => {
       if (event.key !== 'Tab') return;
@@ -98,19 +108,31 @@
     });
     modal.addEventListener('close', () => {
       hideZoom();
+      const snackbar = find('#cc-wishlist-snackbar');
+      if (snackbar) document.body.append(snackbar);
       document.body.style.overflow = previousOverflow;
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     });
     find('.cc-qv-add').onclick = async () => {
-      if (pending || !selectedSize) return;
+      if (pending || !selectedSize || !product?.id || product.stockQty <= 0) return;
       const adding = product;
       pending = true;
       updateAction();
       try {
-        const added = await CCStore.addToCart({ id: adding.id, name: adding.name, price: adding.price, color: adding.color, size: selectedSize, image: adding.srcImage, quantity: 1 });
-        if (product === adding) find('.cc-qv-status').textContent = added ? 'Added to your bag.' : 'Unable to add this item. Please check availability or sign in.';
+        // A native modal covers body-level notifications regardless of z-index.
+        // Reuse the shared live region and timer inside the dialog's top layer.
+        const snackbar = document.getElementById('cc-wishlist-snackbar');
+        if (snackbar) modal.append(snackbar);
+        const alreadySaved = CCStore.isInWishlist(adding.id);
+        const added = await CCStore.addToWishlist(adding.id);
+        if (!added) throw new Error('Wishlist save failed');
+        // New saves emit cc:wishlistChanged; repeated adds need feedback too.
+        if (alreadySaved) window.CCSnackbar?.show('Already in wishlist');
+        if (product === adding) find('.cc-qv-status').textContent = alreadySaved ? 'Already in your wishlist.' : 'Added to your wishlist.';
       } catch (error) {
-        if (product === adding) find('.cc-qv-status').textContent = 'Unable to add this item. Please try again.';
+        const message = 'Unable to save to your wishlist. Please try again.';
+        if (product === adding) find('.cc-qv-status').textContent = message;
+        window.CCSnackbar?.show(message);
       } finally { pending = false; updateAction(); }
     };
     find('.cc-qv-media').addEventListener('pointermove', magnify);
@@ -127,7 +149,7 @@
   function updateAction() {
     find('.cc-qv-size-label').textContent = `Size — ${selectedSize || 'Unavailable'}`;
     find('.cc-qv-add').disabled = pending || !selectedSize || product.stockQty <= 0;
-    find('.cc-qv-add').textContent = pending ? 'Adding…' : `Add to bag — ${CCStore.formatPHP(product.price)}　 ↗`;
+    find('.cc-qv-add').textContent = pending ? 'Adding…' : 'Add to Wishlist';
   }
   function option(label, selected, handler) {
     const button = document.createElement('button');
