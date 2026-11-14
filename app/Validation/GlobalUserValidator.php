@@ -66,45 +66,6 @@ final class GlobalUserValidator
         return min($limit, 100);
     }
 
-    public function create(array $input): array
-    {
-        $errors = [];
-
-        $name = $this->name($input['name'] ?? '', $errors);
-        $email = $this->email($input['email'] ?? '', $errors);
-        $role = $this->role($input['role'] ?? 'customer', true);
-        $status = $this->status($input['status'] ?? 'inactive', true);
-        $businessId = max(0, Input::integer($input['business_id'] ?? 0, 0));
-        $permissionSet = $this->permissionSet($input['permission_set'] ?? '', $errors);
-        $requireVerification = $this->boolean($input['require_email_verification'] ?? false);
-        $sendInvitation = $this->boolean($input['send_invitation'] ?? true);
-
-        if ($role === 'admin' && $businessId < 1) {
-            $errors['business_id'] = 'Select an active business for this Admin / Business Owner account.';
-        }
-
-        if ($permissionSet === '' && $role === 'admin') {
-            $permissionSet = 'owner';
-        }
-
-        if ($errors !== []) {
-            throw new ValidationException('Please correct the highlighted fields.', $errors);
-        }
-
-        return [
-            'name' => $name['full'],
-            'first_name' => $name['first'],
-            'last_name' => $name['last'],
-            'email' => $email,
-            'role' => $role,
-            'status' => $status,
-            'business_id' => $role === 'admin' ? $businessId : 0,
-            'permission_set' => $permissionSet,
-            'require_email_verification' => $requireVerification,
-            'send_invitation' => $sendInvitation,
-        ];
-    }
-
     public function update(array $input): array
     {
         $errors = [];

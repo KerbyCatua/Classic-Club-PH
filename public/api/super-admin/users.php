@@ -32,7 +32,9 @@ try {
 
         $userId = $request->queryInteger('id', 0);
         if ($userId > 0) {
-            $historyLimit = $validator->historyLimit($request->query('history', 6));
+            $historyLimit = $request->query('history') === 'all'
+                ? null
+                : $validator->historyLimit($request->query('history', 6));
             JsonResponse::success($service->getUserDetail($userId, $historyLimit))->send();
         }
 
@@ -62,12 +64,6 @@ try {
             $actorName = (string) ($context['user']['email'] ?? 'Super Admin');
         }
 
-        if ($action === 'create') {
-            $data = $validator->create($body);
-            $result = $service->createUser($actorUserId, $actorName, $data);
-            JsonResponse::success($result, 201)->send();
-        }
-
         if ($action === 'update') {
             $data = $validator->update($body);
             $result = $service->updateUser($actorUserId, $actorName, $data);
@@ -83,12 +79,6 @@ try {
         if ($action === 'change_role') {
             $data = $validator->roleChange($body);
             $result = $service->changeUserRole($actorUserId, $actorName, $data);
-            JsonResponse::success($result)->send();
-        }
-
-        if ($action === 'request_password_reset') {
-            $userId = $validator->userId($body['user_id'] ?? 0);
-            $result = $service->requestPasswordReset($actorUserId, $actorName, $userId);
             JsonResponse::success($result)->send();
         }
 

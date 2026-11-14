@@ -108,7 +108,7 @@ final class GlobalUserService
         ];
     }
 
-    public function getUserDetail(int $userId, int $historyLimit = 6): array
+    public function getUserDetail(int $userId, ?int $historyLimit = 6): array
     {
         $rows = $this->fetchUserRows(['id' => $userId]);
 
@@ -123,111 +123,6 @@ final class GlobalUserService
             'user' => $user,
             'history' => $history,
             'history_total' => $this->countHistory($userId),
-        ];
-    }
-
-    public function createUser(int $actorUserId, string $actorName, array $data): array
-    {
-        $this->assertEmailUnique($data['email']);
-
-        $passwordHash = password_hash(bin2hex(random_bytes(24)), PASSWORD_DEFAULT);
-        if ($passwordHash === false) {
-            throw new RuntimeException('Unable to secure the new account credential.');
-        }
-
-        $status = $data['status'];
-        if ($data['require_email_verification'] && $status === 'active') {
-            $status = 'pending';
-        }
-
-        $verifiedAt = $data['require_email_verification'] ? null : date('Y-m-d H:i:s');
-
-        $this->pdo->beginTransaction();
-
-        try {
-            $statement = $this->pdo->prepare(<<<'SQL'
-                INSERT INTO users
-                    (
-                        email,
-                        password_hash,
-                        first_name,
-                        last_name,
-                        status,
-                        email_verified_at,
-                        created_at
-                    )
-                VALUES
-                    (
-                        :email,
-                        :password_hash,
-                        :first_name,
-                        :last_name,
-                        :status,
-                        :email_verified_at,
-                        NOW()
-                    )
-            SQL);
-
-            $statement->execute([
-                'email' => $data['email'],
-                'password_hash' => $passwordHash,
-                'first_name' => $data['first_name'],
-                'last_name' => $data['last_name'],
-                'status' => $status,
-                'email_verified_at' => $verifiedAt,
-            ]);
-
-            $userId = (int) $this->pdo->lastInsertId();
-
-            $this->syncRole($userId, $data['role']);
-            $this->syncBusinessAssignment(
-                $userId,
-                $data['name'],
-                $data['email'],
-                $data['role'],
-                (int) $data['business_id'],
-                (string) $data['permission_set']
-            );
-
-            if ($data['send_invitation']) {
-                $this->issueResetToken($userId, $actorUserId);
-            }
-
-            $this->auditLogger->record(
-                'users.created',
-                $actorUserId,
-                'user',
-                $userId,
-                [
-                    'actor' => $actorName,
-                    'change' => sprintf(
-                        'Created %s account %s · status %s%s',
-                        self::ROLE_LABELS[$data['role']],
-                        $data['email'],
-                        self::STATUS_LABELS[$status],
-                        $data['send_invitation'] ? ' · one-time invitation prepared' : ''
-                    ),
-                    'role' => $data['role'],
-                    'status' => $status,
-                    'business_id' => (int) $data['business_id'],
-                    'invitation' => $data['send_invitation'],
-                ]
-            );
-
-            $this->pdo->commit();
-        } catch (Throwable $exception) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-            throw $exception;
-        }
-
-        $detail = $this->getUserDetail($userId, 8);
-
-        return [
-            'message' => sprintf('Account created for %s.', $data['email']),
-            'user' => $detail['user'],
-            'history' => $detail['history'],
         ];
     }
 
@@ -294,11 +189,7 @@ final class GlobalUserService
                     first_name = :first_name,
                     last_name = :last_name,
                     email = :email,
-                    status = :status,
-                    email_verified_at = CASE
-                        WHEN :status_verified = 'active' THEN COALESCE(email_verified_at, NOW())
-                        ELSE email_verified_at
-                    END
+                    status = :status
                 WHERE id = :id
                   AND deleted_at IS NULL
             SQL);
@@ -308,7 +199,6 @@ final class GlobalUserService
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'status' => $newStatus,
-                'status_verified' => $newStatus,
                 'id' => (int) $target['id'],
             ]);
 
@@ -401,18 +291,13 @@ final class GlobalUserService
             $statement = $this->pdo->prepare(<<<'SQL'
                 UPDATE users
                 SET
-                    status = :status,
-                    email_verified_at = CASE
-                        WHEN :status_verified = 'active' THEN COALESCE(email_verified_at, NOW())
-                        ELSE email_verified_at
-                    END
+                    status = :status
                 WHERE id = :id
                   AND deleted_at IS NULL
             SQL);
 
             $statement->execute([
                 'status' => $newStatus,
-                'status_verified' => $newStatus,
                 'id' => (int) $target['id'],
             ]);
 
@@ -668,7 +553,6 @@ final class GlobalUserService
                 q.created_at,
                 q.updated_at,
                 q.last_login_at,
-                q.email_verified_at,
                 q.role_key,
                 q.business_id,
                 q.permission_set,
@@ -684,7 +568,6 @@ final class GlobalUserService
                     u.created_at,
                     u.updated_at,
                     u.last_login_at,
-                    u.email_verified_at,
                     CASE
                         WHEN EXISTS (
                             SELECT 1
@@ -785,7 +668,6 @@ final class GlobalUserService
             'registration_month' => !empty($row['created_at']) ? date('Y-m', strtotime((string) $row['created_at'])) : '',
             'last_activity_at' => $lastActivity,
             'last_activity' => $lastActivityLabel,
-            'email_verified' => !empty($row['email_verified_at']),
             'business_bound' => $roleKey === 'admin' && $businessId > 0,
         ];
     }
@@ -925,9 +807,9 @@ final class GlobalUserService
         ];
     }
 
-    private function getHistory(int $userId, int $limit): array
+    private function getHistory(int $userId, ?int $limit): array
     {
-        $limit = max(1, min(100, $limit));
+        $limitClause = $limit === null ? '' : 'LIMIT ' . max(1, min(100, $limit));
 
         $statement = $this->pdo->prepare(<<<SQL
             SELECT
@@ -943,7 +825,7 @@ final class GlobalUserService
             WHERE al.entity_type = 'user'
               AND al.entity_id = :user_id
             ORDER BY al.created_at DESC, al.id DESC
-            LIMIT $limit
+            $limitClause
         SQL);
 
         $statement->execute(['user_id' => $userId]);
