@@ -142,22 +142,197 @@
       }
     }
 
-    @media (max-width: 991.98px) {
-      .cc-header-nav .navbar-collapse {
-        position: static;
-        width: auto;
-        transform: none;
-      }
+  /* Mobile: one brand/action row, with secondary actions inside the menu. */
+  @media (max-width: 991.98px) {
+    .cc-header-announcement {
+      padding-block: 6px;
     }
 
-  @media (max-width: 991.98px) {
+    .cc-header-announcement span {
+      font-size: 9px !important;
+      line-height: 1.5;
+      text-wrap: balance;
+    }
+
+    .cc-header-nav {
+      min-height: 72px !important;
+      padding: 12px 16px !important;
+    }
+
+    .cc-header-nav > .container-fluid {
+      column-gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cc-header-brand {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 44px;
+      justify-content: center;
+      white-space: normal;
+    }
+
+    .cc-header-brand > span:first-child {
+      font-size: clamp(16px, 4.8vw, 21px) !important;
+    }
+
+    .cc-header-brand > span:last-child {
+      font-size: 8px !important;
+      line-height: 1.4 !important;
+    }
+
+    .cc-header-actions {
+      flex: 0 0 auto;
+      gap: 4px !important;
+      padding-right: 0 !important;
+    }
+
+    .cc-header-desktop-action {
+      display: none !important;
+    }
+
+    .cc-header-action,
     .cc-header-action:hover,
-    .cc-header-action:focus-visible {
-      min-width: 24px;
+    .cc-header-action:focus-visible,
+    .cc-header-menu-toggle {
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
+      justify-content: center;
+      border-radius: 4px;
+      gap: 0;
+      transform: none;
+      touch-action: manipulation;
+    }
+
+    .cc-header-action i,
+    .cc-header-action:hover i,
+    .cc-header-action:focus-visible i {
+      font-size: 20px;
+      transform: none;
+    }
+
+    .cc-header-menu-toggle {
+      display: inline-flex;
+      order: 3;
+      flex: 0 0 auto;
+      align-items: center;
+      font-size: 24px;
+      transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .cc-header-menu-toggle[aria-expanded="true"] {
+      color: var(--cc-accent-hover) !important;
+      background-color: var(--cc-surface);
+    }
+
+    .cc-header-menu-close,
+    .cc-header-menu-toggle[aria-expanded="true"] .bi-list {
+      display: none;
+    }
+
+    .cc-header-menu-toggle[aria-expanded="true"] .cc-header-menu-close {
+      display: inline-block;
     }
 
     .cc-header-action-label {
       display: none;
+    }
+
+    .cc-header-nav .navbar-collapse {
+      position: static;
+      order: 4 !important;
+      flex-basis: 100%;
+      width: 100%;
+      min-width: 0;
+      margin-top: 0 !important;
+      transform: none;
+    }
+
+    /* Scroll inside the collapse so Bootstrap can animate its outer height. */
+    .cc-header-menu-content {
+      max-height: calc(100vh - 128px);
+      max-height: calc(100dvh - 128px);
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      padding: 12px 4px calc(4px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .cc-header-nav .navbar-nav {
+      gap: 0 !important;
+      border-top: 1px solid var(--cc-border);
+    }
+
+    .cc-header-nav .nav-item {
+      border-bottom: 1px solid var(--cc-border);
+    }
+
+    .cc-header-nav .cc-nav-link {
+      display: flex;
+      min-height: 48px;
+      padding: 12px 8px !important;
+      font-size: 14px !important;
+      transform: none;
+    }
+
+    .cc-header-nav .cc-nav-link::after {
+      content: none;
+    }
+
+    .cc-header-nav .cc-nav-link.fw-semibold {
+      color: var(--cc-accent-hover) !important;
+    }
+
+    .cc-mobile-shortcuts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding-top: 16px;
+    }
+
+    .cc-mobile-shortcut {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
+      min-height: 64px;
+      padding: 8px 4px;
+      border: 1px solid var(--cc-border);
+      border-radius: 4px;
+      background-color: var(--cc-surface);
+      font-size: 11px;
+      text-align: center;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .cc-mobile-shortcut i {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .cc-mobile-shortcut:hover,
+    .cc-mobile-shortcut:focus-visible {
+      color: var(--cc-accent-hover) !important;
+      border-color: var(--cc-accent-hover);
+    }
+
+    .cc-header-nav :is(a, button):focus-visible {
+      outline: 2px solid var(--cc-accent-hover);
+      outline-offset: 2px;
+    }
+
+    .cc-header-brand:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 991.98px) and (prefers-reduced-motion: reduce) {
+    .cc-mobile-shortcut,
+    .cc-header-nav .collapsing {
+      transition: none;
     }
   }
 
@@ -184,7 +359,7 @@
 
 <header class="sticky-top bg-cc-dark" style="z-index: 1030;">
   <!-- Top Announcement Bar -->
-  <div class="bg-cc-surface d-flex justify-content-center align-items-center text-center px-3" style="min-height: 30px;">
+  <div class="cc-header-announcement bg-cc-surface d-flex justify-content-center align-items-center text-center px-3" style="min-height: 30px;">
     <span class="text-muted-cc text-uppercase" style="font-size: 10px; font-weight: 400; letter-spacing: 0.04em;">
       CONSIDERED ESSENTIALS. DELIVERED ACROSS THE PHILIPPINES.
     </span>
@@ -207,50 +382,79 @@
         </span>
       </a>
 
+      <!-- Before the menu in DOM order so keyboard users can tab into it. -->
+      <button class="navbar-toggler cc-header-menu-toggle border-0 p-0 shadow-none d-lg-none text-light-cc"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#ccNavbarMenu"
+              aria-controls="ccNavbarMenu"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <i class="bi bi-list" aria-hidden="true"></i>
+        <i class="bi bi-x cc-header-menu-close d-lg-none" aria-hidden="true"></i>
+      </button>
+
       <!-- Navigation Links -->
       <div class="collapse navbar-collapse justify-content-center order-3 order-lg-2 mt-3 mt-lg-0"
            id="ccNavbarMenu">
-        <ul class="navbar-nav align-items-lg-center mb-0" style="gap: 28px;">
-          <li class="nav-item">
-            <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
-               href="shop-all.html"
-               style="font-size: 12px; font-weight: 400;">
-              Shop all
-            </a>
-          </li>
+        <div class="cc-header-menu-content">
+          <ul class="navbar-nav align-items-lg-center mb-0" style="gap: 28px;">
+            <li class="nav-item">
+              <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
+                 href="shop-all.html"
+                 style="font-size: 12px; font-weight: 400;">
+                Shop all
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
-               href="new-arrivals.html"
-               style="font-size: 12px; font-weight: 400;">
-              New arrivals
-            </a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
+                 href="new-arrivals.html"
+                 style="font-size: 12px; font-weight: 400;">
+                New arrivals
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
-               href="tops-tees.html"
-               style="font-size: 12px; font-weight: 400;">
-              Collections
-            </a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
+                 href="tops-tees.html"
+                 style="font-size: 12px; font-weight: 400;">
+                Collections
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
-               href="lookbook.html"
-               style="font-size: 12px; font-weight: 400;">
-              Lookbook
-            </a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
+                 href="lookbook.html"
+                 style="font-size: 12px; font-weight: 400;">
+                Lookbook
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
-               href="about.html"
-               style="font-size: 12px; font-weight: 400;">
-              About
+            <li class="nav-item">
+              <a class="nav-link cc-nav-link p-0 text-light-cc font-sans"
+                 href="about.html"
+                 style="font-size: 12px; font-weight: 400;">
+                About
+              </a>
+            </li>
+          </ul>
+          <!-- Secondary mobile actions stay labeled and easy to reach. -->
+          <div class="cc-mobile-shortcuts d-lg-none">
+            <a href="shop-all.html" class="cc-mobile-shortcut text-light-cc text-decoration-none font-sans">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <span>Search</span>
             </a>
-          </li>
-        </ul>
+            <a href="account-dashboard.html" class="cc-mobile-shortcut text-light-cc text-decoration-none font-sans">
+              <i class="bi bi-person" aria-hidden="true"></i>
+              <span>Account</span>
+            </a>
+            <a href="wishlist.html" class="cc-mobile-shortcut text-light-cc text-decoration-none font-sans">
+              <i class="bi bi-heart" aria-hidden="true"></i>
+              <span>Wishlist</span>
+            </a>
+          </div>
+        </div>
       </div>
 
       <!-- Header Actions -->
@@ -258,7 +462,7 @@
 
         <!-- Search -->
         <a href="shop-all.html"
-          class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          class="cc-header-action cc-header-desktop-action text-light-cc text-decoration-none d-inline-flex align-items-center"
           aria-label="Search">
           <i class="bi bi-search" aria-hidden="true"></i>
           <span class="cc-header-action-label">Search</span>
@@ -266,7 +470,7 @@
 
         <!-- Account -->
         <a href="account-dashboard.html"
-          class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          class="cc-header-action cc-header-desktop-action text-light-cc text-decoration-none d-inline-flex align-items-center"
           aria-label="Account">
           <i class="bi bi-person" aria-hidden="true"></i>
           <span class="cc-header-action-label">Account</span>
@@ -274,7 +478,7 @@
 
         <!-- Wishlist -->
         <a href="wishlist.html"
-          class="cc-header-action text-light-cc text-decoration-none d-inline-flex align-items-center"
+          class="cc-header-action cc-header-desktop-action text-light-cc text-decoration-none d-inline-flex align-items-center"
           aria-label="Wishlist">
           <i class="bi bi-heart" aria-hidden="true"></i>
           <span class="cc-header-action-label">Wishlist</span>
@@ -288,17 +492,6 @@
           <span class="cc-header-action-label">0 Products</span>
           <!-- <span class="cc-cart-count text-light-cc font-sans">0</span> -->
         </a>
-
-        <!-- Mobile Menu Toggler -->
-        <button class="navbar-toggler cc-header-menu-toggle border-0 p-0 shadow-none d-lg-none text-light-cc"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#ccNavbarMenu"
-                aria-controls="ccNavbarMenu"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-          <i class="bi bi-list" aria-hidden="true"></i>
-        </button>
 
       </div>
 
