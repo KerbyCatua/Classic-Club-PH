@@ -88,7 +88,8 @@ final class SupportTicketService
         $pages = max(1,(int)ceil($total/30)); $page = min($page,$pages); $offset = ($page-1)*30;
         $entries = $this->query("SELECT e.*,CONCAT(u.first_name,' ',u.last_name) AS author FROM support_ticket_entries e LEFT JOIN users u ON u.id=e.actor_id WHERE e.inquiry_id=? ORDER BY e.id DESC LIMIT 30 OFFSET $offset",[$id])->fetchAll();
         $attachments = $this->query('SELECT id,original_name,file_size,created_at FROM inquiry_attachments WHERE inquiry_id=? ORDER BY id',[$id])->fetchAll();
-        $draft = $this->query('SELECT body FROM support_ticket_drafts WHERE inquiry_id=? AND actor_id=?',[$id,$actor])->fetchColumn() ?: '';
+        $draft = $this->query('SELECT body FROM support_ticket_drafts WHERE inquiry_id=? AND actor_id=?',[$id,$actor])->fetchColumn();
+        if ($draft === false) $draft = '';
         return compact('ticket','entries','attachments','draft','page','pages','total');
     }
     private function entry(int $id, int $actor, string $kind, string $body): void

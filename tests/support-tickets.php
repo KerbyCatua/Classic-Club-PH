@@ -23,6 +23,8 @@ try {
     try { $service->mutate($actor,$update); throw new LogicException('Expected stale version rejection.'); } catch (RuntimeException $e) { check($e->getCode()===409,'Conflict returns 409.'); }
     $d=$service->mutate($actor,payload($d,'draft',['body'=>'Persistent draft']));
     check($service->detail($id,$actor)['draft']==='Persistent draft','Draft survives reload.');
+    $d=$service->mutate($actor,payload($d,'draft',['body'=>'0']));
+    check($service->detail($id,$actor)['draft']==='0','A zero-only draft survives reload.');
     $d=$service->mutate($actor,payload($d,'note',['body'=>'Restricted internal note']));
     check($d['entries'][0]['kind']==='note','Internal note is recorded separately.');
     $d=$service->mutate($actor,payload($d,'reply',['body'=>'A saved reply']));

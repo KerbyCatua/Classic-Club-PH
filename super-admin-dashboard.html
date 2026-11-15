@@ -334,6 +334,35 @@
       flex: 0 0 7px;
     }
 
+    /* Support tickets: styles remain inside this module. */
+    #module-tickets [hidden] { display: none !important; }
+    #module-tickets :is(label, summary, #supportPage, #supportStats) { font-size: 13px; }
+    #module-tickets :is(label, fieldset, [class*="col-"], .support-subject) { min-width: 0; }
+    #module-tickets :is(.admin-card, td, #supportDetailMessage, #supportError) { overflow-wrap: anywhere; }
+    #module-tickets .admin-table { min-width: 800px; table-layout: fixed; }
+    #module-tickets th:first-child { width: 30%; }
+    #module-tickets th:nth-child(5) { width: 18%; }
+    #module-tickets th:last-child { width: 100px; }
+    #module-tickets summary { cursor: pointer; }
+    #module-tickets .support-message { white-space: pre-wrap; overflow-wrap: anywhere; }
+    #module-tickets :is(button, input, select, textarea):disabled { opacity: .6; cursor: not-allowed; }
+    #module-tickets :is(button, summary, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
+    #module-tickets #supportDetail { scroll-margin-top: 24px; }
+    @media (max-width: 767.98px) {
+      #module-tickets .admin-table { min-width: 0; display: block; }
+      #module-tickets .admin-table thead { display: none; }
+      #module-tickets .admin-table tbody { display: block; }
+      #module-tickets .admin-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--cc-border); }
+      #module-tickets .admin-table td { display: block; border: 0; padding: 12px; }
+      #module-tickets .admin-table td:first-child,
+      #module-tickets .admin-table td:last-child { grid-column: 1 / -1; }
+      #module-tickets td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 6px; font-size: 11px; color: var(--cc-muted); }
+    }
+    @media (max-width: 575.98px) {
+      #module-tickets .admin-card { padding: 16px; }
+      #module-tickets :is(.admin-input-filter, .admin-select-filter) { min-width: 0; font-size: 16px; }
+    }
+
     .sa-table-wide { min-width: 940px; }
     .sa-table-medium { min-width: 760px; }
 
