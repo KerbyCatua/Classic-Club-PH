@@ -1397,54 +1397,55 @@
     <section id="module-tickets" class="admin-section px-4 px-lg-5"><h2 class="admin-section-title">Support ticket management</h2><p>Loading support tickets...</p></section>
 
     <!-- SECTION 21.10: GLOBAL SYSTEM CONFIGURATION -->
-    <section id="module-config" class="admin-section px-4 px-lg-5">
+    <section id="module-config" class="admin-section px-4 px-lg-5" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.10 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link">Directory ?</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link">Directory &uarr;</a>
       </div>
-      <h2 class="admin-section-title mb-2">Global system configuration</h2>
-      <p class="admin-section-desc mb-4">Application-wide settings ? Authorized Super Admin only. Changes take effect after review and confirmation. Feature availability preserves role permissions and assigned-business boundaries.</p>
-      <div id="configStatus" class="admin-callout mb-4" role="status" aria-live="polite">Loading saved configuration?</div>
-      <button type="button" class="btn-admin-outline mb-3" id="btnConfigReload">Reload saved configuration</button>
+      <h2 class="admin-section-title mb-2">Global configuration</h2>
+      <p class="admin-section-desc mb-4">Manage registration, business features, and security. Review changes before saving.</p>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <p id="configStatus" class="sa-form-note mb-0" role="status" aria-live="polite">Loading settings...</p>
+        <button type="button" class="btn-admin-outline" id="btnConfigReload" disabled>Reload</button>
+      </div>
       <form id="configForm">
         <fieldset id="configFields" disabled>
           <div class="admin-card mb-4">
-            <h3 class="font-lora text-light-cc mb-3">Global preferences, security &amp; sessions</h3>
+            <h3 class="font-lora text-light-cc fs-5 mb-3">Application</h3>
             <div class="row g-3">
-<div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configRegistration">Public account registration</label><select id="configRegistration" data-config-key="registration_enabled" class="admin-select-filter w-100"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
-<div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configReportPeriod">Default report period</label><select id="configReportPeriod" data-config-key="report_period" class="admin-select-filter w-100"><option value="monthly">monthly</option><option value="weekly">weekly</option><option value="daily">daily</option><option value="yearly">yearly</option></select></div>
-<div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configPasswordLength">Minimum password length</label><select id="configPasswordLength" data-config-key="password_min_length" class="admin-select-filter w-100"><option value="12">12 characters</option><option value="10">10 characters</option><option value="14">14 characters</option></select></div>
-<div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configFailedLogin">Failed-login limit</label><select id="configFailedLogin" data-config-key="failed_login_limit" class="admin-select-filter w-100"><option value="5">5 attempts / 15 minutes</option><option value="3">3 attempts / 15 minutes</option></select></div>
-<div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configIdleTimeout">Idle session timeout</label><select id="configIdleTimeout" data-config-key="idle_timeout_minutes" class="admin-select-filter w-100"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div>
-<div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configSessionDuration">Absolute session duration</label><select id="configSessionDuration" data-config-key="session_duration_hours" class="admin-select-filter w-100"><option value="12">12 hours</option><option value="8">8 hours</option><option value="24">24 hours</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configRegistration">Public registration</label><select id="configRegistration" data-config-key="registration_enabled" class="admin-select-filter w-100"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configReportPeriod">Default report period</label><select id="configReportPeriod" data-config-key="report_period" class="admin-select-filter w-100"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
             </div>
-            <p class="sa-form-note mt-3 mb-0">Password length applies to new passwords; existing passwords remain valid. Failed-login attempts use a 15-minute window. Session limits apply on the next authenticated request. The report period sets the initial business report view.</p>
+            <div class="mt-3">
+              <div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="configReviewsReplies" data-config-key="reviews_enabled"><label class="form-check-label text-light-cc" for="configReviewsReplies">Product reviews and business replies</label></div>
+              <div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="configReportExports" data-config-key="report_exports_enabled"><label class="form-check-label text-light-cc" for="configReportExports">Business report exports</label></div>
+              <div class="form-check"><input type="checkbox" class="form-check-input" id="configStaffManagement" data-config-key="staff_management_enabled"><label class="form-check-label text-light-cc" for="configStaffManagement">Business staff management</label></div>
+            </div>
+            <p class="sa-form-note mt-3 mb-0">Existing records remain available when features are disabled.</p>
           </div>
           <div class="admin-card mb-4">
-            <h3 class="font-lora text-light-cc mb-3">Authentication &amp; feature availability</h3>
-<div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="configInvalidateSessions" data-config-key="invalidate_sessions"><label class="form-check-label text-light-cc" for="configInvalidateSessions">Invalidate other sessions after password change</label></div>
-<div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="configReviewsReplies" data-config-key="reviews_enabled"><label class="form-check-label text-light-cc" for="configReviewsReplies">Product reviews and business replies available</label></div>
-<div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="configReportExports" data-config-key="report_exports_enabled"><label class="form-check-label text-light-cc" for="configReportExports">Business report exports available</label></div>
-<div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="configStaffManagement" data-config-key="staff_management_enabled"><label class="form-check-label text-light-cc" for="configStaffManagement">Business staff management available</label></div>
-            <p class="sa-form-note mt-3 mb-0">Authentication uses the existing email and password sign-in. MFA/2FA enrollment is not required. New public accounts retain the Customer role and active state. Disabling reviews prevents new submissions and business replies; existing review history remains available.</p>
+            <h3 class="font-lora text-light-cc fs-5 mb-3">Security &amp; sessions</h3>
+            <div class="row g-3">
+              <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configPasswordLength">Minimum length for password changes</label><select id="configPasswordLength" data-config-key="password_min_length" class="admin-select-filter w-100"><option value="10">10 characters</option><option value="12">12 characters</option><option value="14">14 characters</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configFailedLogin">Failed sign-in limit</label><select id="configFailedLogin" data-config-key="failed_login_limit" class="admin-select-filter w-100"><option value="3">3 attempts per 15 minutes</option><option value="5">5 attempts per 15 minutes</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configIdleTimeout">Idle timeout</label><select id="configIdleTimeout" data-config-key="idle_timeout_minutes" class="admin-select-filter w-100"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div>
+              <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="configSessionDuration">Maximum session duration</label><select id="configSessionDuration" data-config-key="session_duration_hours" class="admin-select-filter w-100"><option value="8">8 hours</option><option value="12">12 hours</option><option value="24">24 hours</option></select></div>
+            </div>
+            <div class="form-check mt-3"><input type="checkbox" class="form-check-input" id="configInvalidateSessions" data-config-key="invalidate_sessions"><label class="form-check-label text-light-cc" for="configInvalidateSessions">Sign out other sessions after a password change</label></div>
+            <p class="sa-form-note mt-3 mb-0">Session limits apply on the next authenticated request.</p>
           </div>
-          <div id="configReview" class="admin-card mb-4" hidden>
-            <h3 class="font-lora text-light-cc mb-3">Review application-wide changes</h3>
+          <div id="configReview" class="admin-card mb-4 d-none" role="region" aria-labelledby="configReviewTitle" tabindex="-1">
+            <h3 id="configReviewTitle" class="font-lora text-light-cc fs-5 mb-3">Review changes</h3>
             <ul id="configChanges" class="text-light-cc"></ul>
-            <div class="form-check"><input class="form-check-input" type="checkbox" id="configConfirm"><label class="form-check-label text-light-cc" for="configConfirm">I confirm these application-wide changes.</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="configConfirm"><label class="form-check-label text-light-cc" for="configConfirm">Apply these changes across the application.</label></div>
           </div>
           <div class="sa-sticky-actions d-flex flex-wrap gap-2">
-            <button type="reset" class="btn-admin-outline" id="btnConfigDiscard">Discard unsaved changes</button>
-            <button type="button" class="btn-admin-primary" id="btnConfigReview">Review application-wide changes</button>
-            <button type="submit" class="btn-admin-outline" id="btnConfigSave" disabled>Save after confirmation</button>
+            <button type="reset" class="btn-admin-outline" id="btnConfigDiscard" disabled>Discard changes</button>
+            <button type="button" class="btn-admin-primary" id="btnConfigReview" aria-controls="configReview" disabled>Review changes</button>
+            <button type="submit" class="btn-admin-primary d-none" id="btnConfigSave" disabled>Save changes</button>
           </div>
         </fieldset>
       </form>
-      <div class="admin-card mt-4">
-        <h3 class="font-lora text-light-cc mb-3">Existing application constraints</h3>
-        <p class="sa-form-note">Branding: Classic Club PH. Currency: PHP. Locale: English / Philippines. Table sizes and date displays remain defined by their existing screens. Maintenance is managed by the existing Maintenance module.</p>
-        <p class="sa-form-note mb-0">Email delivery, SSO, email verification, sensitive-action re-authentication, global notification preferences and experimental features have no configurable implementation here. Password-reset requests retain their existing administrative workflow and 60-minute validity. Support submission retains its existing contact workflow. These controls are unavailable. Administrative audit history and review before saving configuration remain required.</p>
-      </div>
     </section>
 
     <!-- SECTION 21.11: SUPER ADMIN ACCOUNT SETTINGS -->

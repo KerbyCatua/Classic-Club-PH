@@ -2,6 +2,8 @@
   'use strict';
   window.initSystemConfiguration = function ({ byId, showToast, getCsrfToken }) {
     const form = byId('configForm');
+    if (!form) return;
+    const module = byId('module-config');
     const fields = byId('configFields');
     const controls = Array.from(form.querySelectorAll('[data-config-key]'));
     const status = byId('configStatus');
@@ -9,6 +11,8 @@
     const confirm = byId('configConfirm');
     const save = byId('btnConfigSave');
     const reload = byId('btnConfigReload');
+    const reviewButton = byId('btnConfigReview');
+    const discard = byId('btnConfigDiscard');
     let saved = null;
     let busy = false;
     let reviewed = null;
@@ -22,18 +26,30 @@
       }));
     }
     function changes() {
+      if (!saved) return [];
       const values = draft();
       return controls.filter(el => values[el.dataset.configKey] !== saved.settings[el.dataset.configKey]);
     }
+    function render() {
+      const dirty = changes().length > 0;
+      module.setAttribute('aria-busy', String(busy));
+      fields.disabled = busy || !saved;
+      reload.disabled = busy;
+      discard.disabled = busy || !dirty;
+      reviewButton.disabled = busy || !dirty;
+      reviewButton.classList.toggle('d-none', Boolean(reviewed));
+      review.classList.toggle('d-none', !reviewed);
+      save.classList.toggle('d-none', !reviewed);
+      save.disabled = busy || !dirty || !confirm.checked || !reviewed || reviewed !== JSON.stringify(draft());
+      save.textContent = busy ? 'Saving...' : 'Save changes';
+    }
     function update() {
       reviewed = null;
-      review.hidden = true;
       confirm.checked = false;
-      save.disabled = true;
+      render();
       if (!saved) return;
       const count = changes().length;
-      status.textContent = (saved.saved_at ? 'Last saved: ' + new Date(saved.saved_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) + ' PHT · User #' + saved.saved_by : 'Existing application defaults; no configuration saved yet.') + ' · ' + count + ' unsaved change(s).';
-      byId('btnConfigReview').disabled = count === 0;
+      status.textContent = (saved.saved_at ? 'Saved ' + new Date(saved.saved_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) + ' PHT.' : 'Using application defaults.') + ' ' + (count ? count + ' unsaved change' + (count === 1 ? '.' : 's.') : 'No unsaved changes.');
     }
     function restore() {
       controls.forEach(function (el) {
@@ -48,27 +64,25 @@
         credentials: 'same-origin', cache: 'no-store', ...options
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.success) throw new Error(payload.error?.message || 'Configuration request failed.');
+      if (!response.ok || !payload?.success || !payload.data) throw new Error(payload?.error?.message || 'Unable to load or save settings.');
       return payload.data;
     }
     async function load() {
       if (busy) return;
       busy = true;
-      fields.disabled = true;
-      reload.disabled = true;
-      status.textContent = 'Loading saved configuration…';
+      update();
+      status.textContent = 'Loading settings...';
       try {
         saved = await request({ headers: { Accept: 'application/json' } });
         restore();
-        fields.disabled = false;
       } catch (error) {
-        status.textContent = error.message + ' Use Reload saved configuration to retry.';
+        status.textContent = error.message + (saved ? ' Your changes are kept. Use Reload to retry.' : ' Use Reload to retry.');
         showToast(error.message, 'error');
-      } finally { busy = false; reload.disabled = false; }
+      } finally { busy = false; render(); }
     }
     form.addEventListener('change', function (event) {
       if (event.target === confirm) {
-        save.disabled = !confirm.checked || !reviewed || reviewed !== JSON.stringify(draft());
+        render();
       } else if (event.target.dataset.configKey) update();
     });
     form.addEventListener('reset', function (event) {
@@ -79,7 +93,7 @@
       if (saved && changes().length && !window.confirm('Discard unsaved changes and reload the saved configuration?')) return;
       load();
     });
-    byId('btnConfigReview').addEventListener('click', function () {
+    reviewButton.addEventListener('click', function () {
       if (!saved || busy || !changes().length) return;
       const values = draft();
       const list = byId('configChanges');
@@ -95,27 +109,28 @@
       });
       reviewed = JSON.stringify(values);
       confirm.checked = false;
-      save.disabled = true;
-      review.hidden = false;
+      render();
+      review.focus({ preventScroll: true });
       review.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
     form.addEventListener('submit', async function (event) {
       event.preventDefault();
-      if (busy || !saved || !confirm.checked || !reviewed || reviewed !== JSON.stringify(draft())) return;
+      if (busy || !saved || !changes().length || !confirm.checked || !reviewed || reviewed !== JSON.stringify(draft())) return;
       const settings = draft();
       busy = true;
-      fields.disabled = true;
-      reload.disabled = true;
+      render();
+      status.textContent = 'Saving changes...';
       try {
         const token = await getCsrfToken(true);
+        if (!token) throw new Error('Unable to verify your session. Try again.');
         saved = await request({ method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': token }, body: JSON.stringify({ settings, version: saved.version, confirmed: true }) });
         restore();
-        showToast('Global configuration saved.', 'success');
+        showToast('Settings saved.', 'success');
       } catch (error) {
         update();
-        status.textContent = error.message + ' Your draft is retained.';
+        status.textContent = error.message + ' Your changes are kept.';
         showToast(error.message, 'error');
-      } finally { busy = false; fields.disabled = false; reload.disabled = false; }
+      } finally { busy = false; render(); }
     });
     window.addEventListener('beforeunload', function (event) {
       if (saved && changes().length) { event.preventDefault(); event.returnValue = ''; }

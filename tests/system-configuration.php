@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
-// Run: C:/xampp/php/php.exe tests/system-configuration.php
+// Run: C:/xampp/php/php.exe tests/system-configuration.php [base URL] [optional browser test script]
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require_once __DIR__ . '/../app/Database/Connection.php';
 require_once __DIR__ . '/../app/Auth/SessionManager.php';
 require_once __DIR__ . '/../app/Validation/ValidationException.php';
 require_once __DIR__ . '/../app/Validation/AuthValidator.php';
+require_once __DIR__ . '/../app/Validation/AccountProfileValidator.php';
 require_once __DIR__ . '/../app/Repositories/UserRepository.php';
 require_once __DIR__ . '/../app/Support/AuditLogger.php';
 require_once __DIR__ . '/../app/Services/AuthService.php';
@@ -13,6 +14,7 @@ require_once __DIR__ . '/../app/Services/AuthService.php';
 use ClassicClub\Auth\SessionManager;
 use ClassicClub\Services\SystemConfigurationService as Config;
 use ClassicClub\Validation\AuthValidator;
+use ClassicClub\Validation\AccountProfileValidator;
 use ClassicClub\Validation\ValidationException;
 
 function check(bool $ok, string $message): void { if (!$ok) throw new RuntimeException($message); }
@@ -48,7 +50,8 @@ $actor = (int) $pdo->query("SELECT ur.user_id FROM user_roles ur JOIN roles r ON
 $businessAdmin = (int) $pdo->query("SELECT user_id FROM business_users WHERE user_id IS NOT NULL AND can_manage_staff=1 LIMIT 1")->fetchColumn();
 check($actor > 0 && $businessAdmin > 0, 'Existing Super Admin and business admin required.');
 $sessions = []; $testUser = 0;
-$email = 'config-test-' . bin2hex(random_bytes(8)) . '@example.com';
+$fixture = null; $browserOutput = [];
+$email = 'configtest' . bin2hex(random_bytes(8)) . '@gmail.com';
 try {
     $repo = new \ClassicClub\Repositories\UserRepository($pdo);
     $testUser = $repo->create($email, password_hash('Configuration123!', PASSWORD_DEFAULT), 'Config', 'Test');
@@ -73,6 +76,14 @@ try {
     check(http($endpoint, $admin, $bad)['status'] === 422, 'Strict value types.');
     $bad = $body; $bad['settings']['require_mfa'] = true;
     check(http($endpoint, $admin, $bad)['status'] === 422, 'Unsupported MFA configuration rejected.');
+    $bad = $body; $bad['settings']['smtp_host'] = 'localhost';
+    check(http($endpoint, $admin, $bad)['status'] === 422, 'Unsupported mail configuration rejected.');
+    foreach (Config::DEFAULTS as $key => $value) {
+        $bad = $body; $bad['settings'][$key] = is_bool($value) ? 1 : 'unsupported';
+        check(http($endpoint, $admin, $bad)['status'] === 422, 'Invalid setting rejected: ' . $key);
+    }
+    $bad = $body; unset($bad['settings']['registration_enabled']);
+    check(http($endpoint, $admin, $bad)['status'] === 422, 'Missing setting rejected.');
     $r = http($endpoint, $admin, $body);
     check($r['status'] === 200, 'Settings save: ' . $r['raw']);
     $saved = $r['json']['data'];
@@ -81,10 +92,13 @@ try {
     $q = $pdo->prepare("SELECT COUNT(*) FROM audit_logs WHERE id>? AND action='configuration.updated' AND user_id=?");
     $q->execute([$logStart, $actor]); check((int) $q->fetchColumn() === 1, 'Configuration save audited.');
     $validator = new AuthValidator();
-    $registration = ['first_name'=>'Test', 'last_name'=>'User', 'email'=>$email, 'password'=>'123456789012', 'password_confirmation'=>'123456789012'];
-    try { $validator->registration($registration); throw new LogicException('Expected password-policy rejection.'); } catch (ValidationException) {}
-    $registration['password'] = $registration['password_confirmation'] = '12345678901234';
-    check($validator->registration($registration)['password'] === '12345678901234', 'Configured password minimum applies.');
+    $registration = ['first_name'=>'Test', 'last_name'=>'User', 'email'=>$email, 'password'=>'Registration123!', 'password_confirmation'=>'Registration123!', 'terms_accepted'=>true];
+    check($validator->registration($registration)['password'] === 'Registration123!', 'Valid registration input for the feature switch.');
+    $passwordValidator = new AccountProfileValidator();
+    $passwordChange = ['action'=>'update_password', 'current_password'=>'Configuration123!', 'new_password'=>'Valid123!abcD', 'confirm_password'=>'Valid123!abcD'];
+    try { $passwordValidator->password($passwordChange); throw new LogicException('Expected password-policy rejection.'); } catch (ValidationException) {}
+    $passwordChange['new_password'] = $passwordChange['confirm_password'] = 'Valid123!abcDef';
+    check($passwordValidator->password($passwordChange)['new_password'] === 'Valid123!abcDef', 'Configured password minimum applies to password changes.');
     $settings['registration_enabled'] = false;
     $settings['reviews_enabled'] = false;
     $settings['report_exports_enabled'] = false;
@@ -132,6 +146,12 @@ try {
     $session = $sessions[] = testSession($testUser);
     session_id($session['id']); SessionManager::start(); $_SESSION['password_fingerprint'] = 'stale'; session_write_close();
     check(http('/public/api/auth/me.php', $session)['status'] === 200, 'Disabled invalidation honored.');
+    if (isset($argv[2])) {
+        $fixture = tempnam(sys_get_temp_dir(), 'cc-config-');
+        file_put_contents($fixture, json_encode(['base' => $base, 'session' => $admin]));
+        exec('node ' . escapeshellarg($argv[2]) . ' ' . escapeshellarg($fixture) . ' 2>&1', $browserOutput, $exit);
+        check($exit === 0, 'Configuration browser checks failed: ' . implode("\n", $browserOutput));
+    }
 } finally {
     if ($pdo->inTransaction()) $pdo->rollBack();
     if ($original === false) $pdo->exec("DELETE FROM system_settings WHERE setting_key='global_configuration'");
@@ -140,5 +160,7 @@ try {
     $q->execute([$logStart,$testUser,$email]);
     if ($testUser) { $q=$pdo->prepare('DELETE FROM users WHERE id=?'); $q->execute([$testUser]); }
     foreach ($sessions as $session) { session_id($session['id']); SessionManager::start(); $_SESSION=[]; session_destroy(); }
+    if ($fixture) unlink($fixture);
 }
+if ($browserOutput) echo implode("\n", $browserOutput) . "\n";
 echo "PASS: settings persistence, validation, confirmation, conflicts, audit, roles, CSRF, registration, password policy, login limits, feature gates and session policies.\n";
