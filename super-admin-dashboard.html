@@ -480,41 +480,72 @@
       #module-users .admin-card { padding: 20px; }
     }
 
-    /* Monitoring only: a sticky 45px header and four 64px records. */
+    /* Monitoring only. Reuse the dashboard cards, tables, badges and chart primitives. */
     #module-monitoring .monitor-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
-    #module-monitoring .monitor-filter-field { display: grid; gap: 6px; min-width: 160px; }
+    #module-monitoring .monitor-filter-field { display: grid; gap: 6px; flex: 0 1 180px; min-width: 0; }
     #module-monitoring .monitor-filters button { min-height: 44px; }
     #module-monitoring #btnExportMonitoring { margin-left: auto; }
     #module-monitoring .admin-card { padding: 20px; min-width: 0; }
-    #module-monitoring h3 { font-size: 22px; }
+    #module-monitoring h3 { font-size: 22px; margin: 0; }
+    #module-monitoring [hidden] { display: none !important; }
+    #module-monitoring :is(.monitor-metrics, #monitorHistory) > :not([hidden]) { flex-grow: 1; }
+    #module-monitoring .monitor-records > :not([hidden]) { flex-grow: 1; }
+    #module-monitoring .admin-card-stat { font-size: clamp(25px, 3vw, 30px); overflow-wrap: anywhere; }
     #module-monitoring :is(.monitor-note, #monitorStatus) { font-size: 12px; line-height: 19px; }
-    #module-monitoring .monitor-table-viewport { height: 301px; overflow-y: auto; scrollbar-gutter: stable; }
-    #module-monitoring .monitor-services-viewport { min-width: 1100px; }
-    #module-monitoring .monitor-failures-viewport { min-width: 340px; }
+    #module-monitoring .monitor-table-viewport { max-height: 300px; overflow: auto; scrollbar-gutter: stable; }
+    #module-monitoring .monitor-services-viewport { max-height: none; }
     #module-monitoring .admin-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
-    #module-monitoring .admin-table th { position: sticky; top: 0; z-index: 1; height: 45px; padding: 0 14px; line-height: 16px; background: var(--cc-placeholder); }
-    #module-monitoring .admin-table td { height: 64px; padding: 10px 14px; border-top: 0; border-bottom: 1px solid var(--cc-border); }
-    #module-monitoring .monitor-services-viewport th:nth-child(1) { width: 130px; }
-    #module-monitoring .monitor-services-viewport th:nth-child(2) { width: 165px; }
-    #module-monitoring .monitor-services-viewport th:nth-child(3) { width: 145px; }
-    #module-monitoring .monitor-services-viewport th:nth-child(4) { width: 200px; }
-    #module-monitoring .monitor-services-viewport th:nth-child(5) { width: 190px; }
-    #module-monitoring .monitor-services-viewport .sa-badge { max-width: 100%; white-space: normal; }
-    #module-monitoring .monitor-cell-value { max-height: 40px; overflow-y: auto; overflow-wrap: anywhere; }
-    #module-monitoring .monitor-list-viewport { max-height: 301px; overflow-y: auto; scrollbar-gutter: stable; }
-    #module-monitoring .monitor-list-viewport .sa-list-row { height: 75.25px; padding: 10px 0; overflow-y: auto; overflow-wrap: anywhere; border-bottom: 1px solid var(--cc-border); }
-    #module-monitoring .monitor-list-viewport .sa-list-row:last-child { border-bottom: 0; }
-    #module-monitoring :is(.sa-chart-y, .sa-chart-plot) { height: 150px; }
-    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
-    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll)::-webkit-scrollbar { width: 8px; height: 8px; }
-    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll)::-webkit-scrollbar-track { background: var(--cc-bg); }
-    #module-monitoring :is(.admin-table-container, .monitor-table-viewport, .monitor-cell-value, .monitor-list-viewport, .sa-list-row, .sa-chart-scroll)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
-    #module-monitoring :is(button, select, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: -2px; }
+    #module-monitoring .admin-table th { position: sticky; top: 0; z-index: 1; padding: 12px; line-height: 16px; white-space: normal; background: var(--cc-placeholder); }
+    #module-monitoring .admin-table td { padding: 14px 12px; border-top: 0; border-bottom: 1px solid var(--cc-border); overflow-wrap: anywhere; }
+    #module-monitoring .monitor-services-viewport th:first-child { width: 34%; }
+    #module-monitoring .monitor-services-viewport th:last-child { width: 25%; }
+    #module-monitoring .sa-badge { max-width: 100%; white-space: normal; }
+    #module-monitoring .monitor-service-detail { font-size: 12px; color: var(--cc-muted); margin-top: 4px; }
+    #module-monitoring summary { cursor: pointer; }
+    #module-monitoring .monitor-service-detail summary { width: fit-content; padding: 4px 0; }
+    #module-monitoring .monitor-service-detail[open] > div { padding: 4px 0; }
+    #module-monitoring .monitor-list-viewport { max-height: 300px; overflow: auto; scrollbar-gutter: stable; }
+    #module-monitoring .monitor-list-viewport .sa-list-row { padding: 12px 0; overflow-wrap: anywhere; }
+    #module-monitoring .monitor-disclosure > summary { font-family: var(--font-serif); font-size: 22px; color: var(--cc-text); }
+    #module-monitoring .monitor-disclosure[open] > summary { margin-bottom: 16px; }
+    #module-monitoring .monitor-chart { overflow: visible; }
+    #module-monitoring .monitor-chart .sa-chart { min-width: 0; gap: 8px; margin-top: 20px; }
+    #module-monitoring .sa-chart-y { width: 40px; }
+    #module-monitoring :is(.sa-chart-y, .sa-chart-plot) { height: 160px; }
+    #module-monitoring .sa-chart-plot { position: relative; gap: var(--monitor-chart-gap, 4px); padding: 0; overflow: visible; background-image: linear-gradient(to top, var(--cc-border) 1px, transparent 1px); background-size: 100% 50%; }
+    #module-monitoring .monitor-chart-point { flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: end; justify-content: center; }
+    #module-monitoring .sa-chart-bar { flex: 1; max-width: 48px; min-height: 2px; transition: none; }
+    #module-monitoring .monitor-chart-gap { min-height: 0; }
+    #module-monitoring .monitor-chart-tooltip { display: none; position: absolute; top: -24px; left: 0; right: 0; z-index: 2; width: fit-content; max-width: 100%; margin: auto; padding: 3px 8px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px; text-align: center; overflow-wrap: anywhere; pointer-events: none; }
+    #module-monitoring .monitor-chart-point:is(:hover, :focus) .monitor-chart-tooltip { display: block; }
+    #module-monitoring .sa-chart-labels { position: relative; height: 28px; gap: var(--monitor-chart-gap, 4px); padding: 8px 0 0; }
+    #module-monitoring .sa-chart-labels > div { position: relative; white-space: nowrap; overflow: visible; font-size: 10px; }
+    #module-monitoring .sa-chart-labels span { position: absolute; left: 50%; transform: translateX(-50%); }
+    #module-monitoring .sa-chart-labels > div:first-child span { left: 0; transform: none; }
+    #module-monitoring .sa-chart-labels > div:last-child span { left: auto; right: 0; transform: none; }
+    #module-monitoring :is(.monitor-table-viewport, .monitor-list-viewport) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
+    #module-monitoring :is(button, select, summary, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
     #module-monitoring button:disabled { opacity: .6; cursor: not-allowed; }
     @media (max-width: 575.98px) {
       #module-monitoring .monitor-filter-field { flex: 1 1 100%; min-width: 0; }
       #module-monitoring .monitor-filters button { flex: 1 1 auto; }
       #module-monitoring .admin-select-filter { font-size: 16px; width: 100%; }
+      #module-monitoring .admin-card { padding: 16px; }
+      #module-monitoring .monitor-metrics > div { width: 50%; }
+      #module-monitoring .monitor-metrics .admin-card { padding: 14px; }
+      #module-monitoring .monitor-services-viewport { scrollbar-gutter: auto; }
+      #module-monitoring .monitor-services-viewport thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      #module-monitoring .monitor-services-viewport :is(table, tbody) { display: block; }
+      #module-monitoring .monitor-services-viewport tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 12px; border-bottom: 1px solid var(--cc-border); }
+      #module-monitoring .monitor-services-viewport td { padding: 4px 0; border: 0; }
+      #module-monitoring .monitor-services-viewport td:first-child { grid-row: 1 / span 2; }
+      #module-monitoring .monitor-services-viewport td:nth-child(2) { grid-column: 2; text-align: right; }
+      #module-monitoring .monitor-services-viewport td:nth-child(3) { grid-column: 2; text-align: right; }
+      #module-monitoring .monitor-services-viewport :is(td:last-child, td[colspan]) { grid-column: 1 / -1; grid-row: auto; text-align: left; font-size: 11px; color: var(--cc-muted); }
+      #module-monitoring .monitor-services-viewport td:first-child[colspan] { grid-row: auto; }
+      #module-monitoring .monitor-service-detail summary { min-height: 36px; }
+      #module-monitoring .monitor-failures-viewport th { letter-spacing: 0; }
+      #module-monitoring .monitor-failures-viewport :is(th, td) { padding: 10px 6px; font-size: 11px; }
     }
 
     .sa-ticket-subject {
@@ -1314,7 +1345,7 @@
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">System monitoring &amp; health</h2>
-      <p class="admin-section-desc mb-2" id="monitorSnapshot">Loading live health checks…</p>
+      <p class="admin-section-desc mb-2" id="monitorSnapshot">Loading measured health checks…</p>
       <p class="text-muted-cc mb-3" id="monitorStatus" role="status" aria-live="polite">Connecting to monitoring.</p>
       <div class="monitor-filters mb-3" role="group" aria-label="Monitoring filters and actions">
           <div class="monitor-filter-field"><label class="sa-tiny-label" for="monitorRange">Range</label>
@@ -1326,55 +1357,58 @@
           <button type="button" class="btn-admin-primary" id="btnRefreshMonitoring">Refresh checks</button>
           <button type="button" class="btn-admin-outline" id="btnExportMonitoring" disabled>Export CSV</button>
       </div>
-      <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
-          <span class="admin-card-label">Observed availability / selected range</span><div class="admin-card-stat text-accent" id="monitorAvailability">—</div><span class="admin-card-sub" id="monitorCoverage">Waiting for measured checks</span>
+      <div class="monitor-metrics row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3" id="monitorAvailabilityCard"><div class="admin-card h-100">
+          <span class="admin-card-label">Observed availability</span><div class="admin-card-stat text-accent" id="monitorAvailability">—</div><span class="admin-card-sub" id="monitorCoverage">Waiting for measured checks</span>
+        </div></div>
+        <div class="col-12 col-sm-6 col-xl-3" id="monitorLatencyCard"><div class="admin-card h-100">
+          <span class="admin-card-label">API response · p95</span><div class="admin-card-stat" id="monitorLatency">—</div><span class="admin-card-sub" id="monitorMedian">Waiting for measured checks</span>
+        </div></div>
+        <div class="col-12 col-sm-6 col-xl-3" id="monitorFailuresCard"><div class="admin-card h-100">
+          <span class="admin-card-label">Failed checks · last 24 h</span><div class="admin-card-stat" id="monitorFailures">—</div><span class="admin-card-sub" id="monitorFailureRate">Waiting for measured checks</span>
         </div></div>
         <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
-          <span class="admin-card-label">Catalog API probe / p95</span><div class="admin-card-stat" id="monitorLatency">—</div><span class="admin-card-sub" id="monitorMedian">Waiting for measured checks</span>
-        </div></div>
-        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
-          <span class="admin-card-label">Failed health checks / 24 h</span><div class="admin-card-stat" id="monitorFailures">—</div><span class="admin-card-sub" id="monitorFailureRate">Waiting for measured checks</span>
-        </div></div>
-        <div class="col-12 col-sm-6 col-xl-3"><div class="admin-card h-100">
-          <span class="admin-card-label">Active maintenance</span><div class="admin-card-stat" id="monitorMaintenanceValue">—</div><span class="admin-card-sub" id="monitorMaintenanceSub">Loading maintenance state</span>
+          <span class="admin-card-label">Maintenance · current</span><div class="admin-card-stat" id="monitorMaintenanceValue">—</div><span class="admin-card-sub" id="monitorMaintenanceSub">Loading maintenance state</span>
         </div></div>
       </div>
       <h3 class="font-lora text-light-cc mb-3" id="monitorServicesTitle">Service checks</h3>
-      <div class="admin-table-container mb-4">
-        <div class="monitor-table-viewport monitor-services-viewport" tabindex="0" role="region" aria-labelledby="monitorServicesTitle">
-        <table class="admin-table sa-table-wide"><thead><tr><th>Service</th><th>Status</th><th>Response / latency</th><th>Resource usage</th><th>Checked at · PHT</th><th>Context</th></tr></thead>
-          <tbody id="monitorServices"><tr><td colspan="6">Loading health checks…</td></tr></tbody>
+      <div class="admin-table-container monitor-table-viewport monitor-services-viewport mb-4" tabindex="0" role="region" aria-labelledby="monitorServicesTitle">
+        <table class="admin-table"><thead><tr><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Latest measurement</th><th scope="col">Checked at · PHT</th></tr></thead>
+          <tbody id="monitorServices"><tr><td colspan="4">Loading health checks…</td></tr></tbody>
         </table>
-        </div>
       </div>
       <div id="monitorHistory" class="row g-3 mb-3">
-        <div class="col-12 col-xl-6"><div class="admin-card h-100">
+        <div class="col-12 col-xl-6" id="monitorApiPanel"><div class="admin-card h-100">
           <h3 class="font-lora text-light-cc mb-2">API performance</h3>
-          <p class="text-muted-cc monitor-note mb-2">Catalog probe p95 · milliseconds · PHT</p>
-          <div class="sa-chart-scroll" id="monitorApiChart" tabindex="0" role="img" aria-label="Catalog API latency history">No samples loaded.</div>
+          <p class="text-muted-cc monitor-note mb-2">Catalog probe p95 · ms</p>
+          <div class="monitor-chart" id="monitorApiChart" role="group" aria-label="Catalog API latency history">No samples loaded.</div>
         </div></div>
-        <div class="col-12 col-xl-6"><div class="admin-card h-100">
+        <div class="col-12 col-xl-6" id="monitorResourcePanel"><div class="admin-card h-100">
           <h3 class="font-lora text-light-cc mb-2">PHP memory</h3>
-          <p class="text-muted-cc monitor-note mb-2">Request peak memory · mean MiB · PHT</p>
-          <div class="sa-chart-scroll" id="monitorResourceChart" tabindex="0" role="img" aria-label="PHP monitoring request peak memory history">No samples loaded.</div>
+          <p class="text-muted-cc monitor-note mb-2">Monitoring request peak · mean MiB</p>
+          <div class="monitor-chart" id="monitorResourceChart" role="group" aria-label="PHP monitoring request peak memory history">No samples loaded.</div>
         </div></div>
       </div>
-      <div class="row g-3 mb-3">
-        <div class="col-12 col-xl-4"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-3" id="monitorFailuresTitle">Failure history</h3>
-          <div class="admin-table-container"><div class="monitor-table-viewport monitor-failures-viewport" tabindex="0" role="region" aria-labelledby="monitorFailuresTitle"><table class="admin-table"><thead><tr><th>Period · PHT</th><th>Failed / checks</th><th>Failure rate</th></tr></thead><tbody id="monitorFailureHistory"><tr><td colspan="3">Loading history…</td></tr></tbody></table></div></div>
+      <p class="text-muted-cc monitor-note mb-3" id="monitorChartHelp">Chart times are PHT. Hover or focus a bar for its value. Gaps have no samples.</p>
+      <div class="monitor-records row g-3 mb-3">
+        <div class="col-12 col-xl-6" id="monitorIncidentPanel"><div class="admin-card h-100">
+          <h3 class="font-lora text-light-cc mb-2" id="monitorIncidentsTitle">Recent failed checks</h3>
+          <p class="text-muted-cc monitor-note mb-2">Latest 15 in the selected range</p>
+          <div id="monitorIncidents" class="monitor-list-viewport" tabindex="0" role="region" aria-labelledby="monitorIncidentsTitle">Loading recorded failures…</div>
         </div></div>
-        <div class="col-12 col-xl-4"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-3" id="monitorIncidentsTitle">Recent failed checks</h3><div id="monitorIncidents" class="monitor-list-viewport" tabindex="0" role="region" aria-labelledby="monitorIncidentsTitle">Loading recorded failures…</div>
-        </div></div>
-        <div class="col-12 col-xl-4"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc mb-2" id="monitorEventsTitle">Audit events</h3>
-          <p class="text-muted-cc monitor-note mb-2">Maintenance &amp; failures · all services</p>
-          <div id="monitorEvents" class="monitor-list-viewport" tabindex="0" role="region" aria-labelledby="monitorEventsTitle">Loading audit events…</div>
-        </div></div>
+        <div class="col-12 col-xl-6 d-grid gap-3 align-content-start">
+          <details class="admin-card monitor-disclosure" id="monitorFailurePanel">
+            <summary id="monitorFailuresTitle">Check history</summary>
+            <div class="admin-table-container monitor-table-viewport monitor-failures-viewport" tabindex="0" role="region" aria-labelledby="monitorFailuresTitle"><table class="admin-table"><thead><tr><th scope="col">Period · PHT</th><th scope="col">Failed / checks</th><th scope="col">Failure rate</th></tr></thead><tbody id="monitorFailureHistory"><tr><td colspan="3">Loading history…</td></tr></tbody></table></div>
+          </details>
+          <details class="admin-card monitor-disclosure">
+            <summary id="monitorEventsTitle">Audit events</summary>
+            <p class="text-muted-cc monitor-note mb-2">Maintenance &amp; failures · all services · latest 15</p>
+            <div id="monitorEvents" class="monitor-list-viewport" tabindex="0" role="region" aria-labelledby="monitorEventsTitle">Loading audit events…</div>
+          </details>
+        </div>
       </div>
-      <p class="text-muted-cc monitor-note mb-0">Availability covers observed application, API and database checks, including maintenance. Gaps have no samples and do not count as uptime. Checks run every 60 seconds while this dashboard is visible. Audit events follow the range filter across all services.</p>
+      <p class="text-muted-cc monitor-note mb-0">Checks refresh every 60 seconds while this dashboard is visible. Availability measures successful application, API and database checks in the selected range; maintenance counts as a failed check. Unobserved time is excluded. PHP memory covers this monitoring request.</p>
     </section>
     <!-- SECTION 21.6: ERROR & DEBUG MANAGEMENT -->
     <section id="module-errors" class="admin-section px-4 px-lg-5">

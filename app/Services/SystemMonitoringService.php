@@ -161,6 +161,7 @@ final class SystemMonitoringService
             $key = $cursor->format('Y-m-d H:i:s');
             $bucket = $buckets[$key] ?? ['checks' => 0, 'failed' => 0, 'api' => [], 'memory' => []];
             $history[] = [
+                'period' => $cursor->format(DATE_ATOM),
                 'label' => $cursor->format($range === '24h' ? 'd M H:00' : 'd M'),
                 'checks' => $bucket['checks'], 'failed' => $bucket['failed'],
                 'p95_ms' => $this->percentile($bucket['api'], .95),
@@ -181,7 +182,7 @@ final class SystemMonitoringService
             'availability_percent' => $checkCount ? round($healthyCount / $checkCount * 100, 2) : null,
             'check_count' => $checkCount,
             'api_p95_ms' => $this->percentile($api, .95),
-            'api_median_ms' => $this->percentile($api, .5),
+            'api_median_ms' => $this->median($api),
             'failed_24h' => $failed24, 'checks_24h' => $total24,
             'services' => array_values($latest), 'history' => $history,
             'maintenance' => $maintenance, 'events' => $events->fetchAll(),
@@ -194,5 +195,13 @@ final class SystemMonitoringService
         if (!$values) { return null; }
         sort($values, SORT_NUMERIC);
         return round($values[max(0, (int) ceil(count($values) * $percentile) - 1)], 3);
+    }
+
+    private function median(array $values): ?float
+    {
+        if (!$values) { return null; }
+        sort($values, SORT_NUMERIC);
+        $middle = intdiv(count($values), 2);
+        return round(count($values) % 2 ? $values[$middle] : ($values[$middle - 1] + $values[$middle]) / 2, 3);
     }
 }
