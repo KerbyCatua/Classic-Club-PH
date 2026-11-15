@@ -1,0 +1,11 @@
+@media (min-width: 992px) {
+  /* Give the summary the full checkout height as its sticky boundary. */
+  .cc-checkout-summary-column {
+    align-self: stretch;
+  }
+
+  .cc-checkout-summary {
+    position: sticky;
+    top: var(--cc-checkout-summary-top, 24px);
+  }
+}
