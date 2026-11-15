@@ -1378,49 +1378,88 @@
     </section>
     <!-- SECTION 21.6: ERROR & DEBUG MANAGEMENT -->
     <section id="module-errors" class="admin-section px-4 px-lg-5">
-      <span class="admin-section-eyebrow">21.6 / CLASSIC CLUB PH</span>
-      <h2 class="admin-section-title mb-2">Error &amp; debug management</h2>
-      <p class="admin-section-desc mb-4">Super Admin only. Recorded HTTP failures, PHP warnings and fatal errors. Request bodies, query values, exception messages and credentials are excluded from telemetry.</p>
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <input id="errorSearchInput" class="admin-input-filter flex-grow-1" placeholder="Search group, endpoint, request ID or source" aria-label="Search errors" maxlength="255">
-        <select id="errorSeverityFilter" class="admin-select-filter" aria-label="Severity"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Informational</option></select>
-        <input type="date" id="errorDateFilter" class="admin-input-filter" aria-label="Occurrence date in PHT">
-        <select id="errorModuleFilter" class="admin-select-filter" aria-label="Module"><option value="">All modules</option></select>
-        <select id="errorStateFilter" class="admin-select-filter" aria-label="State"><option value="">All states</option><option>Unresolved</option><option>Resolved</option></select>
-        <select id="errorRecurringFilter" class="admin-select-filter" aria-label="Recurrence"><option value="">All occurrences</option><option>Recurring</option><option>Single</option></select>
-        <button id="errorRefresh" class="btn-admin-outline" type="button">Refresh</button>
+      <style>
+        #module-errors .error-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        #module-errors .error-search { grid-column: span 2; }
+        #module-errors .error-filters > * { min-width: 0; width: 100%; }
+        #module-errors .error-table-viewport { height: 364px; min-width: 1080px; overflow-y: auto; scrollbar-gutter: stable; }
+        #module-errors .admin-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+        #module-errors .admin-table thead { position: sticky; top: 0; z-index: 1; }
+        #module-errors .admin-table th { height: 44px; padding: 0 12px; background: var(--cc-placeholder); }
+        #module-errors .admin-table tbody tr { height: 64px; }
+        #module-errors .admin-table td { height: 64px; padding: 0 12px; }
+        #module-errors .error-cell { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #module-errors .error-time { font-size: 12px; white-space: nowrap; }
+        #module-errors :is(.admin-card, .error-detail-text, .sa-list-row) { min-width: 0; overflow-wrap: anywhere; }
+        #module-errors .error-history { max-height: 300px; overflow: auto; }
+        #module-errors .sa-code-block { max-height: 220px; margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+        #module-errors :is(.admin-table-container, .error-table-viewport, .error-history, .sa-code-block) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
+        #module-errors :is(.admin-table-container, .error-table-viewport, .error-history, .sa-code-block)::-webkit-scrollbar { width: 8px; height: 8px; }
+        #module-errors :is(.admin-table-container, .error-table-viewport, .error-history, .sa-code-block)::-webkit-scrollbar-track { background: var(--cc-bg); }
+        #module-errors :is(.admin-table-container, .error-table-viewport, .error-history, .sa-code-block)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+        #module-errors :is(button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
+        #module-errors [hidden] { display: none !important; }
+        #module-errors button:disabled { opacity: .45; cursor: default; }
+        @media (max-width: 767px) {
+          #module-errors .error-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          #module-errors .error-filters > div { grid-column: 1 / -1; }
+          #module-errors .error-filters > input[type="date"] { grid-column: 1 / -1; }
+          #module-errors .error-filters .admin-select-filter { padding-inline: 8px; }
+          #module-errors :is(.admin-input-filter, .admin-select-filter) { font-size: 16px; min-width: 0; }
+          #module-errors .admin-card { padding: 16px; }
+          #module-errors button { min-height: 44px; }
+        }
+      </style>
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="admin-section-eyebrow">21.6 / CLASSIC CLUB PH</span>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link">Directory &uarr;</a>
       </div>
-      <p id="errorSummary" class="text-muted-cc" role="status">Loading recorded failures...</p>
-      <div class="admin-table-container mb-2"><table class="admin-table sa-table-wide"><thead><tr><th>Error / occurrences</th><th>Severity</th><th>Module</th><th>Latest event &middot; PHT</th><th>State</th><th>Failure</th><th>Action</th></tr></thead><tbody id="errorGroupsTableBody"></tbody></table></div>
-      <div class="d-flex gap-2 align-items-center mb-4"><button type="button" id="errorPrev" class="btn-admin-outline">Previous</button><span id="errorTableNote" class="text-muted-cc" role="status"></span><button type="button" id="errorNext" class="btn-admin-outline">Next</button></div>
-      <p id="errorDetailStatus" class="text-muted-cc" role="status">Select an error group to inspect its source and request records.</p>
-      <div id="errorDetailPanel" class="row g-4 mb-4 d-none" hidden>
+      <h2 class="admin-section-title mb-2">Error management</h2>
+      <p class="admin-section-desc mb-4">Review failures, assign a reviewer, and track resolution.</p>
+      <div class="error-filters mb-3">
+        <input type="search" id="errorSearchInput" class="admin-input-filter error-search" placeholder="Search errors, endpoints, request IDs" aria-label="Search errors, modules, endpoints, request IDs or sources" maxlength="255">
+        <select id="errorSeverityFilter" class="admin-select-filter" aria-label="Severity"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Informational</option></select>
+        <select id="errorStateFilter" class="admin-select-filter" aria-label="Status"><option value="">All statuses</option><option>Unresolved</option><option>Resolved</option></select>
+        <select id="errorModuleFilter" class="admin-select-filter" aria-label="Module"><option value="">All modules</option></select>
+        <select id="errorRecurringFilter" class="admin-select-filter" aria-label="Recurrence"><option value="">All counts</option><option>Recurring</option><option>Single</option></select>
+        <input type="date" id="errorDateFilter" class="admin-input-filter" aria-label="Occurrence date (PHT)" title="Occurrence date (PHT)">
+        <div class="d-flex gap-2"><button id="errorReset" class="btn-admin-outline flex-grow-1" type="button">Reset</button><button id="errorRefresh" class="btn-admin-outline flex-grow-1" type="button">Refresh</button></div>
+      </div>
+      <p id="errorSummary" class="text-muted-cc small" role="status">Loading errors...</p>
+      <div class="admin-table-container mb-2"><div id="errorGroupsViewport" class="error-table-viewport" tabindex="0" role="region" aria-label="Error groups" aria-busy="true"><table class="admin-table"><colgroup><col style="width:26%"><col style="width:8%"><col style="width:11%"><col style="width:13%"><col style="width:16%"><col style="width:14%"><col style="width:12%"></colgroup><thead><tr><th scope="col">Error</th><th scope="col">Count</th><th scope="col">Severity</th><th scope="col">Module</th><th scope="col">Last seen &middot; PHT</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody id="errorGroupsTableBody"></tbody></table></div></div>
+      <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-4"><span id="errorTableNote" class="text-muted-cc small" role="status"></span><div class="d-flex gap-2"><button type="button" id="errorPrev" class="btn-admin-outline" disabled>Previous</button><button type="button" id="errorNext" class="btn-admin-outline" disabled>Next</button></div></div>
+      <p id="errorDetailStatus" class="text-muted-cc small error-detail-text" role="status">Select Details to review an error.</p>
+      <div id="errorDetailPanel" class="row g-3 mb-4" aria-busy="false" hidden>
+        <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <h3 id="errorDetailHeading" class="font-lora text-light-cc fs-4 mb-0" tabindex="-1">Error <span id="errorDetailCode"></span></h3>
+          <div class="d-flex gap-2"><button id="errorDetailReload" type="button" class="btn-admin-outline">Reload</button><button id="errorDetailClose" type="button" class="btn-admin-outline">Close</button></div>
+        </div>
         <div class="col-12 col-xl-7"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc">Error detail / <span id="errorDetailCode"></span></h3>
-          <p id="errorDetailMeta" class="text-muted-cc"></p><p id="errorDetailEndpoint" class="text-light-cc"></p>
-          <p id="errorDetailContext" class="text-muted-cc"></p>
-          <div class="sa-code-block" id="errorDetailStack"></div>
-          <p class="text-muted-cc mt-3">Source frames omit arguments and machine paths. HTTP records identify the response location; they do not contain the caught exception trace. Resolve after investigating the source. A new occurrence reopens the group and clears its review flag.</p>
-          <h4 class="font-lora text-light-cc mt-4">Triage history</h4><div id="errorHistory"></div>
+          <h4 id="errorDetailSummary" class="text-light-cc fs-6 error-detail-text"></h4>
+          <p id="errorDetailMeta" class="text-muted-cc small error-detail-text"></p>
+          <p id="errorDetailTimes" class="text-muted-cc small error-detail-text"></p>
+          <p id="errorDetailEndpoint" class="text-light-cc small error-detail-text"></p>
+          <p id="errorDetailContext" class="text-muted-cc small error-detail-text"></p>
+          <details id="errorSourceDetails"><summary class="text-muted-cc small">Source frames</summary><pre class="sa-code-block" id="errorDetailStack"></pre></details>
+          <h4 class="font-lora text-light-cc fs-5 mt-4">History</h4><div id="errorHistory" class="error-history" tabindex="0" role="region" aria-label="Latest 30 triage actions"></div>
         </div></div>
         <div class="col-12 col-xl-5"><div class="admin-card h-100">
-          <h3 class="font-lora text-light-cc">Triage / internal notes</h3>
+          <h4 class="font-lora text-light-cc fs-5">Triage</h4>
           <form id="errorTriageForm" class="d-flex flex-column gap-3"><div class="row g-3">
           <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorSeverity">Severity</label><select id="errorSeverity" class="admin-select-filter w-100"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Informational</option></select></div>
-          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorState">State</label><select id="errorState" class="admin-select-filter w-100"><option>Unresolved</option><option>Resolved</option></select></div>
-          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorReviewer">Assigned reviewer</label><select id="errorReviewer" class="admin-select-filter w-100"></select></div><div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorIncident">Linked failed health check</label><select id="errorIncident" class="admin-select-filter w-100"></select></div>
-          </div><label for="errorNote" class="text-muted-cc">New internal note &middot; Do not include secrets or customer data</label>
-          <textarea id="errorNote" class="admin-input-filter w-100" rows="4" maxlength="4000"></textarea>
-          <label class="text-light-cc"><input type="checkbox" id="errorReviewedCheck"> Mark group as reviewed</label>
-          <button type="submit" class="btn-admin-primary">Save triage</button><div class="d-flex gap-2"><button type="button" id="btnMarkResolved" class="btn-admin-outline">Mark resolved</button><button type="button" id="btnReopenError" class="btn-admin-outline">Reopen error</button></div>
+          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorState">Status</label><select id="errorState" class="admin-select-filter w-100"><option>Unresolved</option><option>Resolved</option></select></div>
+          <div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorReviewer">Reviewer</label><select id="errorReviewer" class="admin-select-filter w-100"></select></div><div class="col-12 col-md-6"><label class="form-label text-muted-cc" for="errorIncident">Failed health check</label><select id="errorIncident" class="admin-select-filter w-100"></select></div>
+          </div><label for="errorNote" class="text-muted-cc">Internal note</label>
+          <textarea id="errorNote" class="admin-input-filter w-100" rows="3" maxlength="4000" placeholder="No secrets or customer data."></textarea>
+          <label class="text-light-cc"><input type="checkbox" id="errorReviewedCheck"> Reviewed</label>
+          <p class="text-muted-cc small mb-0">New occurrences reopen the error and clear its review.</p>
+          <button type="submit" class="btn-admin-primary">Save</button>
           </form>
         </div></div>
-        <div class="col-12"><h3 class="font-lora text-light-cc">Request records for this group</h3>
-        <div class="admin-table-container"><table class="admin-table sa-table-wide"><thead><tr><th>Request ID</th><th>Timestamp &middot; PHT</th><th>Endpoint</th><th>HTTP status</th><th>Duration</th><th>Source</th></tr></thead><tbody id="errorRequestsBody"></tbody></table></div>
-        <div class="d-flex gap-2 align-items-center mt-3"><button id="errorEventPrev" type="button" class="btn-admin-outline">Previous records</button><span id="errorEventNote" class="text-muted-cc"></span><button id="errorEventNext" type="button" class="btn-admin-outline">Next records</button></div></div>
+        <div class="col-12"><h4 class="font-lora text-light-cc fs-5">Occurrences</h4>
+        <div class="admin-table-container"><div id="errorEventsViewport" class="error-table-viewport" tabindex="0" role="region" aria-label="Error occurrences"><table class="admin-table"><colgroup><col style="width:24%"><col style="width:16%"><col style="width:25%"><col style="width:7%"><col style="width:8%"><col style="width:20%"></colgroup><thead><tr><th scope="col">Request ID</th><th scope="col">Time &middot; PHT</th><th scope="col">Endpoint</th><th scope="col">HTTP</th><th scope="col">Duration</th><th scope="col">Source</th></tr></thead><tbody id="errorRequestsBody"></tbody></table></div></div>
+        <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mt-3"><span id="errorEventNote" class="text-muted-cc small" role="status"></span><div class="d-flex gap-2"><button id="errorEventPrev" type="button" class="btn-admin-outline">Previous</button><button id="errorEventNext" type="button" class="btn-admin-outline">Next</button></div></div></div>
       </div>
-      <p class="text-muted-cc">Capture starts with this installation; historical PHP log text is not imported. HTTP validation and authorization failures are included. Visible error lists refresh every 30 seconds. Recorded health checks can be linked without changing monitoring data.</p>
-      <a href="#module-directory" class="text-muted-cc cc-underline-link">Module directory &uarr;</a>
     </section>
     <!-- SECTION 21.8: SUPPORT TICKET MANAGEMENT -->
     <section id="module-tickets" class="admin-section px-4 px-lg-5"><h2 class="admin-section-title">Support ticket management</h2><p>Loading support tickets...</p></section>

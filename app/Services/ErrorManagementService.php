@@ -22,7 +22,7 @@ final class ErrorManagementService
             else { $where[] = "g.$key = ?"; $params[] = $value; }
         }
         foreach (['search', 'date', 'module'] as $key) {
-            if (isset($filters[$key]) && (!is_string($filters[$key]) || strlen($filters[$key]) > 255)) throw new InvalidArgumentException('Invalid filter.');
+            if (isset($filters[$key]) && (!is_string($filters[$key]) || mb_strlen($filters[$key], 'UTF-8') > 255)) throw new InvalidArgumentException('Invalid filter.');
         }
         if (!empty($filters['date'])) {
             $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $filters['date']);
@@ -31,9 +31,11 @@ final class ErrorManagementService
             $params[] = $date->format('Y-m-d'); $params[] = $date->modify('+1 day')->format('Y-m-d');
         }
         if (!empty($filters['module'])) { $where[] = 'g.module = ?'; $params[] = $filters['module']; }
-        if (!empty($filters['search'])) {
-            $where[] = "(CONCAT('ERR-',g.id,' ',g.summary,' ',g.module) LIKE ? OR EXISTS (SELECT 1 FROM error_events e WHERE e.group_id=g.id AND CONCAT(e.request_id,' ',e.endpoint,' ',e.source) LIKE ?))";
-            $params[] = '%' . $filters['search'] . '%'; $params[] = '%' . $filters['search'] . '%';
+        $search = trim($filters['search'] ?? '');
+        if ($search !== '') {
+            $where[] = "(CONCAT('ERR-',g.id,' ',g.summary,' ',g.module) LIKE ? ESCAPE '!' OR EXISTS (SELECT 1 FROM error_events e WHERE e.group_id=g.id AND CONCAT(e.request_id,' ',e.endpoint,' ',e.source) LIKE ? ESCAPE '!'))";
+            $term = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+            $params[] = $term; $params[] = $term;
         }
         $page = filter_var($filters['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000]]);
         if ($page === false) throw new InvalidArgumentException('Invalid page.');
@@ -53,13 +55,15 @@ final class ErrorManagementService
     {
         $q = $this->pdo->prepare('SELECT * FROM error_groups WHERE id=?'); $q->execute([$id]); $group = $q->fetch(PDO::FETCH_ASSOC);
         if (!$group) throw new RuntimeException('Error group not found.', 404);
-        $offset = (max(1, min(1000000, $eventPage)) - 1) * 25;
+        $eventPages = max(1, (int) ceil((int) $group['occurrences'] / 25));
+        $eventPage = max(1, min($eventPages, $eventPage));
+        $offset = ($eventPage - 1) * 25;
         $q = $this->pdo->prepare("SELECT * FROM error_events WHERE group_id=? ORDER BY id DESC LIMIT 25 OFFSET $offset"); $q->execute([$id]); $events = $q->fetchAll(PDO::FETCH_ASSOC);
         $q = $this->pdo->prepare("SELECT a.id, a.created_at, a.metadata, CONCAT_WS(' ',u.first_name,u.last_name) AS actor FROM audit_logs a LEFT JOIN users u ON u.id=a.user_id WHERE a.entity_type='error_group' AND a.entity_id=? ORDER BY a.id DESC LIMIT 30"); $q->execute([$id]);
         $history = $q->fetchAll(PDO::FETCH_ASSOC);
         foreach ($history as &$row) $row['metadata'] = json_decode($row['metadata'] ?? '{}', true);
         return ['group' => $group, 'events' => $events, 'history' => $history, 'event_page' => $eventPage,
-            'event_pages' => max(1, (int) ceil((int) $group['occurrences'] / 25)),
+            'event_pages' => $eventPages,
             'reviewers' => $this->pdo->query("SELECT DISTINCT u.id, CONCAT_WS(' ',u.first_name,u.last_name) AS name FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE r.name='super_admin' AND u.status='active' AND u.deleted_at IS NULL ORDER BY name")->fetchAll(PDO::FETCH_ASSOC),
             'incidents' => $this->incidents($group['incident_id'])];
     }
