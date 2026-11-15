@@ -10,6 +10,7 @@
   <!-- Global Project Stylesheet -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/scroll-reveal.css">
+  <link rel="stylesheet" href="assets/css/cart.css">
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261112-2">
   <script src="assets/js/quick-view.js?v=20261112-1" defer></script>
 </head>
@@ -51,11 +52,11 @@
     </section>
 
     <!-- Main Shopping Bag & Order Summary Section -->
-    <section class="cc-section-px pb-5">
-      <div class="row g-5 align-items-start">
+    <section class="cc-section-px pb-5 cc-cart-section">
+      <div class="row g-5 align-items-start cc-cart-layout">
 
         <!-- Left Column: Bag Items List -->
-        <div class="col-12 col-lg-7 col-xl-8">
+        <div class="col-12 col-lg-7 col-xl-8 cc-cart-items-column">
           <div class="d-flex flex-column gap-4">
 
             <!-- Table Header -->
@@ -89,8 +90,8 @@
         </div>
 
         <!-- Right Column: Order Summary & Promo Code -->
-        <div class="col-12 col-lg-5 col-xl-4">
-          <div class="d-flex flex-column gap-4">
+        <div class="col-12 col-lg-5 col-xl-4 cc-cart-summary-column">
+          <div class="d-flex flex-column gap-4 cc-cart-summary">
 
             <!-- Order Summary Card -->
             <div class="bg-cc-surface border border-cc p-4 d-flex flex-column gap-4">
@@ -486,6 +487,7 @@
     });
   </script>
   <script src="assets/js/scroll-reveal.js"></script>
+  <script src="assets/js/cart-summary.js"></script>
 </body>
 </html>
 

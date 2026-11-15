@@ -1,0 +1,26 @@
+/* Keep the tall cart's sticky boundary stationary and visible during reveals. */
+.cc-cart-section.cc-reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  will-change: auto;
+}
+
+@media (min-width: 992px) {
+  /* The product list defines when the entire summary stack leaves the viewport. */
+  .cc-cart-summary-column {
+    align-self: stretch;
+  }
+
+  .cc-cart-summary {
+    position: sticky;
+    top: var(--cc-cart-summary-top, 24px);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .cc-cart-layout {
+    /* Match the section's 20px padding without widening the mobile page. */
+    --bs-gutter-x: 2.5rem;
+  }
+}
