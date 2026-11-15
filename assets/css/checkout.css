@@ -1,3 +1,101 @@
+/* Checkout-only form feedback and native, keyboard-accessible choices. */
+#checkout-form [hidden] {
+  display: none !important;
+}
+
+#checkout-form .cc-checkout-field-error,
+#checkout-form .cc-checkout-errors {
+  color: #ffb8b0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#checkout-form .cc-checkout-errors {
+  border: 1px solid #ffb8b0;
+  background: var(--cc-surface);
+}
+
+#checkout-form .cc-checkout-errors a {
+  color: #ffb8b0;
+  text-underline-offset: 3px;
+}
+
+#checkout-form [aria-invalid="true"] {
+  border-color: #ffb8b0;
+}
+
+#checkout-form input:focus-visible,
+#checkout-form select:focus-visible,
+#checkout-form textarea:focus-visible,
+#checkout-form button:focus-visible,
+#checkout-form a:focus-visible,
+#checkout-errors:focus {
+  outline: 2px solid #7fd6d2;
+  outline-offset: 3px;
+}
+
+#checkout-form input,
+#checkout-form select,
+#checkout-form textarea {
+  scroll-margin-block: 110px 32px;
+}
+
+.cc-checkout-choice,
+.cc-payment-option {
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.cc-checkout-choice-input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  accent-color: var(--cc-accent);
+}
+
+.cc-payment-option {
+  min-height: 50px;
+  height: 100%;
+  padding-block: 10px;
+  border: 1px solid var(--cc-border);
+  background: var(--cc-surface);
+  font-size: 12px;
+}
+
+.cc-payment-option:has(input:checked) {
+  background: #112b2e;
+  border-color: var(--cc-accent);
+}
+
+.cc-payment-option:focus-within {
+  outline: 2px solid #7fd6d2;
+  outline-offset: 3px;
+}
+
+#checkout-form textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+#checkout-form button:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+@media (max-width: 991.98px) {
+  #checkout-form {
+    /* Match the page's 20px padding so Bootstrap gutters cannot widen the page. */
+    --bs-gutter-x: 2.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Prevent mobile browsers from zooming into the form on focus. */
+  #checkout-form .cc-input {
+    font-size: 16px;
+  }
+}
+
 @media (min-width: 992px) {
   /* Give the summary the full checkout height as its sticky boundary. */
   .cc-checkout-summary-column {

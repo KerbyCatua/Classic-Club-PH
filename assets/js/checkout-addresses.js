@@ -10,8 +10,9 @@ window.CCCheckoutAddresses = {
       street_address: 'street', apartment: 'apt', barangay: 'brgy', city: 'city',
       province: 'province', postal_code: 'postal', instructions: 'instructions'
     };
-    let addresses = [], dirty = false;
-    const input = name => document.getElementById('checkout-' + fields[name]);
+    const form = document.getElementById('checkout-form');
+    let addresses = [], dirty = Object.keys(fields).some(name => input(name).dataset.edited === 'true');
+    function input(name) { return document.getElementById('checkout-' + fields[name]); }
     for (const name of Object.keys(fields)) input(name).addEventListener('input', () => { dirty = true; });
     panel.hidden = false;
     function message(text, error = false) {
@@ -26,7 +27,7 @@ window.CCCheckoutAddresses = {
       select.value = selected ? String(selected.id) : '';
     }
     function fill(address) {
-      if (!address) return;
+      if (!address || form.getAttribute('aria-busy') === 'true') return;
       for (const name of Object.keys(fields)) {
         const field = input(name);
         if (field.tagName === 'SELECT' && !Array.from(field.options).some(option => option.value === address[name])) {
@@ -36,6 +37,7 @@ window.CCCheckoutAddresses = {
         field.dispatchEvent(new Event('input', { bubbles: true }));
       }
       dirty = false;
+      window.CCCheckoutValidation?.resetShipping();
     }
     select.addEventListener('change', () => {
       const address = addresses.find(a => String(a.id) === select.value);
@@ -46,10 +48,15 @@ window.CCCheckoutAddresses = {
           input(name).value = '';
           input(name).dispatchEvent(new Event('input', { bubbles: true }));
         }
+        window.CCCheckoutValidation?.resetShipping();
       }
       message('');
     });
     save.addEventListener('click', async () => {
+      if (!window.CCCheckoutValidation?.validateShipping()) {
+        message('Please correct the highlighted shipping fields before saving.', true);
+        return;
+      }
       const address = addresses.find(a => String(a.id) === select.value);
       const body = { action: 'save', label: address?.label || '',
         is_default_shipping: address ? Boolean(Number(address.is_default_shipping)) : !addresses.length,
@@ -65,9 +72,10 @@ window.CCCheckoutAddresses = {
         message('Address saved to your account. These details will also be used for this order.');
       } catch (error) {
         message([error.message, ...Object.values(error.fields || {})].join(' '), true);
+        window.CCCheckoutValidation?.showServerErrors(error.fields || {}, error.message);
         const name = Object.keys(error.fields || {}).find(key => fields[key]);
         if (name) input(name).focus();
-      } finally { save.disabled = select.disabled = false; }
+      } finally { save.disabled = select.disabled = form.getAttribute('aria-busy') === 'true'; }
     });
     message('Loading saved addresses…');
     try {
@@ -76,7 +84,7 @@ window.CCCheckoutAddresses = {
       options(dirty ? null : address);
       if (!dirty) fill(address);
       message(address ? 'Edit the delivery fields below. Use Save address to keep changes in your account.' : 'Enter your delivery details below. Use Save address to add them to your account.');
-      save.disabled = select.disabled = false;
+      save.disabled = select.disabled = form.getAttribute('aria-busy') === 'true';
     } catch (error) {
       message(error.message + ' You can still enter delivery details for this order.', true);
     }

@@ -63,48 +63,43 @@
 
     <!-- Main Checkout Form & Order Summary Section -->
     <section class="cc-section-px pb-5 mb-4">
-      <form id="checkout-form" class="row g-5 align-items-start">
+      <form id="checkout-form" class="row g-5 align-items-start" method="post">
 
         <!-- Left Column: 5-Step Checkout Form -->
         <div class="col-12 col-lg-7">
           <div class="d-flex flex-column gap-5">
 
             <!-- 01. Contact -->
-            <div class="d-flex flex-column gap-4">
+            <div id="checkout-errors" class="cc-checkout-errors p-3" role="alert" tabindex="-1" hidden>
+              <p id="checkout-errors-title" class="text-light-cc mb-2"></p>
+              <ul id="checkout-error-list" class="mb-0"></ul>
+            </div>
+            <span id="checkout-validation-status" class="visually-hidden" role="status" aria-live="polite"></span>
+            <noscript><p class="cc-small-text">Enable JavaScript to validate your details and place a demo order.</p></noscript>
+
+            <section class="d-flex flex-column gap-4" aria-labelledby="checkout-contact-heading">
               <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2">
-                <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">01. Contact</h2>
+                <h2 id="checkout-contact-heading" class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">01. Contact</h2>
                 <a href="auth.html" class="cc-underline-link">Already a member? Sign in</a>
               </div>
+              <p class="cc-xs-text m-0">Fields marked * are required.</p>
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-email" class="cc-xs-text text-light-cc">Email address *</label>
-                <input type="email" id="checkout-email" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                <input type="email" id="checkout-email" name="email" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="190" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="you@example.com" aria-describedby="checkout-email-help" required>
+                <p id="checkout-email-help" class="cc-xs-text m-0">Used only to identify your order in this demo.</p>
               </div>
-
-              <div class="d-flex flex-column gap-2">
-                <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
-                  <input type="checkbox" class="d-none cc-custom-check" checked>
-                  <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
-                  <span class="cc-xs-text">Email me order and shipping updates.</span>
-                </label>
-
-                <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
-                  <input type="checkbox" class="d-none cc-custom-check">
-                  <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-bg); border: 1px solid var(--cc-border); color: var(--cc-text); font-size: 11px;"></span>
-                  <span class="cc-xs-text">Keep me informed about new collections (optional).</span>
-                </label>
-              </div>
-            </div>
+            </section>
 
             <hr class="border-cc m-0 opacity-100">
 
             <!-- 02. Shipping Address -->
-            <div class="d-flex flex-column gap-4">
-              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">02. Shipping address</h2>
+            <section id="checkout-shipping" class="d-flex flex-column gap-4" aria-labelledby="checkout-shipping-heading">
+              <h2 id="checkout-shipping-heading" class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">02. Shipping address</h2>
               <p class="cc-xs-text m-0">This address is saved with the order and shown on your confirmation.</p>
               <div id="checkout-address-book" hidden>
                 <label for="checkout-saved-address" class="cc-xs-text text-light-cc mb-2">Saved delivery address</label>
-                <select id="checkout-saved-address" class="form-select cc-input bg-cc-surface mb-3" disabled><option value="">New address</option></select>
+                <select id="checkout-saved-address" name="saved_address" class="form-select cc-input bg-cc-surface mb-3" autocomplete="off" disabled><option value="">New address</option></select>
                 <button type="button" id="checkout-save-address" class="btn btn-outline-light rounded-0 cc-xs-text" disabled>Save address to my account</button>
                 <p id="checkout-address-status" class="cc-xs-text mt-2 mb-0" role="status" aria-live="polite"></p>
               </div>
@@ -112,176 +107,187 @@
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-fname" class="cc-xs-text text-light-cc">First name *</label>
-                  <input type="text" id="checkout-fname" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                  <input type="text" id="checkout-fname" name="first_name" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="100" autocomplete="shipping given-name" placeholder="Juan" required>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-lname" class="cc-xs-text text-light-cc">Last name *</label>
-                  <input type="text" id="checkout-lname" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                  <input type="text" id="checkout-lname" name="last_name" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="100" autocomplete="shipping family-name" placeholder="Dela Cruz" required>
                 </div>
               </div>
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-mobile" class="cc-xs-text text-light-cc">Mobile number *</label>
-                <input type="tel" id="checkout-mobile" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                <input type="tel" id="checkout-mobile" name="mobile" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="40" autocomplete="shipping tel" inputmode="tel" placeholder="0917 123 4567" aria-describedby="checkout-mobile-help" required>
+                <p id="checkout-mobile-help" class="cc-xs-text m-0">Philippine mobile number: 0917 123 4567 or +63 917 123 4567.</p>
               </div>
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-country" class="cc-xs-text text-light-cc">Country / region *</label>
-                <select id="checkout-country" class="form-select cc-input bg-cc-surface" style="height: 50px;">
+                <select id="checkout-country" name="country" class="form-select cc-input bg-cc-surface" style="height: 50px;" autocomplete="shipping country-name" aria-describedby="checkout-country-help" required>
                   <option value="Philippines" selected>Philippines</option>
                 </select>
+                <p id="checkout-country-help" class="cc-xs-text m-0">Delivery is available within the Philippines only.</p>
               </div>
 
               <div class="d-flex flex-column gap-2">
-                <label for="checkout-region" class="cc-xs-text text-light-cc">Region (required to save to your account)</label>
-                <input type="text" id="checkout-region" class="form-control cc-input bg-cc-surface" maxlength="120" autocomplete="address-level1">
+                <label for="checkout-region" class="cc-xs-text text-light-cc">Region *</label>
+                <input type="text" id="checkout-region" name="region" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="120" autocomplete="off" placeholder="National Capital Region" aria-describedby="checkout-region-help" required>
+                <p id="checkout-region-help" class="cc-xs-text m-0">For example, National Capital Region or Central Luzon.</p>
               </div>
 
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-street" class="cc-xs-text text-light-cc">Street address *</label>
-                <input type="text" id="checkout-street" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                <input type="text" id="checkout-street" name="street_address" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="255" autocomplete="shipping address-line1" placeholder="House or lot number, street and subdivision" required>
               </div>
 
               <div class="d-flex flex-column gap-2">
-                <label for="checkout-apt" class="cc-xs-text text-light-cc">Apartment, suite or landmark (optional)</label>
-                <input type="text" id="checkout-apt" class="form-control cc-input bg-cc-surface" style="height: 50px;">
+                <label for="checkout-apt" class="cc-xs-text text-light-cc">Building, unit or floor (optional)</label>
+                <input type="text" id="checkout-apt" name="apartment" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="255" autocomplete="shipping address-line2" placeholder="Unit 4B, Building A">
               </div>
               <div class="d-flex flex-column gap-2">
                 <label for="checkout-instructions" class="cc-xs-text text-light-cc">Landmark / delivery instructions (optional)</label>
-                <input type="text" id="checkout-instructions" class="form-control cc-input bg-cc-surface" maxlength="500">
+                <textarea id="checkout-instructions" name="instructions" class="form-control cc-input bg-cc-surface" rows="3" maxlength="500" autocomplete="off" placeholder="Landmark or directions to help find the address" aria-describedby="checkout-instructions-help"></textarea>
+                <p id="checkout-instructions-help" class="cc-xs-text m-0">Up to 500 characters. Keep payment details and other sensitive information out of these notes.</p>
               </div>
 
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-brgy" class="cc-xs-text text-light-cc">Barangay *</label>
-                  <input type="text" id="checkout-brgy" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                  <input type="text" id="checkout-brgy" name="barangay" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="120" autocomplete="shipping address-level3" placeholder="Poblacion" required>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-city" class="cc-xs-text text-light-cc">City / municipality *</label>
-                  <input type="text" id="checkout-city" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                  <input type="text" id="checkout-city" name="city" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="120" autocomplete="shipping address-level2" placeholder="Makati" required>
                 </div>
               </div>
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
-                  <label for="checkout-province" class="cc-xs-text text-light-cc">Province / region *</label>
-                  <input type="text" id="checkout-province" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="120" required>
+                  <label for="checkout-province" class="cc-xs-text text-light-cc">Province / Metro Manila *</label>
+                  <input type="text" id="checkout-province" name="province" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="120" autocomplete="shipping address-level1" placeholder="Metro Manila" required>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
                   <label for="checkout-postal" class="cc-xs-text text-light-cc">Postal code *</label>
-                  <input type="text" id="checkout-postal" class="form-control cc-input bg-cc-surface" style="height: 50px;" required>
+                  <input type="text" id="checkout-postal" name="postal_code" class="form-control cc-input bg-cc-surface" style="height: 50px;" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" autocomplete="shipping postal-code" placeholder="1210" aria-describedby="checkout-postal-help" required>
+                  <p id="checkout-postal-help" class="cc-xs-text m-0">Enter the four-digit Philippine postal code.</p>
                 </div>
               </div>
-            </div>
+            </section>
 
             <hr class="border-cc m-0 opacity-100">
 
             <!-- 03. Delivery -->
-            <div class="d-flex flex-column gap-3">
-              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">03. Delivery</h2>
+            <section class="d-flex flex-column gap-3" aria-labelledby="checkout-delivery-heading">
+              <h2 id="checkout-delivery-heading" class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">03. Delivery</h2>
 
-              <div class="p-4 d-flex align-items-center justify-content-between gap-3" style="background: #112B2E; border: 1px solid var(--cc-accent);">
-                <div class="d-flex align-items-center gap-3">
-                  <span class="text-accent" style="font-size: 20px;">◉</span>
-                  <div class="d-flex flex-column gap-1">
-                    <span class="text-light-cc" style="font-size: 14px;">Standard delivery · Metro Manila</span>
-                    <span class="cc-xs-text">Estimated arrival: 3–5 November 2026</span>
-                  </div>
-                </div>
+              <div id="checkout-delivery-group" role="group" aria-labelledby="checkout-delivery-heading" aria-describedby="checkout-delivery-help">
+              <label class="p-4 d-flex align-items-center justify-content-between gap-3 cc-checkout-choice" for="checkout-delivery" style="background: #112B2E; border: 1px solid var(--cc-accent);">
+                <span class="d-flex align-items-center gap-3">
+                  <input type="radio" id="checkout-delivery" name="delivery_method" value="standard" class="cc-checkout-choice-input" checked required>
+                  <span class="d-flex flex-column gap-1">
+                    <span class="text-light-cc" style="font-size: 14px;">Standard delivery · Philippines</span>
+                    <span class="cc-xs-text">Delivery timing is simulated for this school project.</span>
+                  </span>
+                </span>
                 <span class="text-light-cc" style="font-size: 14px;" data-product-price></span>
+              </label>
               </div>
 
-              <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
-                Business-day estimates begin after dispatch. Tracking is emailed when your parcel is handed to the courier.
+              <p id="checkout-delivery-help" class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
+                Standard delivery is the only option in this demo. View your order status on the confirmation page.
               </p>
-            </div>
+            </section>
 
             <hr class="border-cc m-0 opacity-100">
 
             <!-- 04. Billing -->
-            <div class="d-flex flex-column gap-3">
-              <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">04. Billing</h2>
+            <section class="d-flex flex-column gap-3" aria-labelledby="checkout-billing-heading">
+              <h2 id="checkout-billing-heading" class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">04. Billing</h2>
 
-              <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
-                <input type="checkbox" class="d-none cc-custom-check" checked>
-                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
-                <span class="cc-xs-text">Billing address is the same as my shipping address.</span>
-              </label>
+              <p class="cc-xs-text m-0">This demo uses your shipping address as the billing address.</p>
 
               <p class="cc-xs-text m-0" id="billing-preview-line">
                 Your shipping address will appear here.
               </p>
-            </div>
+            </section>
 
             <hr class="border-cc m-0 opacity-100">
 
             <!-- 05. Payment -->
-            <div class="d-flex flex-column gap-4">
+            <section class="d-flex flex-column gap-4" aria-labelledby="checkout-payment-heading">
               <div class="d-flex justify-content-between align-items-baseline">
-                <h2 class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">05. Payment</h2>
+                <h2 id="checkout-payment-heading" class="font-lora text-light-cc m-0" style="font-size: 30px; line-height: 35.4px;">05. Payment</h2>
                 <span class="cc-eyebrow-teal">ILLUSTRATIVE ONLY</span>
               </div>
 
-              <p class="cc-small-text m-0">
-                These are non-functional sample controls. Do not enter real financial information. No charge will be made.
+              <p id="checkout-payment-help" class="cc-small-text m-0">
+                Choose a demo payment method. All payment details are fixed samples; no charge will be made.
               </p>
 
               <!-- Payment Method Selector -->
+              <fieldset class="m-0 p-0 border-0" aria-describedby="checkout-payment-help">
+              <legend class="cc-xs-text text-light-cc float-none w-auto mb-2">Demo payment method *</legend>
               <div class="row g-2" id="payment-method-group">
                 <div class="col-12 col-sm-4">
-                  <button type="button" class="btn w-100 rounded-0 text-start text-light-cc d-flex align-items-center px-3 payment-method-btn active" data-method="Illustrative card ending 4242." style="height: 48px; background: #112B2E; border: 1px solid var(--cc-accent); font-size: 12px;">
-                    <span class="method-radio me-2">◉</span> Credit / debit card
-                  </button>
+                  <label class="cc-payment-option text-light-cc d-flex align-items-center gap-2 px-3">
+                    <input type="radio" id="checkout-payment-card" name="payment_method" value="demo-card" class="cc-checkout-choice-input" aria-controls="checkout-demo-card" checked required> Demo card
+                  </label>
                 </div>
                 <div class="col-12 col-sm-4">
-                  <button type="button" class="btn w-100 rounded-0 text-start text-light-cc d-flex align-items-center px-3 payment-method-btn" data-method="GCash (Illustrative)" style="height: 48px; background: var(--cc-surface); border: 1px solid var(--cc-border); font-size: 12px;">
-                    <span class="method-radio me-2">○</span> GCash
-                  </button>
+                  <label class="cc-payment-option text-light-cc d-flex align-items-center gap-2 px-3">
+                    <input type="radio" id="checkout-payment-gcash" name="payment_method" value="demo-gcash" class="cc-checkout-choice-input" aria-controls="checkout-demo-wallet" required> GCash demo
+                  </label>
                 </div>
                 <div class="col-12 col-sm-4">
-                  <button type="button" class="btn w-100 rounded-0 text-start text-light-cc d-flex align-items-center px-3 payment-method-btn" data-method="Maya (Illustrative)" style="height: 48px; background: var(--cc-surface); border: 1px solid var(--cc-border); font-size: 12px;">
-                    <span class="method-radio me-2">○</span> Maya
-                  </button>
+                  <label class="cc-payment-option text-light-cc d-flex align-items-center gap-2 px-3">
+                    <input type="radio" id="checkout-payment-maya" name="payment_method" value="demo-maya" class="cc-checkout-choice-input" aria-controls="checkout-demo-wallet" required> Maya demo
+                  </label>
                 </div>
+              </div>
+              </fieldset>
+
+              <div id="checkout-demo-card" class="d-flex flex-column gap-3">
+              <div class="d-flex flex-column gap-2">
+                <span id="checkout-demo-name-label" class="cc-xs-text text-light-cc">Demo cardholder</span>
+                <div class="cc-input bg-cc-surface" role="group" aria-labelledby="checkout-demo-name-label">Sample Customer</div>
               </div>
 
               <div class="d-flex flex-column gap-2">
-                <label class="cc-xs-text text-light-cc">Name on card · example</label>
-                <input type="text" id="checkout-card-name" class="form-control cc-input bg-cc-surface" style="height: 50px;">
-              </div>
-
-              <div class="d-flex flex-column gap-2">
-                <label class="cc-xs-text text-light-cc">Card number · illustrative</label>
-                <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="••••  ••••  ••••  4242" readonly>
+                <span id="checkout-demo-number-label" class="cc-xs-text text-light-cc">Demo card reference</span>
+                <div class="cc-input bg-cc-surface" role="group" aria-labelledby="checkout-demo-number-label">DEMO-CARD-4242</div>
               </div>
 
               <div class="row g-3">
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
-                  <label class="cc-xs-text text-light-cc">Expiry · illustrative</label>
-                  <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="12 / 28" readonly>
+                  <span id="checkout-demo-expiry-label" class="cc-xs-text text-light-cc">Demo expiry</span>
+                  <div class="cc-input bg-cc-surface" role="group" aria-labelledby="checkout-demo-expiry-label">Sample only</div>
                 </div>
                 <div class="col-12 col-sm-6 d-flex flex-column gap-2">
-                  <label class="cc-xs-text text-light-cc">Security code · illustrative</label>
-                  <input type="text" class="form-control cc-input bg-cc-surface" style="height: 50px;" value="•••" readonly>
+                  <span id="checkout-demo-code-label" class="cc-xs-text text-light-cc">Demo security code</span>
+                  <div class="cc-input bg-cc-surface" role="group" aria-labelledby="checkout-demo-code-label">Not collected</div>
                 </div>
               </div>
+              </div>
+              <p id="checkout-demo-wallet" class="cc-small-text m-0" role="status" hidden></p>
 
-              <label class="d-flex align-items-center gap-3" style="cursor: pointer;">
-                <input type="checkbox" class="d-none cc-custom-check" checked required>
-                <span class="cc-check-box d-inline-flex align-items-center justify-content-center" style="width: 17px; height: 17px; background: var(--cc-accent); border: 1px solid var(--cc-accent); color: var(--cc-text); font-size: 11px;">✓</span>
-                <span class="cc-xs-text">I have read the terms and shipping &amp; returns policy.</span>
-              </label>
+              <div class="d-flex flex-column gap-2">
+                <label for="checkout-consent" class="d-flex align-items-start gap-3 cc-checkout-choice">
+                  <input type="checkbox" id="checkout-consent" name="demo_consent" class="cc-checkout-choice-input mt-1" required>
+                  <span class="cc-xs-text">I understand this is a demo order with simulated payment and have reviewed the <a href="faq-shipping.html" target="_blank" rel="noopener" class="text-light-cc">shipping &amp; returns policy (opens a new tab)</a>. *</span>
+                </label>
+              </div>
 
-              <button type="submit" class="btn-cc-teal w-100" id="place-order-btn">
-                <span id="place-order-btn-text">Place order</span>
+              <button type="submit" class="btn-cc-teal w-100" id="place-order-btn" disabled>
+                <span id="place-order-btn-text">Place demo order</span>
                 <i class="bi bi-arrow-right"></i>
               </button>
+              <p id="checkout-submit-status" class="cc-xs-text m-0" role="status" aria-live="polite"></p>
 
               <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none; line-height: 18.15px;">
                 Your order reference will be generated after the server validates your cart and address.
               </p>
-            </div>
+            </section>
 
           </div>
         </div>
@@ -355,252 +361,8 @@
 
   <script src="assets/js/addresses.js"></script>
   <script src="assets/js/checkout-addresses.js"></script>
-  <!-- Checkout Interactive Logic -->
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      if (typeof CCStore === 'undefined') return;
-
-      try {
-        const profileResponse = await fetch('public/api/auth/me.php', {
-          credentials: 'same-origin',
-          headers: { Accept: 'application/json' }
-        });
-        const profileResult = await profileResponse.json();
-        const user = profileResponse.ok && profileResult.success ? profileResult.data?.user : null;
-        if (user) {
-          const fill = (id, value) => {
-            const field = document.getElementById(id);
-            if (field && !field.value && value) field.value = value;
-          };
-          fill('checkout-email', user.email);
-          fill('checkout-fname', user.first_name);
-          fill('checkout-lname', user.last_name);
-          fill('checkout-mobile', user.mobile);
-          fill('checkout-card-name', [user.first_name, user.last_name].filter(Boolean).join(' '));
-          await CCCheckoutAddresses.init(user);
-        }
-      } catch (error) {
-        console.error('Unable to load the signed-in account:', error);
-      }
-
-      const itemsListEl = document.getElementById('checkout-items-list');
-      const subtotalLabel = document.getElementById('checkout-subtotal-label');
-      const subtotalValue = document.getElementById('checkout-subtotal-value');
-      const shippingValue = document.getElementById('checkout-shipping-value');
-      const discountValue = document.getElementById('checkout-discount-value');
-      const totalValue = document.getElementById('checkout-total-value');
-      const placeOrderBtnText = document.getElementById('place-order-btn-text');
-      const checkoutForm = document.getElementById('checkout-form');
-
-      let selectedPaymentMethod = 'Illustrative card ending 4242.';
-
-      // Render Summary from CCStore
-      function renderCheckoutSummary() {
-        const cart = CCStore.getCart();
-        const totals = CCStore.getCartTotals();
-        const pieceWord = totals.totalItems === 1 ? 'piece' : 'pieces';
-
-        subtotalLabel.textContent = `Subtotal · ${totals.totalItems} ${pieceWord}`;
-        subtotalValue.textContent = CCStore.formatPHP(totals.subtotal);
-        shippingValue.textContent = CCStore.formatPHP(totals.shipping);
-        discountValue.textContent = totals.discount > 0 ? `−${CCStore.formatPHP(totals.discount)}` : '₱0.00';
-        totalValue.textContent = CCStore.formatPHP(totals.total);
-        placeOrderBtnText.textContent = `Place order — ${CCStore.formatPHP(totals.total)}`;
-
-        itemsListEl.innerHTML = cart.map(item => `
-          <div class="d-flex align-items-center gap-3">
-
-            <img
-              src="${CCStore.resolveCartImage(item)}"
-              alt="${item.name} / ${item.color}"
-              class="img-fluid object-fit-cover border border-cc flex-shrink-0"
-              style="width: 88px; height: 106px; padding: 10px;"
-            >
-
-            <div class="d-flex flex-column gap-1 flex-grow-1">
-              <span class="cc-xs-text text-light-cc">${item.name}</span>
-              <span class="cc-eyebrow text-transform-none" style="text-transform: none;">
-                ${item.color} / ${item.size} / Qty ${item.quantity}
-              </span>
-              <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Custom Checkbox Toggle Visuals
-      document.querySelectorAll('.cc-custom-check').forEach(input => {
-        input.addEventListener('change', () => {
-          const box = input.nextElementSibling;
-          if (input.checked) {
-            box.style.background = 'var(--cc-accent)';
-            box.style.borderColor = 'var(--cc-accent)';
-            box.textContent = '✓';
-          } else {
-            box.style.background = 'var(--cc-bg)';
-            box.style.borderColor = 'var(--cc-border)';
-            box.textContent = '';
-          }
-        });
-      });
-
-      // Payment Method Selector Toggle
-      const methodBtns = document.querySelectorAll('.payment-method-btn');
-      methodBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          methodBtns.forEach(b => {
-            b.classList.remove('active');
-            b.style.background = 'var(--cc-surface)';
-            b.style.borderColor = 'var(--cc-border)';
-            b.querySelector('.method-radio').textContent = '○';
-          });
-          btn.classList.add('active');
-          btn.style.background = '#112B2E';
-          btn.style.borderColor = 'var(--cc-accent)';
-          btn.querySelector('.method-radio').textContent = '◉';
-          selectedPaymentMethod = btn.getAttribute('data-method');
-        });
-      });
-
-      // Live Billing Address Preview Sync
-      const addrInputs = ['checkout-fname', 'checkout-lname', 'checkout-street', 'checkout-apt', 'checkout-brgy', 'checkout-city', 'checkout-province', 'checkout-postal'];
-      const billingPreview = document.getElementById('billing-preview-line');
-      function updateBillingPreview() {
-        const fname = document.getElementById('checkout-fname').value;
-        const lname = document.getElementById('checkout-lname').value;
-        const street = document.getElementById('checkout-street').value;
-        const apt = document.getElementById('checkout-apt').value;
-        const brgy = document.getElementById('checkout-brgy').value;
-        const city = document.getElementById('checkout-city').value;
-        const prov = document.getElementById('checkout-province').value;
-        const postal = document.getElementById('checkout-postal').value;
-        billingPreview.textContent = `${fname} ${lname} · ${street}${apt ? ', ' + apt : ''}, ${brgy}, ${city}, ${prov} ${postal}.`;
-      }
-      addrInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', updateBillingPreview);
-      });
-      updateBillingPreview();
-
-      // Place order on the server and append to existing order history array.
-      checkoutForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const button = checkoutForm.querySelector('button[type="submit"]');
-        button.disabled = true;
-
-        const email = document.getElementById('checkout-email').value;
-        const firstName = document.getElementById('checkout-fname').value;
-        const lastName = document.getElementById('checkout-lname').value;
-        const mobile = document.getElementById('checkout-mobile').value;
-        const country = document.getElementById('checkout-country').value;
-        const street = document.getElementById('checkout-street').value;
-        const apartment = document.getElementById('checkout-apt').value;
-        const barangay = document.getElementById('checkout-brgy').value;
-        const city = document.getElementById('checkout-city').value;
-        const province = document.getElementById('checkout-province').value;
-        const postalCode = document.getElementById('checkout-postal').value;
-        const currentCart = CCStore.getCart();
-        const currentTotals = CCStore.getCartTotals();
-
-        const customerInfo = {
-          email,
-          firstName,
-          lastName,
-          mobile,
-          country,
-          street,
-          apartment,
-          barangay,
-          city,
-          province,
-          postalCode,
-          paymentMethod: selectedPaymentMethod
-        };
-
-        try {
-          const csrf = await fetch('public/api/auth/csrf.php', {
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json' }
-          }).then(response => response.json());
-          const response = await fetch('public/api/checkout/create-order.php', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'X-CSRF-Token': csrf.data.token
-            },
-            body: JSON.stringify({
-              email,
-              first_name: firstName,
-              last_name: lastName,
-              mobile,
-              country,
-              street_address: street,
-              apartment,
-              barangay,
-              city,
-              province,
-              postal_code: postalCode,
-              region: document.getElementById('checkout-region').value,
-              instructions: document.getElementById('checkout-instructions').value,
-              promotion_code: CCStore.getPromo().code || ''
-            })
-          });
-          const result = await response.json();
-          if (!response.ok || !result.success) {
-            throw new Error(result.error?.message || 'Unable to create the order.');
-          }
-
-          const serverOrder = result.data || {};
-          const orderNumber = serverOrder.order_number;
-          const newOrder = {
-            orderNumber: orderNumber,
-            placedOn: serverOrder.placed_at
-              ? new Date(serverOrder.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-              : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-            status: serverOrder.status || 'Confirmed',
-            items: (serverOrder.items && serverOrder.items.length > 0) ? serverOrder.items : [...currentCart],
-            totals: {
-              totalItems: serverOrder.total_items || currentTotals.totalItems || (serverOrder.items || currentCart).reduce((sum, item) => sum + Number(item.quantity || 1), 0),
-              subtotal: Number(serverOrder.subtotal ?? currentTotals.subtotal),
-              shipping: Number(serverOrder.shipping ?? currentTotals.shipping),
-              discount: Number(serverOrder.discount ?? currentTotals.discount),
-              total: Number(serverOrder.total ?? currentTotals.total)
-            },
-            customer: customerInfo
-          };
-
-          // Append new order to the existing history array
-          CCStore.appendOrder(newOrder);
-          CCStore.clearCart();
-
-          window.location.href = 'order-confirmation.html?order_number=' + encodeURIComponent(orderNumber);
-        } catch (error) {
-          console.warn('Backend order creation failed:', error);
-          alert(error.message || 'Unable to reach the server. Please retry.');
-          button.disabled = false;
-        }
-      });
-      renderCheckoutSummary();
-
-      // Wait for the async catalog so cart thumbnails are never rendered blank,
-      // then keep them in sync with later cart/catalog updates.
-      if (typeof CCStore.whenCatalogReady === 'function') {
-        await CCStore.whenCatalogReady();
-      }
-      CCStore.hydrateCartImages();
-      renderCheckoutSummary();
-      window.addEventListener('cc:cartUpdated', () => {
-        CCStore.hydrateCartImages();
-        renderCheckoutSummary();
-      });
-      window.addEventListener('cc:catalogReady', () => {
-        CCStore.hydrateCartImages();
-        renderCheckoutSummary();
-      });
-    });
-  </script>
+  <script src="assets/js/checkout-validation.js"></script>
+  <script src="assets/js/checkout.js"></script>
   <script src="assets/js/scroll-reveal.js"></script>
 </body>
 </html>
