@@ -13,7 +13,6 @@ require_once __DIR__ . '/AdminBusinessService.php';
 require_once __DIR__ . '/SystemConfigurationService.php';
 require_once __DIR__ . '/../Support/AuditLogger.php';
 require_once __DIR__ . '/../Validation/ValidationException.php';
-require_once __DIR__ . '/GlobalUserService.php';
 
 /** Personal account operations only; the caller supplies the authenticated actor. */
 final class SuperAdminAccountService
@@ -25,9 +24,6 @@ final class SuperAdminAccountService
         $q = $this->pdo->prepare('SELECT id, first_name, last_name, email, mobile, email_verified_at, last_login_at FROM users WHERE id = ? AND deleted_at IS NULL');
         $q->execute([$actor]);
         $profile = $q->fetch();
-        $q = $this->pdo->prepare('SELECT UNIX_TIMESTAMP(created_at) AS created_at, UNIX_TIMESTAMP(expires_at) AS expires_at, UNIX_TIMESTAMP(used_at) AS used_at FROM password_reset_tokens WHERE user_id = ? ORDER BY id DESC LIMIT 1');
-        $q->execute([$actor]);
-        $reset = $q->fetch() ?: null;
         return [
             'profile' => $profile,
             'password_policy' => [
@@ -38,7 +34,6 @@ final class SuperAdminAccountService
                 'logged_in_at' => (int) ($_SESSION['logged_in_at'] ?? 0),
                 'last_activity_at' => (int) ($_SESSION['last_activity_at'] ?? 0),
             ],
-            'recovery' => ['latest_request' => $reset],
             'history' => $this->history($actor, 0, 5),
         ];
     }
@@ -93,19 +88,6 @@ final class SuperAdminAccountService
             if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
         }
         (new AuditLogger($this->pdo))->record('account.password_changed', $actor, 'user', $actor);
-    }
-
-    public function requestRecovery(int $actor, string $name): void
-    {
-        // The existing workflow writes local DATETIME values. This application
-        // stores them in Philippine time; do not inherit the PHP host's zone.
-        $zone = date_default_timezone_get();
-        try {
-            date_default_timezone_set('Asia/Manila');
-            (new GlobalUserService($this->pdo, new AuditLogger($this->pdo)))->requestPasswordReset($actor, $name, $actor);
-        } finally {
-            date_default_timezone_set($zone);
-        }
     }
 
     public function history(int $actor, int $before = 0, int $limit = 20): array

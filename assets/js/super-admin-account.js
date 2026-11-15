@@ -1,18 +1,30 @@
 (function () {
   'use strict';
   window.initSuperAdminAccount = function ({ byId, showToast, getCsrfToken, updateIdentity }) {
+    const module = byId('module-account');
+    if (module.dataset.initialized) return;
+    module.dataset.initialized = 'true';
     const profileForm = byId('accountProfileForm');
     const credentialsForm = byId('credentialsForm');
+    const historyModal = byId('accountHistoryModal');
+    const historyItems = byId('accountHistoryItems');
+    const historyViewport = byId('accountHistoryViewport');
+    const historyMore = byId('btnAccountHistoryMore');
     const fields = { first_name: 'accountFirstName', last_name: 'accountLastName', email: 'accountEmail', mobile: 'accountMobile' };
+    const labels = { 'auth.login': 'Signed in', 'auth.registration': 'Account registered', 'account.profile_updated': 'Profile updated', 'account.password_changed': 'Password changed' };
     let saved = null;
     let busy = false;
     let historyBusy = false;
+    let historyController = null;
     let before = null;
     const date = value => value ? new Date(Number(value) * 1000).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) + ' PHT' : 'Unavailable';
+    const detail = item => (labels[item.action] || item.action)
+      + (item.description ? ' — ' + item.description : '')
+      + (item.entity_type ? ' · ' + item.entity_type + (item.entity_id ? ' #' + item.entity_id : '') : '');
 
-    async function request(query = '', body = null) {
+    async function request(query = '', body = null, signal) {
       const response = await fetch('public/api/super-admin/account.php' + query, {
-        method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store',
+        method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store', signal,
         headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json', 'X-CSRF-Token': await getCsrfToken() } : {}) },
         ...(body ? { body: JSON.stringify(body) } : {})
       });
@@ -22,29 +34,10 @@
     }
 
     function controls() {
+      module.setAttribute('aria-busy', String(busy));
       [profileForm, credentialsForm].forEach(form => Array.from(form.elements).forEach(el => { el.disabled = busy || !saved; }));
-      ['btnReloadAccount', 'btnReviewRecovery', 'btnRequestAccountRecovery', 'btnAccountHistory'].forEach(id => {
-        byId(id).disabled = busy || (id !== 'btnReloadAccount' && !saved);
-      });
-    }
-
-    function activity(container, items, append = false) {
-      if (!append) container.replaceChildren();
-      if (!items.length && !append) container.textContent = 'No administrative activity recorded for your account.';
-      items.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'sa-list-row';
-        const title = document.createElement('div');
-        title.className = 'sa-list-title';
-        title.textContent = date(item.timestamp);
-        const detail = document.createElement('div');
-        detail.className = 'sa-list-meta';
-        const labels = { 'auth.login': 'Signed in', 'auth.registration': 'Account registered', 'account.profile_updated': 'Profile updated', 'account.password_changed': 'Password changed', 'users.password_reset_requested': 'Password recovery requested' };
-        detail.textContent = (labels[item.action] || item.action) + (item.description ? ' — ' + item.description : '')
-          + (item.entity_type ? ' · ' + item.entity_type + (item.entity_id ? ' #' + item.entity_id : '') : '');
-        row.append(title, detail);
-        container.append(row);
-      });
+      byId('btnReloadAccount').disabled = busy;
+      byId('btnAccountHistory').disabled = busy || !saved;
     }
 
     function restoreProfile() {
@@ -52,23 +45,32 @@
       Object.entries(fields).forEach(([key, id]) => { byId(id).value = saved.profile[key] || ''; });
     }
 
-    function render(data) {
+    function render(data, restore) {
       saved = data;
-      restoreProfile();
+      if (restore) restoreProfile();
       updateIdentity(data.profile);
       const policy = data.password_policy;
       byId('credentialNew').minLength = policy.minimum;
       byId('credentialConfirm').minLength = policy.minimum;
-      byId('accountPasswordPolicy').textContent = 'At least ' + policy.minimum + ' characters, including a letter and a number. Your current password verifies this change. '
-        + (policy.invalidate_sessions ? 'Other sessions are rejected on their next authenticated request after a password change.' : 'The saved global policy does not invalidate other sessions after password changes.');
+      byId('accountPasswordPolicy').textContent = 'At least ' + policy.minimum + ' characters, including a letter and a number. '
+        + (policy.invalidate_sessions ? 'Changing your password signs out other sessions on their next request.' : 'Changing your password keeps other sessions signed in.');
       byId('accountCurrentSession').textContent = 'Signed in: ' + date(data.session.logged_in_at) + ' · Last activity: ' + date(data.session.last_activity_at);
-      const reset = data.recovery.latest_request;
-      const recovery = 'Account email: ' + data.profile.email + (data.profile.email_verified_at ? ' (verified).' : ' (not verified).')
-        + (reset ? ' Latest recovery request: ' + date(reset.created_at) + '. Status: ' + (reset.used_at ? 'used or invalidated' : Number(reset.expires_at) > Date.now() / 1000 ? 'pending until ' + date(reset.expires_at) : 'expired') + '.' : ' No recovery request recorded.');
-      byId('accountRecovery').textContent = recovery;
-      byId('accountRecoveryDetail').textContent = recovery;
-      activity(byId('accountActivity'), data.history.items);
-      byId('accountStatus').textContent = 'Account loaded. Times are displayed in Asia/Manila.';
+      const activity = byId('accountActivity');
+      activity.replaceChildren();
+      if (!data.history.items.length) activity.textContent = 'No administrative activity recorded for your account.';
+      data.history.items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'sa-list-row';
+        const title = document.createElement('div');
+        title.className = 'sa-list-title';
+        title.textContent = date(item.timestamp);
+        const description = document.createElement('div');
+        description.className = 'sa-list-meta';
+        description.textContent = detail(item);
+        row.append(title, description);
+        activity.append(row);
+      });
+      byId('accountStatus').textContent = 'Times are displayed in Asia/Manila (PHT).';
     }
 
     async function run(body = null, message = '') {
@@ -77,11 +79,11 @@
       controls();
       byId('accountStatus').textContent = body ? 'Saving...' : 'Loading account...';
       try {
-        render(await request('', body));
+        render(await request('', body), !saved || !body || body.action === 'update_profile');
         if (body?.action === 'update_password') credentialsForm.reset();
         if (message) showToast(message, 'success');
       } catch (error) {
-        byId('accountStatus').textContent = error.message + ' Use Reload account to retry.';
+        byId('accountStatus').textContent = error.message + (!saved ? ' Use Reload account to retry.' : '');
         showToast(error.message, 'error');
       } finally {
         busy = false;
@@ -91,6 +93,7 @@
 
     profileForm.addEventListener('submit', event => {
       event.preventDefault();
+      if (!profileForm.reportValidity()) return;
       const body = { action: 'update_profile' };
       Object.entries(fields).forEach(([key, id]) => { body[key] = byId(id).value.trim(); });
       run(body, 'Profile saved.');
@@ -98,6 +101,7 @@
     byId('btnCancelProfile').addEventListener('click', restoreProfile);
     credentialsForm.addEventListener('submit', event => {
       event.preventDefault();
+      if (!credentialsForm.reportValidity()) return;
       const next = byId('credentialNew').value;
       const confirmation = byId('credentialConfirm').value;
       if (next !== confirmation) return showToast('Passwords do not match.', 'error');
@@ -105,33 +109,77 @@
     });
     byId('btnCancelCredentials').addEventListener('click', () => credentialsForm.reset());
     byId('btnReloadAccount').addEventListener('click', () => run());
-    byId('btnReviewRecovery').addEventListener('click', () => bootstrap.Modal.getOrCreateInstance(byId('accountRecoveryModal')).show());
-    byId('btnRequestAccountRecovery').addEventListener('click', () => run({ action: 'request_recovery' }, 'Recovery request recorded. Administrative support is required to complete recovery.'));
+
+    function historyMessage(message) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 2;
+      cell.textContent = message;
+      row.append(cell);
+      historyItems.replaceChildren(row);
+    }
 
     async function loadHistory(append = false) {
-      if (historyBusy) return;
+      if (append && historyBusy) return;
+      historyController?.abort();
+      const controller = new AbortController();
+      const restoreFocus = document.activeElement === historyMore;
+      historyController = controller;
       historyBusy = true;
-      byId('btnAccountHistoryMore').disabled = true;
+      historyMore.disabled = true;
+      historyViewport.setAttribute('aria-busy', 'true');
+      byId('accountHistoryStatus').textContent = 'Loading audit history...';
+      if (!append) {
+        before = null;
+        historyMore.hidden = true;
+        historyViewport.scrollTop = 0;
+        historyMessage('Loading audit history...');
+      }
       try {
-        const data = await request('?view=history' + (append && before ? '&before=' + before : ''));
-        activity(byId('accountHistoryItems'), data.items, append);
+        const data = await request('?view=history' + (append && before ? '&before=' + before : ''), null, controller.signal);
+        if (controller.signal.aborted) return;
+        if (!append) historyItems.replaceChildren();
+        data.items.forEach(item => {
+          const row = document.createElement('tr');
+          [date(item.timestamp), detail(item)].forEach(value => {
+            const cell = document.createElement('td');
+            const content = document.createElement('div');
+            content.className = 'account-history-value';
+            content.tabIndex = 0;
+            content.textContent = value;
+            cell.append(content);
+            row.append(cell);
+          });
+          historyItems.append(row);
+        });
+        if (!historyItems.children.length) historyMessage('No administrative activity recorded for your account.');
         before = data.next_before;
-        byId('btnAccountHistoryMore').hidden = !before;
+        historyMore.hidden = !before;
+        historyMore.textContent = 'Load more';
+        byId('accountHistoryStatus').textContent = 'Times are displayed in Asia/Manila (PHT). Newest activity first.';
       } catch (error) {
+        if (controller.signal.aborted) return;
         showToast(error.message, 'error');
-        if (!append) byId('accountHistoryItems').textContent = error.message;
+        byId('accountHistoryStatus').textContent = error.message;
+        if (!append) historyMessage('Unable to load audit history. Use Retry to try again.');
+        historyMore.textContent = 'Retry';
+        historyMore.hidden = false;
       } finally {
-        historyBusy = false;
-        byId('btnAccountHistoryMore').disabled = false;
+        if (historyController === controller) {
+          historyBusy = false;
+          historyMore.disabled = false;
+          historyViewport.setAttribute('aria-busy', 'false');
+          if (restoreFocus && !controller.signal.aborted) {
+            (historyMore.hidden ? historyViewport : historyMore).focus({ preventScroll: true });
+          }
+        }
       }
     }
-    byId('btnAccountHistory').addEventListener('click', () => {
-      byId('accountHistoryItems').textContent = 'Loading audit history...';
-      byId('btnAccountHistoryMore').hidden = true;
-      bootstrap.Modal.getOrCreateInstance(byId('accountHistoryModal')).show();
-      loadHistory();
-    });
-    byId('btnAccountHistoryMore').addEventListener('click', () => loadHistory(true));
+    byId('btnAccountHistory').addEventListener('click', () => bootstrap.Modal.getOrCreateInstance(historyModal).show());
+    historyModal.addEventListener('show.bs.modal', () => loadHistory());
+    historyModal.addEventListener('hide.bs.modal', () => historyController?.abort());
+    historyModal.addEventListener('hidden.bs.modal', () => byId('btnAccountHistory').focus());
+    historyMore.addEventListener('click', () => loadHistory(Boolean(before)));
     run();
   };
 })();

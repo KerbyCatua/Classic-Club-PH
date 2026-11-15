@@ -337,6 +337,25 @@
     .sa-table-wide { min-width: 940px; }
     .sa-table-medium { min-width: 760px; }
 
+    /* Personal account history: a 45px header and five 80px records. */
+    #module-account :is(.admin-card, .sa-form-note, .sa-list-meta) { overflow-wrap: anywhere; }
+    #module-account :is(input, button):disabled { opacity: .6; cursor: not-allowed; }
+    #accountHistoryModal [hidden] { display: none !important; }
+    #accountHistoryViewport { height: 445px; overflow-y: auto; scrollbar-gutter: stable; }
+    #accountHistoryModal :is(#accountHistoryViewport, .account-history-value) { scrollbar-width: thin; scrollbar-color: var(--cc-accent) var(--cc-bg); }
+    #accountHistoryModal :is(#accountHistoryViewport, .account-history-value)::-webkit-scrollbar { width: 8px; }
+    #accountHistoryModal :is(#accountHistoryViewport, .account-history-value)::-webkit-scrollbar-track { background: var(--cc-bg); }
+    #accountHistoryModal :is(#accountHistoryViewport, .account-history-value)::-webkit-scrollbar-thumb { background: var(--cc-accent); }
+    #accountHistoryModal .admin-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+    #accountHistoryModal th { position: sticky; top: 0; z-index: 1; height: 45px; padding: 0 12px; background: var(--cc-placeholder); }
+    #accountHistoryModal th:first-child { width: 34%; }
+    #accountHistoryModal td { height: 80px; padding: 10px 12px; }
+    #accountHistoryModal .account-history-value { max-height: 59px; overflow-y: auto; overflow-wrap: anywhere; }
+    #module-account :is(input, button):focus-visible,
+    #accountHistoryModal :is(button, #accountHistoryViewport, .account-history-value):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: -2px; }
+    #accountHistoryModal { -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+    body:has(#accountHistoryModal.show) > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+
     /* Maintenance history: a 45px header and four 73px records. */
     #module-maintenance .maintenance-history-viewport {
       height: 337px;
@@ -1436,7 +1455,7 @@
       </div>
       <h2 class="admin-section-title mb-2">Super Admin account settings</h2>
       <p class="admin-section-desc mb-4">
-        Manage your signed-in Super Admin account. Personal settings are separate from application-wide security policies.
+        Update your profile, change your password, and review your activity.
       </p>
 
       <p class="sa-form-note" id="accountStatus" role="status">Loading your account...</p>
@@ -1448,7 +1467,7 @@
             <div class="d-flex align-items-center gap-3 mb-3">
               <div class="sa-avatar" id="accountAvatar" style="width: 56px; height: 56px; flex-basis: 56px; font-size: 17px;"></div>
               <div>
-                <h3 class="font-lora text-light-cc mb-0" style="font-size: 24px;">Profile display / edit</h3>
+                <h3 class="font-lora text-light-cc mb-0 fs-4">Profile</h3>
                 <div class="sa-tiny-label mt-1">SUPER ADMIN</div>
               </div>
             </div>
@@ -1457,35 +1476,20 @@
               <div class="row g-3">
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountFirstName">First name</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountFirstName" maxlength="100" required>
+                  <input type="text" class="admin-input-filter w-100" id="accountFirstName" name="first_name" autocomplete="given-name" maxlength="100" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountLastName">Last name</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountLastName" maxlength="100" required>
+                  <input type="text" class="admin-input-filter w-100" id="accountLastName" name="last_name" autocomplete="family-name" maxlength="100" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountEmail">Email address</label>
-                  <input type="email" class="admin-input-filter w-100" id="accountEmail" maxlength="190" required>
+                  <input type="email" class="admin-input-filter w-100" id="accountEmail" name="email" autocomplete="email" maxlength="190" required>
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountMobile">Mobile</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountMobile" maxlength="40">
+                  <input type="tel" class="admin-input-filter w-100" id="accountMobile" name="mobile" autocomplete="tel" maxlength="40">
                 </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountGlobalRole">Global role</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountGlobalRole" value="Super Admin" readonly>
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="accountTimezone">Display time zone</label>
-                  <input type="text" class="admin-input-filter w-100" id="accountTimezone" value="Asia/Manila (display only)" readonly>
-                </div>
-              </div>
-
-              <div class="admin-callout">
-                <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">Privileged account safeguard</span>
-                <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">
-                  You cannot grant yourself a new global role or remove your own safeguards here. Role and permission changes require the authorized RBAC review.
-                </span>
               </div>
 
               <div class="d-flex flex-wrap gap-2">
@@ -1499,20 +1503,20 @@
         <!-- Credentials -->
         <div class="col-12 col-xl-5">
           <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Credentials update</h3>
+            <h3 class="font-lora text-light-cc mb-3 fs-4">Change password</h3>
             <form id="credentialsForm" class="d-flex flex-column gap-3">
               <div>
-                <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialCurrent">Current password *</label>
-                <input type="password" class="admin-input-filter w-100" id="credentialCurrent" autocomplete="current-password" required>
+                <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialCurrent">Current password</label>
+                <input type="password" class="admin-input-filter w-100" id="credentialCurrent" name="current_password" autocomplete="current-password" required>
               </div>
               <div class="row g-3">
                 <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialNew">New password *</label>
-                  <input type="password" class="admin-input-filter w-100" id="credentialNew" placeholder="Enter new password" autocomplete="new-password" required>
+                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialNew">New password</label>
+                  <input type="password" class="admin-input-filter w-100" id="credentialNew" name="new_password" autocomplete="new-password" aria-describedby="accountPasswordPolicy" required>
                 </div>
                 <div class="col-12 col-md-6">
-                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialConfirm">Confirm new password *</label>
-                  <input type="password" class="admin-input-filter w-100" id="credentialConfirm" placeholder="Repeat new password" autocomplete="new-password" required>
+                  <label class="form-label text-muted-cc" style="font-size: 12px;" for="credentialConfirm">Confirm new password</label>
+                  <input type="password" class="admin-input-filter w-100" id="credentialConfirm" name="password_confirmation" autocomplete="new-password" required>
                 </div>
               </div>
               <p class="sa-form-note mb-0" id="accountPasswordPolicy">Loading saved password policy...</p>
@@ -1521,56 +1525,23 @@
                 <button type="submit" class="btn-admin-primary">Change password</button>
               </div>
             </form>
+            <div class="border-top border-cc pt-3 mt-3">
+              <div class="sa-list-title">Current session</div>
+              <p class="sa-form-note mb-0" id="accountCurrentSession">Loading session...</p>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="row g-4 mb-4">
-        <!-- Security -->
-        <div class="col-12 col-xl-7">
-          <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Security settings / personal account</h3>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="accountNotifySignIns" disabled>
-              <label class="form-check-label text-light-cc" for="accountNotifySignIns" style="font-size: 13px;">Notify me about new sign-ins and sensitive actions</label>
-            </div>
-
-            <p class="sa-form-note">Personal sign-in and sensitive-action notifications are unavailable: this application has no notification delivery or personal notification preferences.</p>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Recovery methods</div>
-              <div class="sa-list-meta" id="accountRecovery">Loading recovery status...</div>
-              <p class="sa-form-note mt-2">Recovery uses the existing administrative password-reset request workflow. Email delivery and self-service reset completion are unavailable. MFA is not required; authenticator and recovery-code enrollment are unavailable.</p>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Current session</div>
-              <div class="sa-list-meta" id="accountCurrentSession">Loading session...</div>
-            </div>
-            <div class="sa-list-row">
-              <div class="sa-list-title">Other active sessions</div>
-              <div class="sa-list-meta">Other-session listing and sign-out are unavailable in the existing account system. The password policy below the credential fields explains when a password change signs out other sessions.</div>
-            </div>
-            <div class="d-flex flex-wrap gap-2 mt-3">
-              <button type="button" class="btn-admin-outline" id="btnReviewRecovery">Review recovery methods</button>
-              <button type="button" class="btn-admin-outline" id="btnSignOutOthers" disabled title="Unavailable in the existing session infrastructure">Sign out other sessions</button>
-            </div>
-          </div>
-        </div>
-
         <!-- Activity -->
-        <div class="col-12 col-xl-5">
+        <div class="col-12">
           <div class="admin-card h-100">
-            <h3 class="font-lora text-light-cc mb-3" style="font-size: 24px;">Personal administrative activity history</h3>
+            <h3 class="font-lora text-light-cc mb-3 fs-4">Personal administrative activity history</h3>
             <div id="accountActivity" aria-live="polite">Loading your activity...</div>
-            <button type="button" class="btn-admin-outline btn-admin-sm mt-3 w-100" id="btnAccountHistory">View my audit history</button>
+            <button type="button" class="btn-admin-outline btn-admin-sm mt-3 w-100" id="btnAccountHistory" aria-haspopup="dialog">View My Audit History</button>
           </div>
         </div>
-      </div>
-
-      <div class="admin-callout">
-        <span class="text-light-cc fw-semibold d-block mb-1" style="font-size: 13px;">End of global workspace</span>
-        <span class="text-light-cc d-block" style="font-size: 12px; line-height: 19px;">
-          Personal account changes are saved to your account and recorded in administrative audit history.
-        </span>
       </div>
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
@@ -1578,22 +1549,19 @@
         <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
       </div>
     </section>
-    <div class="modal fade" id="accountRecoveryModal" tabindex="-1" aria-labelledby="accountRecoveryTitle" aria-hidden="true">
-      <div class="modal-dialog"><div class="modal-content bg-dark text-light"><div class="modal-header">
-        <h3 class="modal-title fs-5" id="accountRecoveryTitle">Recovery methods</h3>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div><div class="modal-body">
-        <p id="accountRecoveryDetail"></p>
-        <p>Record a password-reset request using the existing administrative workflow. The request is valid for 60 minutes. No reset email is sent; completion requires administrative support.</p>
-        <button type="button" class="btn-admin-primary" id="btnRequestAccountRecovery">Record recovery request</button>
-      </div></div></div>
-    </div>
     <div class="modal fade" id="accountHistoryModal" tabindex="-1" aria-labelledby="accountHistoryTitle" aria-hidden="true">
-      <div class="modal-dialog modal-lg"><div class="modal-content bg-dark text-light"><div class="modal-header">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content admin-modal"><div class="modal-header">
         <h3 class="modal-title fs-5" id="accountHistoryTitle">My administrative audit history</h3>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div><div class="modal-body">
-        <div id="accountHistoryItems" aria-live="polite"></div>
+        <p class="sa-form-note" id="accountHistoryStatus" role="status">Times are displayed in Asia/Manila (PHT).</p>
+        <div class="admin-table-container" id="accountHistoryViewport" tabindex="0" role="region" aria-label="Personal audit history, five visible rows" aria-busy="false">
+          <table class="admin-table">
+            <caption class="visually-hidden">Your administrative activity, newest first. All times are in Asia/Manila (PHT).</caption>
+            <thead><tr><th scope="col">When (PHT)</th><th scope="col">Activity</th></tr></thead>
+            <tbody id="accountHistoryItems"></tbody>
+          </table>
+        </div>
         <button type="button" class="btn-admin-outline mt-3" id="btnAccountHistoryMore" hidden>Load more</button>
       </div></div></div>
     </div>

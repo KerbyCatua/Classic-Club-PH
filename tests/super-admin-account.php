@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-// Run: C:/xampp/php/php.exe tests/super-admin-account.php
+// Run: C:/xampp/php/php.exe tests/super-admin-account.php [base URL] [optional browser test script]
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require_once __DIR__ . '/../app/Database/Connection.php';
 require_once __DIR__ . '/../app/Auth/SessionManager.php';
@@ -40,6 +40,8 @@ function testSession(int $id): array {
 $base = $argv[1] ?? 'http://localhost/classic-club-ph';
 $repo = new UserRepository($pdo);
 $users = $sessions = [];
+$fixture = null;
+$browserOutput = [];
 $email = 'account-test-' . bin2hex(random_bytes(8)) . '@example.com';
 $oldPassword = 'AccountTesting123!';
 try {
@@ -56,6 +58,7 @@ try {
     check(http($sessions['admin'])['status'] === 403, 'Business admin rejected.');
     $r = http($admin);
     check($r['status'] === 200 && (int) $r['data']['profile']['id'] === $actor, 'Authenticated profile loads without MFA.');
+    check(!array_key_exists('recovery', $r['data']), 'Unsupported recovery data is removed.');
     check($r['data']['session']['logged_in_at'] > 0, 'Real session timestamps.');
     $profile = ['action' => 'update_profile', 'first_name' => 'Updated', 'last_name' => 'Administrator', 'email' => $email, 'mobile' => '+63 917 123 4567'];
     $pdo->prepare('UPDATE users SET email_verified_at = NOW() WHERE id = ?')->execute([$actor]);
@@ -89,10 +92,10 @@ try {
     check(!str_contains($r['raw'], 'password_hash') && !str_contains($r['raw'], $password['new_password']), 'Credentials never returned.');
 
     $r = http($admin, ['action' => 'request_recovery', 'user_id' => $users[1]]);
-    check($r['status'] === 200 && $r['data']['recovery']['latest_request']['expires_at'] > time(), 'Existing recovery workflow connected to actor only.');
-    check(!str_contains($r['raw'], 'token_hash'), 'Recovery token never exposed.');
+    check($r['status'] === 422, 'Unsupported recovery requests are rejected.');
     $q = $pdo->prepare('SELECT COUNT(*) FROM password_reset_tokens WHERE user_id = ?');
     $q->execute([$users[1]]); check((int) $q->fetchColumn() === 0, 'Recovery cannot target another account.');
+    $q->execute([$actor]); check((int) $q->fetchColumn() === 0, 'No unusable recovery tokens are created.');
     $logger = new AuditLogger($pdo);
     for ($i = 0; $i < 22; $i++) $logger->record('account.test_activity', $actor, 'user', $actor);
     $logger->record('account.other_actor', $users[1], 'user', $actor);
@@ -102,9 +105,16 @@ try {
     $items = array_merge($first['items'], $second['items']);
     $actions = array_column($items, 'action');
     check(!in_array('account.other_actor', $actions, true), 'History filters actor, not target account.');
-    foreach (['account.profile_updated', 'account.password_changed', 'users.password_reset_requested'] as $action) check(in_array($action, $actions, true), 'Audited: ' . $action);
+    foreach (['account.profile_updated', 'account.password_changed'] as $action) check(in_array($action, $actions, true), 'Audited: ' . $action);
+    check(!in_array('users.password_reset_requested', $actions, true), 'Unsupported recovery is not recorded.');
     check(count(array_unique(array_column($items, 'id'))) === count($items), 'Audit pages do not overlap.');
     check(abs((int) $first['items'][0]['timestamp'] - time()) < 30, 'Database timestamp converted accurately.');
+    if (isset($argv[2])) {
+        $fixture = tempnam(sys_get_temp_dir(), 'cc-super-account-');
+        file_put_contents($fixture, json_encode(['base' => $base, 'session' => $admin, 'email' => $email, 'password' => $password['new_password']]));
+        exec('node ' . escapeshellarg($argv[2]) . ' ' . escapeshellarg($fixture) . ' 2>&1', $browserOutput, $exit);
+        check($exit === 0, 'Account browser checks failed: ' . implode("\n", $browserOutput));
+    }
 } finally {
     if ($pdo->inTransaction()) $pdo->rollBack();
     foreach ($users as $id) {
@@ -114,5 +124,7 @@ try {
     foreach ($sessions as $session) {
         session_id($session['id']); SessionManager::start(); $_SESSION = []; session_destroy();
     }
+    if ($fixture) unlink($fixture);
 }
-echo "PASS: authorization, CSRF, profile persistence, validation, password policy, confirmation, session invalidation, recovery requests and personal audit pagination.\n";
+if ($browserOutput) echo implode("\n", $browserOutput) . "\n";
+echo "PASS: authorization, CSRF, profile persistence, validation, password policy, confirmation, session invalidation, recovery removal and personal audit pagination.\n";

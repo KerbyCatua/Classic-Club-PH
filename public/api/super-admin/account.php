@@ -24,9 +24,6 @@ try {
     switch ($body['action'] ?? '') {
         case 'update_profile': $service->updateProfile($actor, $body); break;
         case 'update_password': $service->updatePassword($actor, $body); break;
-        case 'request_recovery':
-            $service->requestRecovery($actor, trim($ctx['user']['first_name'] . ' ' . $ctx['user']['last_name']));
-            break;
         default: throw new InvalidArgumentException('Unsupported account action.');
     }
     JsonResponse::success($service->read($actor))->send();
