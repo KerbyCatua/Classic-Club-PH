@@ -1,0 +1,11 @@
+@media (min-width: 992px) {
+  /* Give the whole sidebar a sticky track ending with the main content. */
+  .cc-account-sidebar-column {
+    align-self: stretch;
+  }
+
+  .cc-account-sidebar[data-sticky] {
+    position: sticky;
+    top: var(--cc-account-sidebar-top);
+  }
+}
