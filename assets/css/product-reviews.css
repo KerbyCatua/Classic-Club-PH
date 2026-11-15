@@ -75,3 +75,22 @@
 .review-owner-reply { background: var(--cc-surface); border-left: 2px solid var(--cc-accent); }
 .review-owner-label { border: 1px solid var(--cc-accent); padding: 2px 6px; font-size: 10px; }
 .review-owner-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+@media (min-width: 992px) {
+  /* Keep the sticky boundary stationary and visible through the form's end. */
+  #review-form-section.cc-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  .cc-review-perspective-column {
+    align-self: stretch;
+  }
+
+  .cc-review-perspective {
+    position: sticky;
+    top: var(--cc-review-perspective-top, 24px);
+  }
+}
