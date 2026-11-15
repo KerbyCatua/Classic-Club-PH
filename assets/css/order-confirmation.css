@@ -1,0 +1,11 @@
+@media (min-width: 992px) {
+  /* Share the order details' height without adding space below either column. */
+  .cc-confirmation-summary-column {
+    align-self: stretch;
+  }
+
+  .cc-confirmation-summary {
+    position: sticky;
+    top: var(--cc-confirmation-summary-top, 24px);
+  }
+}
