@@ -14,6 +14,26 @@
   <link rel="stylesheet" href="assets/css/scroll-reveal.css">
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261112-1">
   <script src="assets/js/quick-view.js?v=20261112-1" defer></script>
+  <style>
+    #size-unit-toggle .btn {
+      --bs-btn-color: var(--cc-muted);
+      --bs-btn-hover-color: var(--cc-text);
+      --bs-btn-border-color: var(--cc-border);
+      --bs-btn-hover-border-color: var(--cc-muted);
+      min-height: 40px;
+      padding-inline: 24px;
+      font-size: 12px;
+    }
+    #size-unit-toggle .btn[aria-pressed="true"] {
+      background-color: var(--cc-accent);
+      border-color: var(--cc-accent);
+      color: var(--cc-text);
+    }
+    #size-unit-toggle .btn:focus-visible {
+      outline: 2px solid var(--cc-accent-hover);
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 <body id="top" class="bg-cc-dark">
 
@@ -64,12 +84,14 @@
               All measurements below refer to finished garments, not body measurements. Lay a similar garment flat without stretching it and compare. Choose based on how you like your clothes to sit.
             </p>
             <p class="cc-small-text m-0">
-              Dimensions are in centimetres. Allow ±1–2 cm for normal production variation. The product page takes precedence if a style has specific measurements.
+              Dimensions are shown in <span data-size-unit>CM</span>. Allow ±<span data-size-measurement>1–2</span> <span data-size-unit>CM</span> for normal production variation. The product page takes precedence if a style has specific measurements.
             </p>
             <!-- Unit Toggles -->
-            <div class="d-flex align-items-center mt-2">
-              <button class="btn border-0 rounded-0 text-light-cc" style="background-color: var(--cc-accent); height: 40px; padding: 0 24px; font-size: 12px;">Centimetres (cm)</button>
-              <button class="btn border-0 rounded-0 text-muted-cc border border-cc border-start-0" style="background-color: transparent; height: 40px; padding: 0 24px; font-size: 12px;">Inches (in)</button>
+            <div id="size-unit-toggle" class="btn-group align-self-start mt-2" role="group" aria-label="Measurement units">
+              <!-- cm toggle button -->
+              <button type="button" class="btn rounded-0" data-unit="CM" aria-pressed="true">Centimeters (cm)</button>
+              <!-- inches toggle button -->
+              <button type="button" class="btn rounded-0" data-unit="IN" aria-pressed="false">Inches (in)</button>
             </div>
           </div>
         </div>
@@ -102,48 +124,48 @@
           <!-- Table Header -->
           <div class="d-flex align-items-center py-3 px-3 px-md-4 bg-cc-surface">
             <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Size</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Chest · flat</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Body length</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Shoulder</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Sleeve</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Chest · flat (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Body length (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Shoulder (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Sleeve (<span data-size-unit>CM</span>)</div>
           </div>
           <!-- Table Rows -->
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">XS</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">52</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">68</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">50</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">21</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">S</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">55</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">70</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">52</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">22</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">M</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">58</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">72</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">54</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">23</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">L</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">61</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">74</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">56</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">24</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">XL</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">64</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">76</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">58</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">25</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">XXL</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">67</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">78</div>
@@ -172,48 +194,48 @@
           <!-- Table Header -->
           <div class="d-flex align-items-center py-3 px-3 px-md-4 bg-cc-surface">
             <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Size</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Chest · flat</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Body length</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Shoulder</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Sleeve</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Chest · flat (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Body length (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Shoulder (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Sleeve (<span data-size-unit>CM</span>)</div>
           </div>
           <!-- Table Rows -->
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">XS</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">56</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">70</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">48</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">59</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">S</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">59</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">72</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">50</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">60</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">M</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">62</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">74</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">52</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">61</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">L</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">65</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">76</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">54</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">62</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">XL</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">68</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">78</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">56</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">63</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">XXL</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">71</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">80</div>
@@ -242,48 +264,48 @@
           <!-- Table Header -->
           <div class="d-flex align-items-center py-3 px-3 px-md-4 bg-cc-surface">
             <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Size · waist</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Waist</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Hip · full</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Inseam</div>
-            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Rise</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Waist (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Hip · full (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Inseam (<span data-size-unit>CM</span>)</div>
+            <div class="flex-grow-1 text-light-cc fw-medium" style="font-size: 12px; flex-basis: 20%;">Rise (<span data-size-unit>CM</span>)</div>
           </div>
           <!-- Table Rows -->
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">28</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">74</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">100</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">74</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">29</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">30</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">79</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">105</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">75</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">30</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">32</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">84</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">110</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">76</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">31</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">34</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">89</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">115</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">77</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">32</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">36</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">94</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">120</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">78</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">33</div>
           </div>
-          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc">
+          <div class="d-flex align-items-center py-3 px-3 px-md-4 border-bottom border-cc" data-size-row>
             <div class="flex-grow-1 text-light-cc" style="font-size: 13px; flex-basis: 20%;">38</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">99</div>
             <div class="flex-grow-1 text-muted-cc" style="font-size: 13px; flex-basis: 20%;">125</div>
@@ -293,7 +315,9 @@
         </div>
 
         <p class="cc-xs-text m-0">
-          Club Cap: adjustable 54–60 cm circumference. Daily Canvas Tote: 40 × 38 × 12 cm, 28 cm handle drop. Slim Leather Belt: choose S/M (76–86 cm) or L/XL (88–98 cm) fastening range.
+          Club Cap: adjustable <span data-size-measurement>54–60</span> <span data-size-unit>CM</span> circumference.
+          Daily Canvas Tote: <span data-size-measurement>40 × 38 × 12</span> <span data-size-unit>CM</span>, <span data-size-measurement>28</span> <span data-size-unit>CM</span> handle drop.
+          Slim Leather Belt: choose S/M (<span data-size-measurement>76–86</span> <span data-size-unit>CM</span>) or L/XL (<span data-size-measurement>88–98</span> <span data-size-unit>CM</span>) fastening range.
         </p>
       </div>
     </section>
@@ -364,6 +388,30 @@
   <script src="assets/js/partials.js?v=20261103"></script>
   <script src="assets/js/main.js?v=20261108-1"></script>
   <script src="assets/js/scroll-reveal.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const buttons = document.querySelectorAll('#size-unit-toggle button');
+      const labels = document.querySelectorAll('[data-size-unit]');
+      const measurements = Array.from(
+        document.querySelectorAll('[data-size-row] > :not(:first-child), [data-size-measurement]'),
+        element => [element, element.textContent]
+      );
+
+      buttons.forEach(button => button.addEventListener('click', () => {
+        if (button.getAttribute('aria-pressed') === 'true') return;
+
+        const unit = button.dataset.unit;
+        buttons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+        labels.forEach(label => { label.textContent = unit; });
+        measurements.forEach(([element, centimeters]) => {
+          element.textContent = unit === 'CM'
+            ? centimeters
+            : centimeters.replace(/\d+(?:\.\d+)?/g, value => (Number(value) / 2.54).toFixed(2));
+        });
+        window.CCSnackbar?.show(`Size chart converted to ${unit}.`);
+      }));
+    });
+  </script>
 
 </body>
 </html>
