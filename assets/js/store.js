@@ -495,7 +495,7 @@ const CCStore = (function () {
     // Cart Methods
     getCart,
     getPromo,
-    addToCart: async function (item) {
+    addToCart: async function (item, onStockLimit = message => window.alert(message)) {
       try {
         const session = await fetch('public/api/auth/me.php', {
           credentials: 'same-origin',
@@ -526,7 +526,7 @@ const CCStore = (function () {
             const currentQty = existing ? Number(existing.quantity) : 0;
 
             if (typeof availableStock === 'number' && currentQty + requestedQty > availableStock) {
-              window.alert(
+              onStockLimit(
                 availableStock > 0
                   ? `Only ${availableStock} unit(s) of this item are in stock.`
                   : 'This item is out of stock.'

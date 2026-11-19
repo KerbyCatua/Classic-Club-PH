@@ -471,6 +471,20 @@
 
   </main>
 
+  <div class="modal fade cc-sign-out-modal" id="stock-limit-modal" tabindex="-1" aria-labelledby="stock-limit-title" aria-describedby="stock-limit-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body d-flex flex-column">
+          <h2 id="stock-limit-title" class="font-lora text-light-cc m-0">Stock limit</h2>
+          <p id="stock-limit-message" class="text-muted-cc m-0"></p>
+          <div class="cc-sign-out-actions d-flex pt-2">
+            <button type="button" class="btn btn-cc-teal flex-grow-1" data-bs-dismiss="modal">Okay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Reusable Footer Partial (Injected via partials.js) -->
   <div id="footer-partial"></div>
 
@@ -479,7 +493,7 @@
 
   <!-- Project Scripts -->
    <script src="assets/js/global-loader.js"></script>
-  <script src="assets/js/store.js?v=20261111-1"></script>
+  <script src="assets/js/store.js?v=20261119-1"></script>
   <script src="assets/js/product-reviews.js"></script>
   <script src="assets/js/product-gallery.js?v=20261108-1"></script>
   <script src="assets/js/partials.js?v=20261103"></script>
@@ -695,6 +709,16 @@
       // Handle Add to Cart
       const addToCartBtn = document.getElementById('add-to-cart-btn');
       if (addToCartBtn && typeof CCStore !== 'undefined') {
+        const stockLimitModal = document.getElementById('stock-limit-modal');
+        const stockLimitMessage = document.getElementById('stock-limit-message');
+        const okayBtn = stockLimitModal.querySelector('[data-bs-dismiss="modal"]');
+        stockLimitModal.addEventListener('show.bs.modal', () => document.body.classList.add('cc-stock-limit-modal-open'));
+        stockLimitModal.addEventListener('shown.bs.modal', () => okayBtn.focus());
+        stockLimitModal.addEventListener('hidden.bs.modal', () => {
+          document.body.classList.remove('cc-stock-limit-modal-open');
+          addToCartBtn.focus();
+        });
+
         addToCartBtn.addEventListener('click', async () => {
           const added = await CCStore.addToCart({
             id: currentProduct.id,
@@ -704,6 +728,9 @@
             size: currentProduct.size,
             quantity: currentProduct.quantity,
             image: currentProduct.image
+          }, message => {
+            stockLimitMessage.textContent = message;
+            bootstrap.Modal.getOrCreateInstance(stockLimitModal).show();
           });
           if (!added) return;
 

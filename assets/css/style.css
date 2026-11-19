@@ -339,6 +339,9 @@ h1, h2, h3, h4, .font-lora {
 .cc-sign-out-modal .btn { flex-basis: 0; }
 .cc-sign-out-modal .btn:focus-visible { outline: 2px solid var(--cc-text); outline-offset: 3px; }
 
+body.cc-stock-limit-modal-open > :not(#stock-limit-modal, .modal-backdrop, .cc-wishlist-snackbar, script) { filter: blur(5px); }
+body.cc-stock-limit-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
+
 /* Figma Wireframe Asset Placeholder Boxes */
 .cc-asset-box, .wf-box {
   position: relative;
