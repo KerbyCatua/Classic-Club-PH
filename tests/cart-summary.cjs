@@ -125,6 +125,9 @@ async function desktop(page, label) {
         return route.continue();
       }
       // Exercise the real store and controls without changing server cart/account data.
+      if (/\/(cart|checkout)\.html$/.test(url.pathname)) {
+        return route.fulfill({ path: path.join(__dirname, '..', path.basename(url.pathname)) });
+      }
       if (/\/(auth\/me|cart\/view|wishlist\/view)\.php$/.test(url.pathname)) {
         return route.fulfill({ json: { success: true, data: {
           user: null, items: url.pathname.endsWith('/cart/view.php') ? serverCart : []
@@ -146,6 +149,10 @@ async function desktop(page, label) {
       document.querySelector('#header-partial header') && document.querySelector('#footer-partial footer') &&
       !document.querySelector('.cc-global-loader'));
     await page.evaluate(() => document.fonts.ready);
+
+    await page.locator('#checkout-btn').click();
+    await page.locator('#cc-wishlist-snackbar.is-visible').filter({ hasText: 'Your bag is empty.' }).waitFor();
+    assert.ok(page.url().endsWith('/cart.html'));
 
     for (const count of [0, 1, 2]) {
       await cart(page, count);

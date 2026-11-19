@@ -239,6 +239,12 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       if (typeof CCStore === 'undefined') return;
+      function redirectIfSignedOut(response) {
+        if (response.status !== 401) return false;
+        window.location.replace('auth.html?notice=order_login_required');
+        return true;
+      }
+
       const orderNumber = new URLSearchParams(window.location.search).get('order_number');
       let order = null;
       if (orderNumber) {
@@ -247,6 +253,7 @@
             `public/api/orders/view.php?order_number=${encodeURIComponent(orderNumber)}`,
             { credentials: 'same-origin', headers: { 'Accept': 'application/json' } }
           );
+          if (redirectIfSignedOut(response)) return;
           const result = await response.json();
           if (response.ok && result.success) {
             const serverOrder = result.data;
@@ -444,6 +451,7 @@
               credentials: 'same-origin',
               body: formData
             });
+            if (redirectIfSignedOut(response)) return;
             const result = await response.json();
             if (response.ok && result.success) {
               window.location.reload();
@@ -468,6 +476,7 @@
               `public/api/orders/view.php?order_number=${encodeURIComponent(order.orderNumber)}`,
               { credentials: 'same-origin', headers: { 'Accept': 'application/json' } }
             );
+            if (redirectIfSignedOut(response)) return;
             const result = await response.json();
             if (response.ok && result.success && (result.data.status || '').toLowerCase() === 'delivered') {
               window.location.reload();

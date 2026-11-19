@@ -112,6 +112,9 @@ async function desktop(page, label) {
         return route.continue();
       }
       // Keep account and cart state inside this isolated browser context.
+      if (url.pathname.endsWith('/checkout.html')) {
+        return route.fulfill({ path: path.join(__dirname, '..', 'checkout.html') });
+      }
       if (/\/(auth\/me|cart\/view|wishlist\/view)\.php$/.test(url.pathname)) {
         return route.fulfill({ json: { success: true, data: { user: null, items: [] } } });
       }

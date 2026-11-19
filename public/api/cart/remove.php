@@ -24,6 +24,10 @@ try {
     if ($request->method() !== 'POST') {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
+    $userId = SessionManager::userId();
+    if ($userId === null) {
+        JsonResponse::error('Authentication required.', 401)->send();
+    }
     \ClassicClub\Middleware\CsrfMiddleware::require();
 
     $body = $request->json();
@@ -36,7 +40,7 @@ try {
 
     JsonResponse::success(
         (new CartService(new CartRepository($pdo)))->remove(
-            SessionManager::userId(),
+            $userId,
             $catalogKey,
             $size
         )

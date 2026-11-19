@@ -387,7 +387,14 @@
       snackbarClose?.addEventListener('click', hideSnackbar);
 
       if (notice) {
-        if (notice === 'super_admin_required') {
+        const loginMessage = new Map([
+          ['bag_login_required', 'Please log in first before accessing your bag.'],
+          ['checkout_login_required', 'Please log in first before checking out.'],
+          ['order_login_required', 'Please log in first before accessing your order details.']
+        ]).get(notice);
+        if (loginMessage) {
+          window.CCSnackbar.show(loginMessage);
+        } else if (notice === 'super_admin_required') {
           if (noticeText) noticeText.textContent = 'Super Admin access required.';
           showSnackbar('Super Admin access required.');
         } else if (notice === 'admin_required' && noticeText) {
@@ -398,7 +405,7 @@
           noticeText.textContent = 'Login or Signup First';
         }
 
-        if (noticePanel) noticePanel.hidden = false;
+        if (noticePanel && !loginMessage) noticePanel.hidden = false;
         const url = new URL(window.location.href);
         url.searchParams.delete('notice');
         window.history.replaceState({}, '', url.pathname + url.search + url.hash);

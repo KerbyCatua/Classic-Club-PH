@@ -11,6 +11,20 @@ use ClassicClub\Services\MaintenanceService;
 
 $resource = (string) ($_GET['resource'] ?? '');
 unset($_GET['resource']);
+$loginNotice = match (strtolower($resource)) {
+    'cart.html' => 'bag_login_required',
+    'checkout.html' => 'checkout_login_required',
+    'order-confirmation.html' => 'order_login_required',
+    default => null,
+};
+if ($loginNotice !== null) {
+    $resource = strtolower($resource);
+    header('Cache-Control: no-store');
+    if (SessionManager::userId() === null) {
+        header('Location: auth.html?notice=' . $loginNotice, true, 302);
+        exit;
+    }
+}
 if ($resource === 'super-admin-dashboard.html') {
     $resource = 'super-admin-gate.php';
 }

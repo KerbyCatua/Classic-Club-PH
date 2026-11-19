@@ -20,8 +20,13 @@ try {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
 
+    $userId = SessionManager::userId();
+    if ($userId === null) {
+        JsonResponse::error('Authentication required.', 401)->send();
+    }
+
     JsonResponse::success(
-        (new CartService(new CartRepository($pdo)))->view(SessionManager::userId())
+        (new CartService(new CartRepository($pdo)))->view($userId)
     )->send();
 } catch (Throwable $exception) {
     error_log($exception->getMessage());

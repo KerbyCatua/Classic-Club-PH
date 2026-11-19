@@ -30,6 +30,10 @@ try {
     if ($request->method() !== 'POST') {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
+    $userId = SessionManager::userId();
+    if ($userId === null) {
+        JsonResponse::error('Authentication required.', 401)->send();
+    }
     \ClassicClub\Middleware\CsrfMiddleware::require();
 
     $data = (new CheckoutValidator())->validate($request->json());
@@ -40,7 +44,7 @@ try {
     );
 
     JsonResponse::success(
-        $service->create(SessionManager::userId(), $data),
+        $service->create($userId, $data),
         201
     )->send();
 } catch (ValidationException $exception) {

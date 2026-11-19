@@ -363,6 +363,10 @@ const CCStore = (function () {
     return result.data;
   }
 
+  function redirectToBagLogin() {
+    window.location.href = 'auth.html?notice=bag_login_required';
+  }
+
   return {
     formatPHP,
 
@@ -497,16 +501,9 @@ const CCStore = (function () {
     getPromo,
     addToCart: async function (item, onStockLimit = message => window.alert(message)) {
       try {
-        const session = await fetch('public/api/auth/me.php', {
-          credentials: 'same-origin',
-          headers: { Accept: 'application/json' }
-        });
-        if (!session.ok) {
-          window.location.href = 'auth.html?notice=login';
-          return false;
-        }
-      } catch (error) {
-        window.location.href = 'auth.html?notice=login';
+        await apiRequest('public/api/auth/me.php');
+      } catch {
+        redirectToBagLogin();
         return false;
       }
 
@@ -517,65 +514,51 @@ const CCStore = (function () {
         c => c.id === item.id && c.color === color && c.size === size
       );
 
-      const image = item.image || this.getProductImage(item.id) || '';
+      const sizeStock = this.getSizeStock(item.id, size);
+      const availableStock = sizeStock ?? this.getProductStock(item.id);
+      const requestedQty = Number(item.quantity || 1);
+      const currentQty = existing ? Number(existing.quantity) : 0;
 
-            const sizeStock = this.getSizeStock(item.id, size);
-            const productStock = this.getProductStock(item.id);
-            const availableStock = sizeStock === null ? productStock : sizeStock;
-            const requestedQty = Number(item.quantity || 1);
-            const currentQty = existing ? Number(existing.quantity) : 0;
+      if (typeof availableStock === 'number' && currentQty + requestedQty > availableStock) {
+        onStockLimit(
+          availableStock > 0
+            ? `Only ${availableStock} unit(s) of this item are in stock.`
+            : 'This item is out of stock.'
+        );
+        return false;
+      }
 
-            if (typeof availableStock === 'number' && currentQty + requestedQty > availableStock) {
-              onStockLimit(
-                availableStock > 0
-                  ? `Only ${availableStock} unit(s) of this item are in stock.`
-                  : 'This item is out of stock.'
-              );
-              return false;
-            }
-
-                  if (existing) {
-                    existing.quantity += requestedQty;
-                    if (image) existing.image = image;
-                  } else {
-                    cart.push({
-                      id: item.id,
-                      name: item.name,
-                      color: color,
-                      size: size,
-                      price: Number(item.price),
-                      quantity: requestedQty,
-                      image: image
-                    });
-                  }
-      saveCart(cart);
       return apiRequest('public/api/cart/add.php', {
         method: 'POST',
         body: JSON.stringify({
           catalog_key: item.id,
           size,
-          quantity: Number(item.quantity || 1)
+          quantity: requestedQty
         })
       }).then(data => {
         saveCart(data.items || []);
         return true;
-            }).catch(async error => {
+      }).catch(async error => {
+        if (error.status === 401) {
+          redirectToBagLogin();
+          return false;
+        }
         console.error('Server cart add failed:', error);
-              window.alert(error.message || 'Unable to add this item to your bag.');
-              await this.refreshCartFromServer();
-              return false;
-            });
+        window.alert(error.message || 'Unable to add this item to your bag.');
+        await this.refreshCartFromServer();
+        return false;
+      });
+    },
 
-          },
-
-          refreshCartFromServer: async function () {
-            try {
-              const cartData = await apiRequest('public/api/cart/view.php');
-              saveCart(cartData.items || []);
-            } catch (error) {
-              console.error('Server cart sync failed:', error);
-            }
-          },
+    refreshCartFromServer: async function () {
+      try {
+        const cartData = await apiRequest('public/api/cart/view.php');
+        saveCart(cartData.items || []);
+      } catch (error) {
+        if (error.status === 401) saveCart([]);
+        else console.error('Server cart sync failed:', error);
+      }
+    },
 
     updateCartQty: function (id, color, size, newQty) {
       let cart = getCart();
@@ -612,6 +595,7 @@ const CCStore = (function () {
       }).then(data => {
         saveCart(data.items || []);
       }).catch(error => {
+        if (error.status === 401) return redirectToBagLogin();
         console.error('Server cart update failed:', error);
               window.alert(error.message || 'Unable to update your bag.');
               this.refreshCartFromServer();
@@ -632,6 +616,7 @@ const CCStore = (function () {
       }).then(data => {
         saveCart(data.items || []);
       }).catch(error => {
+        if (error.status === 401) return redirectToBagLogin();
         console.error('Server cart remove failed:', error);
       });
     },
@@ -709,13 +694,7 @@ const CCStore = (function () {
     },
 
     syncServerState: async function () {
-      try {
-        const cartData = await apiRequest('public/api/cart/view.php');
-        saveCart(cartData.items || []);
-      } catch (error) {
-        console.error('Server cart sync failed:', error);
-      }
-
+      await this.refreshCartFromServer();
       await syncWishlist();
     },
 

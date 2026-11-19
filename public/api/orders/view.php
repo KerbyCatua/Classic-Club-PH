@@ -15,6 +15,9 @@ require_once __DIR__ . '/../../../app/Repositories/OrderRepository.php';
 try {
     $number = trim((string) ($_GET['order_number'] ?? ''));
     $userId = SessionManager::userId();
+    if ($userId === null) {
+        JsonResponse::error('Authentication required.', 401)->send();
+    }
     if ($number === '') {
         JsonResponse::error('order_number is required.', 422)->send();
     }

@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="cc-eyebrow text-transform-none" style="text-transform: none;">${escapeHtml(item.color)} / ${escapeHtml(item.size)} / Qty ${escapeHtml(item.quantity)}</span>
           <span class="cc-xs-text text-light-cc">${CCStore.formatPHP(item.price * item.quantity)}</span>
         </div>
-      </div>`).join('');
+      </div>`).join('') || '<p class="cc-small-text m-0">Your bag is empty.</p>';
   }
 
   async function loadProfile() {
@@ -68,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('public/api/auth/me.php', {
         credentials: 'same-origin', headers: { Accept: 'application/json' }
       });
+      if (response.status === 401) {
+        window.location.replace('auth.html?notice=checkout_login_required');
+        return;
+      }
       const result = await response.json();
       const user = response.ok && result.success ? result.data?.user : null;
       if (!user || submitting) return;
@@ -78,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateBilling();
       await CCCheckoutAddresses.init(user);
     } catch {
-      // Guest entry remains available when profile or address lookup is unavailable.
+      // Keep manual address entry available when prefill is unavailable.
     }
   }
 
@@ -136,6 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-Token': csrf.data.token },
         body: JSON.stringify(data)
       });
+      if (response.status === 401) {
+        window.location.replace('auth.html?notice=checkout_login_required');
+        return;
+      }
       const result = await response.json();
       if (!response.ok || !result.success) {
         const error = new Error(result.error?.message || 'Unable to create your demo order. Please try again.');

@@ -324,6 +324,12 @@
       const promoStatusMsg = document.getElementById('promo-status-msg');
       const wishlistBtns = document.querySelectorAll('.cc-wishlist-btn');
 
+      document.getElementById('checkout-btn').addEventListener('click', event => {
+        if (CCStore.getCart().length) return;
+        event.preventDefault();
+        window.CCSnackbar.show('Your bag is empty.');
+      });
+
       function renderCart() {
         if (typeof CCStore === 'undefined') return;
         const cart = CCStore.getCart();

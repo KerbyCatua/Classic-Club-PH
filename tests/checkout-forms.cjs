@@ -31,6 +31,9 @@ const saved = { ...valid, id: 17, label: 'Home', first_name: 'Saved', last_name:
       return route.abort();
     }
     const reply = data => route.fulfill({ json: { success: true, data } });
+    if (url.pathname.endsWith('/checkout.html')) {
+      return route.fulfill({ path: path.join(__dirname, '..', 'checkout.html') });
+    }
     if (url.pathname.endsWith('/auth/me.php')) {
       if (profileDelay) await new Promise(resolve => setTimeout(resolve, profileDelay));
       return reply({ user: signedIn ? { email: 'account@example.com', first_name: 'Account', last_name: 'Customer' } : null });

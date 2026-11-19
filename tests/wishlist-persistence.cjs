@@ -176,9 +176,34 @@ const deferred = () => { let resolve; const promise = new Promise(r => { resolve
       [overlap, removed, ...added].forEach(id => CCStore.addToWishlist(id));
       CCStore.removeFromWishlist(removed);
     }, ids.slice(0, 4));
-    await visit('auth.html');
-    assert.deepEqual(writes, [], 'guest actions stay local');
     const guest = [ids[0], ids[2], ids[3]];
+    const notice = page.locator('#cc-wishlist-snackbar.is-visible');
+    const bagNotice = 'Please log in first before accessing your bag.';
+    for (const [file, message] of [
+      ['cart.html', bagNotice],
+      ['checkout.html', 'Please log in first before checking out.'],
+      ['order-confirmation.html?order_number=CC-TEST', 'Please log in first before accessing your order details.']
+    ]) {
+      const response = await page.goto(base + file);
+      assert.equal((await response.request().redirectedFrom()?.response())?.status(), 302);
+      assert.equal(new URL(page.url()).pathname, new URL('auth.html', base).pathname);
+      await notice.filter({ hasText: message }).waitFor();
+    }
+    await visit('wishlist.html');
+    const cartAdds = [];
+    await page.route('**/cart/add.php', route => {
+      cartAdds.push(route.request().postDataJSON());
+      return route.abort();
+    });
+    await page.locator('.js-move-to-bag').first().click();
+    await page.waitForURL('**/auth.html*');
+    await notice.filter({ hasText: bagNotice }).waitFor();
+    assert.deepEqual(cartAdds, [], 'guest Move to Bag sends no cart write');
+    assert.deepEqual(await page.evaluate(() => CCStore.getWishlist()), guest);
+    assert.deepEqual(writes, [], 'guest actions stay local');
+    await page.unroute('**/cart/add.php');
+    console.log('PASS: guest page redirects and Move to Bag preserve the wishlist and show the login snackbar');
+
     const signIn = page.locator('#signin-form button[type="submit"]');
     await page.locator('#signin-email').fill('wishlist@example.com');
     await page.locator('#signin-password').fill('wrong-password');

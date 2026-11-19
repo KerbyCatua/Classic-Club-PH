@@ -14,6 +14,9 @@ require_once __DIR__ . '/../../../app/Repositories/OrderRepository.php';
 
 try {
     $userId = SessionManager::userId();
+    if ($userId === null) {
+        JsonResponse::error('Authentication required.', 401)->send();
+    }
     $orderNumber = trim((string) ($_POST['order_number'] ?? $_GET['order_number'] ?? ''));
 
     if ($orderNumber === '') {
@@ -28,7 +31,7 @@ try {
         JsonResponse::error('Order not found.', 404)->send();
     }
 
-    if ($userId !== null && (int) $order['user_id'] !== $userId) {
+    if ((int) $order['user_id'] !== $userId) {
         JsonResponse::error('Unauthorized access to this order.', 403)->send();
     }
 
