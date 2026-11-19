@@ -36,9 +36,14 @@ try {
         JsonResponse::error('saved must be a boolean.', 422)->send();
     }
 
+    $userId = AuthMiddleware::requireUser();
+    if (isset($input['user_id']) && !in_array($input['user_id'], [$userId, (string) $userId], true)) {
+        JsonResponse::error('Wishlist account changed. Please retry.', 409)->send();
+    }
+
     JsonResponse::success(
         (new WishlistService(new WishlistRepository($pdo)))->toggle(
-            AuthMiddleware::requireUser(),
+            $userId,
             $catalogKey,
             $input['saved'] ?? null
         )

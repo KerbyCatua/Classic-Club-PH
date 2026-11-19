@@ -457,6 +457,7 @@
 
   <script>
     async function sendAuthRequest(url, payload) {
+      await CCStore.prepareWishlistForAuth();
       const csrf = await fetch('public/api/auth/csrf.php', {
         cache: 'no-store',
         credentials: 'same-origin',
@@ -481,6 +482,8 @@
         throw new Error(message);
       }
 
+      CCStore.clearAllUserData({ keepWishlist: true });
+      await CCStore.syncWishlistFromServer();
       return result;
     }
 
@@ -493,10 +496,6 @@
         button.disabled = true;
 
         try {
-          if (typeof CCStore !== 'undefined' && typeof CCStore.clearAllUserData === 'function') {
-            CCStore.clearAllUserData();
-          }
-
           const authResult = await sendAuthRequest('public/api/auth/login.php', {
             email: document.getElementById('signin-email').value,
             password: document.getElementById('signin-password').value
@@ -599,10 +598,6 @@
         button.disabled = true;
 
         try {
-          if (typeof CCStore !== 'undefined' && typeof CCStore.clearAllUserData === 'function') {
-            CCStore.clearAllUserData();
-          }
-
           await sendAuthRequest('public/api/auth/register.php', {
             first_name: normalizeName(document.getElementById('create-fname').value),
             last_name: normalizeName(document.getElementById('create-lname').value),

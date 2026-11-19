@@ -109,14 +109,16 @@ async function moveMagnifier(page, x, y) {
     let payload;
     await page.route('**/public/api/auth/me.php', r => r.fulfill({ json: { success: true, data: {} } }));
     await page.route('**/public/api/auth/csrf.php', r => r.fulfill({ json: { success: true, data: { token: 'test' } } }));
+    await page.route('**/public/api/wishlist/view.php', r => r.fulfill({ json: { success: true, data: { user_id: 1, items: [] } } }));
     await page.route('**/public/api/wishlist/toggle.php', r => {
       payload = r.request().postDataJSON();
       return r.fulfill({ json: { success: true, data: { items: [{ id: payload.catalog_key }] } } });
     });
     // Earlier wishlist-card checks seeded every product as saved.
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       localStorage.setItem('cc_wishlist_data', '[]');
       window.dispatchEvent(new CustomEvent('cc:wishlistUpdated'));
+      await CCStore.syncWishlistFromServer();
     });
     const saved = page.waitForResponse('**/public/api/wishlist/toggle.php');
     await page.locator('.cc-qv-add').click();

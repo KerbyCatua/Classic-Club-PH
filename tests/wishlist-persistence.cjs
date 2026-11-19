@@ -10,6 +10,7 @@ const deferred = () => { let resolve; const promise = new Promise(r => { resolve
   const ids = [...new Set(catalog.map(p => p.catalog_key))].slice(0, 8);
   assert.equal(ids.length, 8);
   let server = new Set(ids), writes = [], holdRead, holdWrite, failWrites = false;
+  let userId = 1, failGuestItem;
   const browser = await chromium.launch();
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const errors = [];
@@ -20,24 +21,33 @@ const deferred = () => { let resolve; const promise = new Promise(r => { resolve
   await context.route('**/public/api/**', async route => {
     const url = new URL(route.request().url());
     const json = data => route.fulfill({ json: { success: true, data } });
+    const authRequired = () => route.fulfill({ status: 401, json: { success: false, error: { message: 'Authentication required.' } } });
     if (url.pathname.endsWith('/wishlist/view.php')) {
+      if (!userId) return authRequired();
       const items = [...server].map(id => ({ id }));
       if (holdRead) { const gate = holdRead; holdRead = null; gate.started.resolve(); await gate.release.promise; }
-      return json({ items });
+      return json({ items, user_id: userId });
     }
     if (url.pathname.endsWith('/wishlist/toggle.php')) {
-      const { catalog_key: id, saved } = route.request().postDataJSON();
+      const { catalog_key: id, saved, user_id } = route.request().postDataJSON();
+      assert.equal(user_id, String(userId), 'writes must target the confirmed account');
       assert.equal(typeof saved, 'boolean', 'writes must specify the desired state');
       writes.push({ id, saved });
-      if (failWrites) return route.fulfill({ json: { success: false, error: { message: 'Simulated connection failure' } } });
+      if (failWrites || id === failGuestItem) return route.fulfill({ json: { success: false, error: { message: 'Simulated connection failure' } } });
       saved ? server.add(id) : server.delete(id);
       const items = [...server].map(id => ({ id }));
       if (holdWrite) { const gate = holdWrite; holdWrite = null; gate.started.resolve(); await gate.release.promise; }
       return json({ items });
     }
     if (url.pathname.endsWith('/auth/csrf.php')) return json({ token: 'test' });
-    if (url.pathname.endsWith('/auth/me.php')) return json({ user: { id: 1 } });
+    if (url.pathname.endsWith('/auth/login.php') || url.pathname.endsWith('/auth/register.php')) {
+      if (route.request().postDataJSON().password === 'wrong-password') return authRequired();
+      userId = url.pathname.endsWith('/auth/login.php') ? 2 : 3;
+      return json({ user: { id: userId } });
+    }
+    if (url.pathname.endsWith('/auth/me.php')) return userId ? json({ user: { id: userId } }) : authRequired();
     if (url.pathname.includes('/cart/')) return json({ items: [] });
+    if (url.pathname.includes('/orders/')) return json({ orders: [] });
     return route.continue();
   });
   const page = await context.newPage();
@@ -156,6 +166,58 @@ const deferred = () => { let resolve; const promise = new Promise(r => { resolve
     console.log('PASS: move to bag removes persistently; move to wishlist persists');
     assert.deepEqual(errors, [], 'browser console and runtime errors');
     console.log('PASS: no browser console or runtime errors');
+
+    userId = null;
+    server = new Set(ids.slice(0, 2));
+    writes = [];
+    await page.evaluate(() => CCStore.clearAllUserData());
+    await visit('shop-all.html');
+    await page.evaluate(([overlap, removed, ...added]) => {
+      [overlap, removed, ...added].forEach(id => CCStore.addToWishlist(id));
+      CCStore.removeFromWishlist(removed);
+    }, ids.slice(0, 4));
+    await visit('auth.html');
+    assert.deepEqual(writes, [], 'guest actions stay local');
+    const guest = [ids[0], ids[2], ids[3]];
+    const signIn = page.locator('#signin-form button[type="submit"]');
+    await page.locator('#signin-email').fill('wishlist@example.com');
+    await page.locator('#signin-password').fill('wrong-password');
+    page.once('dialog', dialog => dialog.dismiss());
+    await Promise.all([page.waitForResponse('**/auth/login.php'), signIn.click()]);
+    assert.deepEqual(await page.evaluate(() => CCStore.getWishlist()), guest);
+
+    failGuestItem = ids[3];
+    await page.locator('#signin-password').fill('TestPassword1!');
+    await signIn.click();
+    await page.waitForURL('**/account-dashboard.html');
+    await visit('wishlist.html');
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('cc_wishlist_guest_2'))), guest);
+    assert.deepEqual([...server], ids.slice(0, 3));
+    failGuestItem = undefined;
+    await page.reload(); await settle(); await expectIds(ids.slice(0, 4));
+    assert.equal(await page.evaluate(() => localStorage.getItem('cc_wishlist_guest_2')), null);
+    assert.ok(writes.every(({ saved }) => saved), 'migration never removes account items');
+    assert.equal(writes.filter(({ id }) => id === ids[2]).length, 1, 'retry skips confirmed items');
+    console.log('PASS: failed login preserves guest data, login merges additively and failed migration retries on reload');
+
+    userId = null;
+    server.clear();
+    await page.evaluate(() => CCStore.clearAllUserData());
+    await page.route('**/public/api/wishlist/view.php', route => route.fulfill({
+      status: 503, json: { success: false, error: { message: 'Wishlist temporarily unavailable' } }
+    }));
+    await visit('auth.html');
+    await page.evaluate(id => localStorage.setItem('cc_wishlist_data', JSON.stringify([id, id])), ids[4]);
+    for (const [field, value] of Object.entries({
+      'create-fname': 'Wishlist', 'create-lname': 'Test', 'create-email': 'wishlist@gmail.com',
+      'create-password': 'TestPassword1!', 'confirm-password': 'TestPassword1!'
+    })) await page.locator(`#${field}`).fill(value);
+    await page.locator('#create-terms').evaluate(input => input.click());
+    await page.locator('#register-form button[type="submit"]').click();
+    await page.waitForURL('**/account-dashboard.html');
+    await page.unroute('**/public/api/wishlist/view.php');
+    await visit('wishlist.html'); await expectIds([ids[4]]);
+    console.log('PASS: signup saves a legacy guest list after the wishlist API recovers');
   } finally {
     await browser.close();
   }

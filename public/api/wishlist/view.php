@@ -22,7 +22,7 @@ try {
 
     $userId = AuthMiddleware::requireUser();
     JsonResponse::success(
-        (new WishlistService(new WishlistRepository($pdo)))->view($userId)
+        ['user_id' => $userId] + (new WishlistService(new WishlistRepository($pdo)))->view($userId)
     )->send();
 } catch (Throwable $exception) {
     error_log($exception->getMessage());

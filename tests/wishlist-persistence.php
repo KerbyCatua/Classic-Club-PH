@@ -79,6 +79,7 @@ try {
     };
     check($request('toggle', ['catalog_key' => $keys[0], 'saved' => true], false)['status'] === 403, 'CSRF required');
     check($request('toggle', ['catalog_key' => $keys[0], 'saved' => 'false'])['status'] === 422, 'Boolean state required');
+    check($request('toggle', ['catalog_key' => $keys[0], 'saved' => true, 'user_id' => $userId + 1])['status'] === 409, 'Account mismatch blocks writes');
     foreach ($keys as $key) {
         check($request('toggle', ['catalog_key' => $key, 'saved' => true])['status'] === 200, 'HTTP save');
     }

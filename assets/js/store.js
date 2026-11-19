@@ -8,6 +8,7 @@ const CCStore = (function () {
     CART_INIT: 'cc_cart_initialized',
     WISHLIST: 'cc_wishlist_data',
     WISHLIST_PENDING: 'cc_wishlist_pending',
+    WISHLIST_OWNER: 'cc_wishlist_owner',
     PROMO: 'cc_promo_data',
     ORDERS: 'cc_order_history',
     LAST_ORDER: 'cc_last_order',
@@ -108,9 +109,9 @@ const CCStore = (function () {
     window.dispatchEvent(new CustomEvent('cc:cartUpdated', { detail: cartData }));
   }
 
-  function getWishlist() {
+  function getWishlist(key = STORAGE_KEYS.WISHLIST) {
     try {
-      return normalizeWishlist(JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST)));
+      return normalizeWishlist(JSON.parse(localStorage.getItem(key)));
     } catch (e) {
       return [];
     }
@@ -157,40 +158,102 @@ const CCStore = (function () {
     return saved;
   }
 
+  async function prepareWishlistForAuth() {
+    if (localStorage.getItem(STORAGE_KEYS.WISHLIST_OWNER) !== null) return;
+    try {
+      await apiRequest('public/api/auth/me.php');
+    } catch (error) {
+      if (error.status === 401 && localStorage.getItem(STORAGE_KEYS.WISHLIST_OWNER) === null) {
+        localStorage.setItem(STORAGE_KEYS.WISHLIST_OWNER, 'guest');
+      }
+    }
+  }
+
   function syncWishlist(refresh = true) {
     const session = wishlistSession;
     const sync = async () => {
       if (session !== wishlistSession) return;
       try {
+        let revision = wishlistRevision;
+        let snapshot = localStorage.getItem(STORAGE_KEYS.WISHLIST);
+        let data = await apiRequest('public/api/wishlist/view.php');
+        if (session !== wishlistSession) return;
+
+        const user = data.user_id == null ? null : String(data.user_id);
+        const owner = localStorage.getItem(STORAGE_KEYS.WISHLIST_OWNER);
+        const guestKey = `cc_wishlist_guest_${user}`;
+        let guest = user === null ? [] : getWishlist(guestKey);
+        if (user !== null && owner !== user) {
+          if (owner === 'guest') {
+            // Only the guest's current selections carry over. Keep them until the account confirms the full merge.
+            guest = normalizeWishlist([...guest, ...getWishlist()]);
+            if (guest.length) localStorage.setItem(guestKey, JSON.stringify(guest));
+          }
+          localStorage.setItem(STORAGE_KEYS.WISHLIST_OWNER, user);
+          if (owner !== null) {
+            localStorage.removeItem(STORAGE_KEYS.WISHLIST_PENDING);
+            saveWishlist([...data.items.map(item => item.id), ...guest]);
+            revision = wishlistRevision;
+            snapshot = localStorage.getItem(STORAGE_KEYS.WISHLIST);
+          }
+        }
+
+        const write = (productId, saved) => apiRequest('public/api/wishlist/toggle.php', {
+          method: 'POST',
+          body: JSON.stringify({ catalog_key: productId, saved, user_id: user })
+        });
+        for (const productId of guest) {
+          if (data.items.some(item => item.id === productId)) continue;
+          try {
+            data = await write(productId, true);
+          } catch (error) {
+            // A product can disappear from the catalog while the guest list is stored.
+            if (error.status !== 422) throw error;
+          }
+          if (session !== wishlistSession) return;
+        }
+        if (guest.length && guest.every(id => data.items.some(item => item.id === id))) {
+          localStorage.removeItem(guestKey);
+          guest = [];
+        }
+
         // Only acknowledge the exact intent sent. A newer click must survive
         // an older response, including one from another tab.
         while (session === wishlistSession) {
           const entry = Object.entries(pendingWishlist())[0];
           if (!entry) break;
           const [productId, intent] = entry;
-          await apiRequest('public/api/wishlist/toggle.php', {
-            method: 'POST',
-            body: JSON.stringify({ catalog_key: productId, saved: intent.saved })
-          });
+          data = await write(productId, intent.saved);
           if (session !== wishlistSession) return;
           const pending = pendingWishlist();
           if (pending[productId]?.token === intent.token) {
+            if (!intent.saved && guest.includes(productId)) {
+              guest = guest.filter(id => id !== productId);
+              if (guest.length) localStorage.setItem(guestKey, JSON.stringify(guest));
+              else localStorage.removeItem(guestKey);
+            }
             delete pending[productId];
             localStorage.setItem(STORAGE_KEYS.WISHLIST_PENDING, JSON.stringify(pending));
           }
         }
-        if (!refresh || session !== wishlistSession) return;
-        const revision = wishlistRevision;
-        const snapshot = localStorage.getItem(STORAGE_KEYS.WISHLIST);
-        const data = await apiRequest('public/api/wishlist/view.php');
+        if (!refresh && !guest.length) return;
         // A page-load response is only authoritative when no newer local action
         // occurred and all durable changes have reached the server.
         if (session === wishlistSession && revision === wishlistRevision &&
             snapshot === localStorage.getItem(STORAGE_KEYS.WISHLIST) &&
             Object.keys(pendingWishlist()).length === 0) {
-          saveWishlist((data.items || []).map(item => item.id));
+          saveWishlist([...(data.items || []).map(item => item.id), ...guest]);
         }
       } catch (error) {
+        if (error.status === 401 && session === wishlistSession) {
+          const owner = localStorage.getItem(STORAGE_KEYS.WISHLIST_OWNER);
+          localStorage.setItem(STORAGE_KEYS.WISHLIST_OWNER, 'guest');
+          if (owner !== null && owner !== 'guest') {
+            localStorage.removeItem(STORAGE_KEYS.WISHLIST_PENDING);
+            saveWishlist([]);
+          }
+          return;
+        }
         // Keep the journal for the next navigation, reconnection or user action.
         if (!String(error.message).toLowerCase().includes('authentication')) {
           console.warn('Wishlist changes are saved locally; server sync will retry:', error);
@@ -294,7 +357,7 @@ const CCStore = (function () {
 
     const result = await response.json();
     if (!response.ok || !result.success) {
-      throw new Error(result.error?.message || 'Request failed.');
+      throw Object.assign(new Error(result.error?.message || 'Request failed.'), { status: response.status });
     }
 
     return result.data;
@@ -636,6 +699,7 @@ const CCStore = (function () {
     getWishlist,
     addToWishlist: productId => setWishlistSaved(productId, true),
     removeFromWishlist: productId => setWishlistSaved(productId, false),
+    prepareWishlistForAuth,
     syncWishlistFromServer: syncWishlist,
     toggleWishlist: function (productId) {
       return setWishlistSaved(productId, !getWishlist().includes(productId));
@@ -670,16 +734,19 @@ const CCStore = (function () {
       localStorage.removeItem(STORAGE_KEYS.LAST_ORDER);
       window.dispatchEvent(new CustomEvent('cc:ordersUpdated', { detail: [] }));
     },
-    clearAllUserData: function () {
+    clearAllUserData: function ({ keepWishlist = false } = {}) {
       wishlistSession++;
       wishlistRevision++;
-      localStorage.removeItem(STORAGE_KEYS.WISHLIST_PENDING);
+      if (!keepWishlist) {
+        localStorage.removeItem(STORAGE_KEYS.WISHLIST_OWNER);
+        localStorage.removeItem(STORAGE_KEYS.WISHLIST_PENDING);
+        saveWishlist([]);
+        localStorage.removeItem(STORAGE_KEYS.WISHLIST);
+      }
       this.clearCart();
       this.clearOrderHistory();
-      saveWishlist([]);
       localStorage.removeItem(STORAGE_KEYS.CART);
       localStorage.removeItem(STORAGE_KEYS.CART_INIT);
-      localStorage.removeItem(STORAGE_KEYS.WISHLIST);
       localStorage.removeItem(STORAGE_KEYS.PROMO);
       localStorage.removeItem(STORAGE_KEYS.ORDERS);
       localStorage.removeItem('cc_orders');
