@@ -11,6 +11,20 @@ document.addEventListener('DOMContentLoaded', () => {
   let animation;
 
   const controls = section.querySelector('.cc-collection-controls');
+  const nav = controls.closest('.cc-catalog-nav');
+  // Keep keyboard focus visible after the browser scrolls the focused element into view.
+  nav?.parentElement.addEventListener('focusin', ({ target }) => {
+    if (nav.contains(target) || !target.matches(':focus-visible')) return;
+    requestAnimationFrame(() => {
+      if (target !== document.activeElement) return;
+      const barBottom = nav.getBoundingClientRect().bottom;
+      const targetTop = target.getBoundingClientRect().top;
+      if (barBottom > 0 && targetTop < barBottom) {
+        window.scrollBy({ top: targetTop - barBottom - 8, behavior: 'instant' });
+      }
+    });
+  });
+
   controls.innerHTML = `
     <div class="cc-catalog-fields" role="group" aria-label="Filter and sort products">
       <label class="cc-catalog-search cc-xs-text" for="product-search">Search
@@ -135,6 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tab.querySelector('.tab-label').classList.toggle('text-muted-cc', !active);
       tab.querySelector('.tab-indicator').style.backgroundColor = active ? 'var(--cc-accent)' : 'transparent';
     });
+    if (animate && nav && nav.getBoundingClientRect().top < 0) {
+      nav.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
     if (animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       animation?.cancel();
       animation = grid.animate([{ opacity: 0.45, transform: 'translateY(5px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 180, easing: 'ease-out' });
