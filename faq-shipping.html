@@ -14,6 +14,41 @@
   <link rel="stylesheet" href="assets/css/scroll-reveal.css">
   <link rel="stylesheet" href="assets/css/quick-view.css?v=20261112-1">
   <script src="assets/js/quick-view.js?v=20261112-1" defer></script>
+  <style>
+    @media (prefers-reduced-motion: no-preference) {
+      html { scroll-behavior: smooth; }
+    }
+
+    .faq-sidebar {
+      top: max(1rem, calc((100dvh - var(--faq-sidebar-height, 100dvh)) / 2));
+      max-height: calc(100dvh - 2rem);
+      overflow-y: auto;
+    }
+
+    .faq-sidebar nav a {
+      border-left: 2px solid var(--cc-border);
+      color: var(--cc-muted);
+      font-size: 12px;
+    }
+
+    .faq-sidebar nav a[aria-current="location"] {
+      border-color: var(--cc-accent);
+      color: var(--cc-text);
+    }
+
+    /* Let the shared observer reveal the text independently of its containers. */
+    main .cc-reveal:has(.cc-reveal) {
+      opacity: 1;
+      transform: none;
+      transition: none;
+      will-change: auto;
+    }
+
+    .cc-reveal-stagger > span.cc-reveal {
+      display: inline-block;
+      max-width: 100%;
+    }
+  </style>
 </head>
 <body id="top" class="bg-cc-dark">
 
@@ -57,15 +92,15 @@
       <div class="row g-5 align-items-start">
         
         <!-- Left Sidebar Navigation -->
-        <div class="col-12 col-lg-3 col-xl-2 d-none d-lg-block">
-          <div class="d-flex flex-column gap-4 sticky-top" style="top: 100px;">
+        <div class="col-12 col-lg-3 col-xl-2 d-none d-lg-block sticky-lg-top faq-sidebar">
+          <div class="d-flex flex-column gap-4">
             <span class="cc-eyebrow m-0">ON THIS PAGE</span>
-            <div class="d-flex flex-column">
-              <a href="#common-questions" class="p-3 text-light-cc text-decoration-none" style="border-left: 2px solid var(--cc-accent); font-size: 12px;">01 &nbsp;Common questions</a>
-              <a href="#shipping" class="p-3 text-muted-cc text-decoration-none" style="border-left: 2px solid var(--cc-border); font-size: 12px;">02 &nbsp;Shipping within PH</a>
-              <a href="#returns" class="p-3 text-muted-cc text-decoration-none" style="border-left: 2px solid var(--cc-border); font-size: 12px;">03 &nbsp;Returns &amp; exchanges</a>
-              <a href="#refunds" class="p-3 text-muted-cc text-decoration-none" style="border-left: 2px solid var(--cc-border); font-size: 12px;">04 &nbsp;Refunds &amp; support</a>
-            </div>
+            <nav class="d-flex flex-column" aria-label="On this page">
+              <a href="#common-questions" class="p-3 text-decoration-none" aria-current="location">01 &nbsp;Common questions</a>
+              <a href="#shipping" class="p-3 text-decoration-none">02 &nbsp;Shipping within PH</a>
+              <a href="#returns" class="p-3 text-decoration-none">03 &nbsp;Returns &amp; exchanges</a>
+              <a href="#refunds" class="p-3 text-decoration-none">04 &nbsp;Refunds &amp; support</a>
+            </nav>
             <hr class="border-cc m-0 opacity-100">
             <div class="d-flex flex-column gap-3">
               <p class="cc-xs-text m-0">
@@ -267,7 +302,7 @@
               </div>
 
               <!-- 4 Step Process Grid -->
-              <div class="row row-cols-1 row-cols-md-2 g-4 py-3">
+              <div class="row row-cols-1 row-cols-md-2 g-4 py-3 faq-steps">
                 <div class="col d-flex flex-column gap-2">
                   <span class="cc-eyebrow m-0">01</span>
                   <span class="text-light-cc" style="font-size: 16px;">Make a request.</span>
@@ -370,7 +405,7 @@
   <script src="assets/js/partials.js?v=20261103"></script>
   <script src="assets/js/main.js?v=20261108-1"></script>
 
-  <!-- Accordion Toggle Icon Logic -->
+  <!-- FAQ Page Scripts -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const collapses = document.querySelectorAll('.collapse');
@@ -384,6 +419,48 @@
           if (toggleIcon) toggleIcon.textContent = '+';
         });
       });
+    });
+
+    const faqSidebar = document.querySelector('.faq-sidebar');
+    const faqLinks = [...faqSidebar.querySelectorAll('nav a')];
+    const faqSections = faqLinks.map(link => document.querySelector(link.hash));
+    let activeFaqLink = faqLinks[0];
+
+    function updateFaqIndicator() {
+      const { scrollTop, scrollHeight, clientHeight } = document.scrollingElement;
+      const atBottom = scrollTop > 0 && scrollTop + clientHeight >= scrollHeight - 1;
+      const visibleIndex = faqSections.findLastIndex(section => section.getBoundingClientRect().top <= clientHeight / 2);
+      const nextLink = atBottom ? faqLinks.at(-1) : faqLinks[Math.max(0, visibleIndex)];
+      if (nextLink === activeFaqLink) return;
+      activeFaqLink.removeAttribute('aria-current');
+      nextLink.setAttribute('aria-current', 'location');
+      activeFaqLink = nextLink;
+    }
+
+    window.addEventListener('scroll', updateFaqIndicator, { passive: true });
+    window.addEventListener('resize', updateFaqIndicator);
+    const faqLayout = new ResizeObserver(() => {
+      faqSidebar.style.setProperty('--faq-sidebar-height', `${faqSidebar.offsetHeight}px`);
+      updateFaqIndicator();
+    });
+    faqLayout.observe(faqSidebar);
+    faqLayout.observe(document.querySelector('main'));
+    document.addEventListener('cc:partialsLoaded', updateFaqIndicator);
+
+    document.querySelectorAll('main :is(h1, h2, p, .faq-steps .text-light-cc, [data-bs-toggle="collapse"] > .fw-medium):not(.faq-sidebar *)').forEach(element => {
+      const sentences = element.textContent.trim().split(/(?<=[.!?])\s+/);
+      if (sentences.length === 1) {
+        element.classList.add('cc-reveal');
+        return;
+      }
+
+      element.classList.add('cc-reveal-stagger');
+      element.replaceChildren(...sentences.flatMap((sentence, index) => {
+        const span = document.createElement('span');
+        span.className = 'cc-reveal';
+        span.textContent = sentence;
+        return index ? [' ', span] : [span];
+      }));
     });
   </script>
   <script src="assets/js/scroll-reveal.js"></script>
