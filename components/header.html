@@ -441,7 +441,7 @@
           </ul>
           <!-- Secondary mobile actions stay labeled and easy to reach. -->
           <div class="cc-mobile-shortcuts d-lg-none">
-            <a href="shop-all.html" class="cc-mobile-shortcut text-light-cc text-decoration-none font-sans">
+            <a href="shop-all.html?focus=search" class="cc-mobile-shortcut text-light-cc text-decoration-none font-sans">
               <i class="bi bi-search" aria-hidden="true"></i>
               <span>Search</span>
             </a>
@@ -461,7 +461,7 @@
       <div class="d-flex align-items-center order-2 order-lg-3 pe-1 cc-header-actions" style="gap: 22px;">
 
         <!-- Search -->
-        <a href="shop-all.html"
+        <a href="shop-all.html?focus=search"
           class="cc-header-action cc-header-desktop-action text-light-cc text-decoration-none d-inline-flex align-items-center"
           aria-label="Search">
           <i class="bi bi-search" aria-hidden="true"></i>
@@ -498,3 +498,18 @@
     </div>
   </nav>
 </header>
+
+<!-- The partial is injected with innerHTML, so initialize it from an image load event. -->
+<img hidden alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+     onload="
+       if (!location.pathname.endsWith('/shop-all.html')) return;
+       const search = document.getElementById('product-search');
+       if (!search) return;
+
+       search.labels[0].firstChild.textContent = 'Search all products';
+       if (location.search !== '?focus=search') return;
+
+       history.replaceState(history.state, '', location.pathname);
+       search.scrollIntoView({ block: 'center' });
+       search.focus({ preventScroll: true });
+     ">
