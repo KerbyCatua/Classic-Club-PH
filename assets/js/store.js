@@ -560,26 +560,26 @@ const CCStore = (function () {
       }
     },
 
-    updateCartQty: function (id, color, size, newQty) {
+    updateCartQty: function (id, color, size, newQty, onStockLimit = message => window.alert(message)) {
       let cart = getCart();
       const target = cart.find(c => c.id === id && c.color === color && c.size === size);
       if (!target) return;
 
-          if (Number(newQty) > 0) {
-            const sizeStock = this.getSizeStock(id, size);
-            const productStock = this.getProductStock(id);
-            const availableStock = sizeStock === null ? productStock : sizeStock;
-            if (typeof availableStock === 'number' && Number(newQty) > availableStock) {
-              window.alert(
-                availableStock > 0
-                  ? `Only ${availableStock} unit(s) of this item are in stock.`
-                  : 'This item is out of stock.'
-              );
-              return;
-            }
-          }
+      if (Number(newQty) > 0) {
+        const sizeStock = this.getSizeStock(id, size);
+        const productStock = this.getProductStock(id);
+        const availableStock = sizeStock === null ? productStock : sizeStock;
+        if (typeof availableStock === 'number' && Number(newQty) > availableStock) {
+          onStockLimit(
+            availableStock > 0
+              ? `Only ${availableStock} unit(s) of this item are in stock.`
+              : 'This item is out of stock.'
+          );
+          return;
+        }
+      }
 
-          if (newQty <= 0) {
+      if (newQty <= 0) {
         cart = cart.filter(c => !(c.id === id && c.color === color && c.size === size));
       } else {
         target.quantity = newQty;
@@ -597,10 +597,15 @@ const CCStore = (function () {
       }).catch(error => {
         if (error.status === 401) return redirectToBagLogin();
         console.error('Server cart update failed:', error);
-              window.alert(error.message || 'Unable to update your bag.');
-              this.refreshCartFromServer();
-            });
-          },
+        const stockRejected = error.status === 422 && (
+          error.message === 'This item is out of stock.' ||
+          /^Only \d+ unit\(s\) of this item remain in stock\.$/.test(error.message)
+        );
+        if (stockRejected) onStockLimit(error.message);
+        else window.alert(error.message || 'Unable to update your bag.');
+        this.refreshCartFromServer();
+      });
+    },
 
     removeFromCart: function (id, color, size) {
       const cart = getCart().filter(

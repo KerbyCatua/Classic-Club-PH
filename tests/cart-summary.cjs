@@ -109,11 +109,13 @@ async function desktop(page, label) {
 (async () => {
   const browser = await chromium.launch(process.env.CC_BROWSER_PATH ? { executablePath: process.env.CC_BROWSER_PATH } : {});
   const errors = [];
+  const alerts = [];
   let mutations = 0;
   let serverCart = [];
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     page.on('pageerror', error => errors.push(error.message));
+    page.on('dialog', dialog => { alerts.push(dialog.message()); return dialog.dismiss(); });
     await page.route('**/*', async route => {
       const request = route.request();
       const url = new URL(request.url());
@@ -222,8 +224,51 @@ async function desktop(page, label) {
     await cart(page, 3);
     await page.evaluate(() => CCStore.applyPromoCode(''));
     const first = page.locator('.cart-item-row').first();
-    await action(page, first.locator('.qty-plus-btn'), 'cart/update.php');
+    const plus = first.locator('.qty-plus-btn');
+    await action(page, plus, 'cart/update.php');
     await page.waitForFunction(() => CCStore.getCart()[0].quantity === 2);
+
+    const stockModal = page.getByRole('dialog', { name: 'Stock limit' });
+    const ok = stockModal.getByRole('button', { name: 'OK', exact: true });
+    const originalTotal = await page.locator('#summary-total-value').textContent();
+    const originalMutations = mutations;
+    for (const [stock, message] of [
+      [2, 'Only 2 unit(s) of this item are in stock.'],
+      [0, 'This item is out of stock.']
+    ]) {
+      await page.evaluate(stock => {
+        const { id, size } = CCStore.getCart()[0];
+        CCStore.getProductById(id).sizeStock = `${size}:${stock}`;
+      }, stock);
+      await plus.click();
+      await stockModal.getByText(message, { exact: true }).waitFor();
+      await page.waitForFunction(() => document.activeElement === document.querySelector('#stock-limit-modal button'));
+      assert.equal(await page.locator('main').evaluate(el => getComputedStyle(el).filter), 'blur(5px)');
+      assert.equal(await page.evaluate(() => CCStore.getCart()[0].quantity), 2);
+      assert.equal(await page.locator('#summary-total-value').textContent(), originalTotal);
+      assert.equal(mutations, originalMutations);
+      await ok.click();
+      await page.waitForFunction(() => document.activeElement.matches('.cart-item-row .qty-plus-btn'));
+      assert.equal(await stockModal.count(), 0);
+    }
+
+    await page.evaluate(() => {
+      const { id, size } = CCStore.getCart()[0];
+      CCStore.getProductById(id).sizeStock = `${size}:3`;
+    });
+    const serverStockMessage = 'Only 2 unit(s) of this item remain in stock.';
+    await page.route('**/public/api/cart/update.php', route => route.fulfill({
+      status: 422, json: { success: false, error: { message: serverStockMessage } }
+    }), { times: 1 });
+    await plus.click();
+    await stockModal.getByText(serverStockMessage, { exact: true }).waitFor();
+    await page.waitForFunction(() => CCStore.getCart()[0].quantity === 2);
+    assert.equal(await page.locator('#summary-total-value').textContent(), originalTotal);
+    await ok.click();
+    await stockModal.waitFor({ state: 'hidden' });
+    assert.deepEqual(alerts, [], 'Stock limits use the custom modal');
+    console.log('Stock limits and server reconciliation use the Sign Out modal design');
+
     await action(page, first.locator('.qty-minus-btn'), 'cart/update.php');
     await page.waitForFunction(() => CCStore.getCart()[0].quantity === 1);
     await page.locator('#promo-code-input').fill('CLASSIC10');
