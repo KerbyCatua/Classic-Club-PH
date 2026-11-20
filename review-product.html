@@ -364,6 +364,20 @@
     </section>
   </main>
 
+  <div class="modal fade cc-sign-out-modal" id="review-validation-modal" tabindex="-1" aria-labelledby="review-validation-title" aria-describedby="review-validation-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body d-flex flex-column">
+          <h2 id="review-validation-title" class="font-lora text-light-cc m-0">Review submission</h2>
+          <p id="review-validation-message" class="text-muted-cc m-0"></p>
+          <div class="cc-sign-out-actions d-flex pt-2">
+            <button type="button" class="btn btn-cc-teal flex-grow-1" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Reusable Footer Partial (Injected via partials.js) -->
   <div id="footer-partial"></div>
 
@@ -633,17 +647,34 @@
       });
 
       // 13. Form Submission
+      const validationModal = document.getElementById('review-validation-modal');
+      const validationMessage = document.getElementById('review-validation-message');
+      const validationOkBtn = validationModal.querySelector('[data-bs-dismiss="modal"]');
+      let validationReturnFocus = submitBtn;
+
+      validationModal.addEventListener('show.bs.modal', () => document.body.classList.add('cc-review-validation-modal-open'));
+      validationModal.addEventListener('shown.bs.modal', () => validationOkBtn.focus());
+      validationModal.addEventListener('hidden.bs.modal', () => {
+        document.body.classList.remove('cc-review-validation-modal-open');
+        validationReturnFocus.focus();
+      });
+
+      function showReviewValidation(message, returnFocus = submitBtn) {
+        validationMessage.textContent = message;
+        validationReturnFocus = returnFocus;
+        bootstrap.Modal.getOrCreateInstance(validationModal).show();
+      }
+
       formEl.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         if (currentSelectedRating < 1) {
-          alert('Please select a star rating from 1 to 5.');
+          showReviewValidation('Please select a star rating from 1 to 5.');
           return;
         }
 
         if (contentInput.value.trim().length < 30) {
-          alert('Please provide at least 30 characters in your review.');
-          contentInput.focus();
+          showReviewValidation('Please provide at least 30 characters in your review.', contentInput);
           return;
         }
 
@@ -703,9 +734,9 @@
           renderReviewsList();
 
         } catch (err) {
-          alert(err.message || 'An error occurred while submitting your review.');
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
+          showReviewValidation(err.message || 'An error occurred while submitting your review.');
         }
       });
 
