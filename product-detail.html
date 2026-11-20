@@ -33,7 +33,7 @@
 
     <!-- Product Layout Section -->
     <section class="cc-section-px pb-5">
-      <div class="row gx-5 row-gap-5">
+      <div class="row gx-4 gx-lg-5 row-gap-5">
         
         <!-- Left Column: Product Gallery -->
         <div class="col-12 col-lg-7 col-xl-8">
@@ -144,33 +144,29 @@
             <!-- Size Selection -->
             <div class="d-flex flex-column gap-3">
               <div class="d-flex justify-content-between align-items-center">
-                <span class="cc-xs-text text-light-cc m-0" id="selected-size-label">Size — M selected</span>
+                <span class="cc-xs-text text-light-cc m-0" id="selected-size-label">Size</span>
                 <a href="size-guide.html" id="product-size-guide-link" class="cc-underline-link m-0 text-light-cc">Size &amp; fit guide</a>
               </div>
-              <div class="d-flex gap-2" id="size-button-row">
-                <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1" style="height: 44px; border: 1px solid var(--cc-border); border-radius: 0; font-size: 12px;" data-size="XS">XS</button>
-                <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1" style="height: 44px; border: 1px solid var(--cc-border); border-radius: 0; font-size: 12px;" data-size="S">S</button>
-                <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1 active" style="height: 44px; background: var(--cc-accent); border: 1px solid var(--cc-accent); border-radius: 0; font-size: 12px;" data-size="M">M</button>
-                <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1" style="height: 44px; border: 1px solid var(--cc-border); border-radius: 0; font-size: 12px;" data-size="L">L</button>
-                <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1" style="height: 44px; border: 1px solid var(--cc-border); border-radius: 0; font-size: 12px;" data-size="XL">XL</button>
-                <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1" style="height: 44px; border: 1px solid var(--cc-border); border-radius: 0; font-size: 12px;" data-size="XXL">XXL</button>
-              </div>
+              <div class="d-flex gap-2" id="size-button-row" role="group" aria-label="Size"></div>
               <p class="cc-eyebrow text-transform-none m-0" style="text-transform: none;">Relaxed fit. Choose your usual size for the intended silhouette.</p>
             </div>
             
             <!-- Quantity & Stock Status -->
-            <div class="d-flex align-items-center gap-4">
+            <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-2">
               <div class="d-flex justify-content-between align-items-center border-cc border" style="width: 120px; height: 44px; padding: 0 16px;">
-                <button type="button" class="btn p-0 text-light-cc" id="qty-minus" style="font-size: 18px; line-height: 1;">−</button>
+                <button type="button" class="btn p-0 text-light-cc" id="qty-minus" style="font-size: 18px; line-height: 1;" disabled>−</button>
                 <span class="text-light-cc" id="qty-value" style="font-size: 15px;">1</span>
-                <button type="button" class="btn p-0 text-light-cc" id="qty-plus" style="font-size: 18px; line-height: 1;">+</button>
+                <button type="button" class="btn p-0 text-light-cc" id="qty-plus" style="font-size: 18px; line-height: 1;" disabled>+</button>
               </div>
-              <span class="cc-eyebrow-teal m-0" id="stock-status-label">IN STOCK / READY TO SHIP</span>
+              <div class="d-flex flex-column gap-1">
+                <span class="cc-eyebrow m-0" id="stock-status-label" role="status">Loading stock…</span>
+                <span class="cc-eyebrow m-0" id="total-stock-label"></span>
+              </div>
             </div>
             
             <!-- CTAs -->
             <div class="d-flex flex-column gap-2 mt-2">
-              <button type="button" class="btn-cc-teal w-100" id="add-to-cart-btn" data-product-id="essential-hw-tee-obsidian">
+              <button type="button" class="btn-cc-teal w-100" id="add-to-cart-btn" data-product-id="essential-hw-tee-obsidian" disabled>
                 <span>Add to bag —</span>
                 <i class="bi bi-arrow-right"></i>
               </button>
@@ -247,7 +243,7 @@
 
     <!-- Detailed Information Section -->
     <section class="cc-section-px cc-section-py bg-cc-surface">
-      <div class="row g-5">
+      <div class="row gy-5 gx-4 gx-lg-5">
         <!-- Details Left -->
         <div class="col-12 col-lg-6">
           <div class="d-flex flex-column gap-4">
@@ -542,13 +538,14 @@
       if (!loadedProduct) {
         return;
       }
-      let currentProduct = {
+      const catalogSizes = CCStore.getSizes(loadedProduct.id);
+      const currentProduct = {
         id: loadedProduct.id,
         name: loadedProduct.name,
         price: loadedProduct.price,
         color: loadedProduct.color,
         image: loadedProduct.srcImage || '',
-        size: 'M',
+        size: catalogSizes.find(({ code }) => code === 'M')?.code || catalogSizes[0]?.code || '',
         quantity: 1
       };
 
@@ -559,132 +556,62 @@
         CCProductGallery.render(loadedProduct);
       }
 
-      // Product pages used to hard-code XS-XXL, but one-size accessories and
-      // numeric fits only have their own size row. Use the sizes this product
-      // actually stocks so within-stock orders are never blocked.
-      const catalogSizes = (typeof CCStore.getSizes === 'function')
-        ? CCStore.getSizes(currentProduct.id)
-        : [];
-      if (catalogSizes.length > 0 && !catalogSizes.some(s => s.code === currentProduct.size)) {
-        currentProduct.size = catalogSizes[0].code;
-      }
-
       const stockStatusLabel = document.getElementById('stock-status-label');
+      const totalStockLabel = document.getElementById('total-stock-label');
       const sizeRow = document.getElementById('size-button-row');
       const sizeLabel = document.getElementById('selected-size-label');
       const qtyMinus = document.getElementById('qty-minus');
       const qtyPlus = document.getElementById('qty-plus');
       const qtyValue = document.getElementById('qty-value');
-      let availableStock = null;
-
-      function sizeStockFor(code) {
-        const sizeStock = (typeof CCStore.getSizeStock === 'function')
-          ? CCStore.getSizeStock(currentProduct.id, code)
-          : null;
-        if (sizeStock !== null && sizeStock !== undefined) return sizeStock;
-        return (typeof CCStore.getVariantStock === 'function')
-          ? CCStore.getVariantStock(currentProduct.id)
-          : null;
-      }
+      const addToCartBtn = document.getElementById('add-to-cart-btn');
+      let availableStock;
 
       function refreshStock() {
-        const productStock = (typeof CCStore.getProductStock === 'function')
-          ? CCStore.getProductStock(currentProduct.id)
-          : null;
-        availableStock = sizeStockFor(currentProduct.size);
+        const size = currentProduct.size;
+        availableStock = CCStore.getSizeStock(currentProduct.id, size) ?? 0;
+        const soldOut = availableStock <= 0;
+        const sizePrefix = size ? `Size ${size} · ` : '';
+        sizeLabel.textContent = size ? `Size — ${size} selected` : 'Size unavailable';
+        stockStatusLabel.textContent = `${sizePrefix}${availableStock} in stock / ${soldOut ? 'Sold out' : 'Ready to ship'}`;
+        stockStatusLabel.classList.toggle('cc-eyebrow-teal', !soldOut);
+        addToCartBtn.disabled = soldOut;
+        addToCartBtn.style.opacity = soldOut ? '0.5' : '';
+        qtyMinus.disabled = soldOut;
+        qtyPlus.disabled = soldOut;
+        qtyValue.textContent = soldOut ? 0 : currentProduct.quantity;
 
-        if (stockStatusLabel) {
-          if (typeof productStock === 'number' && productStock <= 0) {
-            stockStatusLabel.textContent = 'OUT OF STOCK';
-            stockStatusLabel.classList.remove('cc-eyebrow-teal');
-            stockStatusLabel.classList.add('text-muted-cc');
-          } else if (typeof availableStock === 'number' && availableStock <= 0) {
-            stockStatusLabel.textContent = 'SIZE ' + currentProduct.size + ' SOLD OUT';
-            stockStatusLabel.classList.remove('cc-eyebrow-teal');
-            stockStatusLabel.classList.add('text-muted-cc');
-          } else if (typeof productStock === 'number') {
-            stockStatusLabel.textContent = productStock + ' IN STOCK / READY TO SHIP';
-            stockStatusLabel.classList.add('cc-eyebrow-teal');
-            stockStatusLabel.classList.remove('text-muted-cc');
-          } else {
-            stockStatusLabel.textContent = 'IN STOCK / READY TO SHIP';
-            stockStatusLabel.classList.add('cc-eyebrow-teal');
-            stockStatusLabel.classList.remove('text-muted-cc');
-          }
-        }
-
-        // Disable sizes that cannot be bought.
-        if (sizeRow) {
-          [...sizeRow.querySelectorAll('.size-select-btn')].forEach(btn => {
-            const codeStock = sizeStockFor(btn.dataset.size);
-            const soldOut = typeof codeStock === 'number' && codeStock <= 0;
-            btn.disabled = soldOut;
-            btn.style.opacity = soldOut ? '0.35' : '';
-            btn.title = soldOut ? 'Sold out in this size' : '';
-          });
-        }
-
-        if (typeof availableStock === 'number' && availableStock > 0 && currentProduct.quantity > availableStock) {
-          currentProduct.quantity = availableStock;
-          if (qtyValue) qtyValue.textContent = currentProduct.quantity;
-        }
-
-        const addBtn = document.getElementById('add-to-cart-btn');
-        if (addBtn) {
-          const soldOut = (typeof availableStock === 'number' && availableStock <= 0)
-            || (typeof productStock === 'number' && productStock <= 0);
-          addBtn.disabled = soldOut;
-          addBtn.style.opacity = soldOut ? '0.5' : '';
-        }
-      }
-
-      // Render the size selector from the catalogue instead of the static markup.
-      if (sizeRow && catalogSizes.length > 0) {
-        sizeRow.innerHTML = '';
-        catalogSizes.forEach(({ code }) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'btn p-0 text-light-cc size-select-btn flex-grow-1';
-          btn.style.height = '44px';
-          btn.style.borderRadius = '0';
-          btn.style.fontSize = '12px';
-          btn.dataset.size = code;
-          btn.textContent = code;
-
-          const activate = () => {
-            [...sizeRow.querySelectorAll('.size-select-btn')].forEach(b => {
-              b.classList.remove('active');
-              b.style.background = 'var(--cc-bg)';
-              b.style.border = '1px solid var(--cc-border)';
-            });
-            btn.classList.add('active');
-            btn.style.background = 'var(--cc-accent)';
-            btn.style.border = '1px solid var(--cc-accent)';
-            currentProduct.size = code;
-            currentProduct.quantity = 1;
-            if (qtyValue) qtyValue.textContent = currentProduct.quantity;
-            if (sizeLabel) sizeLabel.textContent = 'Size — ' + code + ' selected';
-            refreshStock();
-          };
-
-          if (code === currentProduct.size) {
-            btn.classList.add('active');
-            btn.style.background = 'var(--cc-accent)';
-            btn.style.border = '1px solid var(--cc-accent)';
-          } else {
-            btn.style.background = 'var(--cc-bg)';
-            btn.style.border = '1px solid var(--cc-border)';
-          }
-
-          btn.addEventListener('click', activate);
-          sizeRow.appendChild(btn);
+        sizeRow.querySelectorAll('.size-select-btn').forEach(button => {
+          const selected = button.dataset.size === size;
+          button.classList.toggle('active', selected);
+          button.setAttribute('aria-pressed', String(selected));
+          button.style.background = selected ? 'var(--cc-accent)' : 'var(--cc-bg)';
+          button.style.borderColor = selected ? 'var(--cc-accent)' : 'var(--cc-border)';
         });
       }
 
-      if (sizeLabel) {
-        sizeLabel.textContent = 'Size — ' + currentProduct.size + ' selected';
-      }
+      catalogSizes.forEach(({ code, stock }) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn p-0 text-light-cc size-select-btn flex-grow-1';
+        button.style.height = '44px';
+        button.style.border = '1px solid var(--cc-border)';
+        button.style.borderRadius = '0';
+        button.style.fontSize = '12px';
+        button.dataset.size = code;
+        button.textContent = code;
+        if (stock <= 0) {
+          button.classList.add('text-decoration-line-through');
+          button.setAttribute('aria-label', `${code} (sold out)`);
+        }
+        button.addEventListener('click', () => {
+          currentProduct.size = code;
+          currentProduct.quantity = 1;
+          refreshStock();
+        });
+        sizeRow.appendChild(button);
+      });
 
+      totalStockLabel.textContent = `${CCStore.getProductStock(currentProduct.id)} total across all variants`;
       refreshStock();
 
       // Handle Quantity Selection
@@ -697,9 +624,7 @@
         });
 
         qtyPlus.addEventListener('click', () => {
-          const cap = (typeof availableStock === 'number' && availableStock > 0)
-            ? Math.min(availableStock, 20)
-            : 20;
+          const cap = Math.min(availableStock, 20);
           if (currentProduct.quantity < cap) {
             currentProduct.quantity++;
             qtyValue.textContent = currentProduct.quantity;
@@ -708,7 +633,6 @@
       }
 
       // Handle Add to Cart
-      const addToCartBtn = document.getElementById('add-to-cart-btn');
       if (addToCartBtn && typeof CCStore !== 'undefined') {
         const stockLimitModal = document.getElementById('stock-limit-modal');
         const stockLimitMessage = document.getElementById('stock-limit-message');
@@ -746,33 +670,7 @@
 
       // Handle Main Wishlist Button
       const mainWishlistBtn = document.querySelector('.cc-main-wishlist-toggle');
-      if (mainWishlistBtn && typeof CCStore !== 'undefined') {
-        const icon = mainWishlistBtn.querySelector('i');
-        const text = mainWishlistBtn.querySelector('.wishlist-btn-text');
-        
-        if (CCStore.isInWishlist(currentProduct.id)) {
-          icon.classList.replace('bi-heart', 'bi-heart-fill');
-          if (text) text.textContent = 'Saved to wishlist';
-          mainWishlistBtn.classList.add('text-accent');
-          mainWishlistBtn.classList.remove('text-light-cc');
-        }
-
-        mainWishlistBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const isNowWishlisted = CCStore.toggleWishlist(currentProduct.id);
-          if (isNowWishlisted) {
-            icon.classList.replace('bi-heart', 'bi-heart-fill');
-            if (text) text.textContent = 'Saved to wishlist';
-            mainWishlistBtn.classList.add('text-accent');
-            mainWishlistBtn.classList.remove('text-light-cc');
-          } else {
-            icon.classList.replace('bi-heart-fill', 'bi-heart');
-            if (text) text.textContent = 'Save to wishlist';
-            mainWishlistBtn.classList.remove('text-accent');
-            mainWishlistBtn.classList.add('text-light-cc');
-          }
-        });
-      }
+      mainWishlistBtn.addEventListener('click', () => CCStore.toggleWishlist(currentProduct.id));
 
       // Handle Wishlist Buttons in Related Grid
       const relatedWishlistBtns = document.querySelectorAll(

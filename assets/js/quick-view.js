@@ -114,7 +114,7 @@
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     });
     find('.cc-qv-add').onclick = async () => {
-      if (pending || !selectedSize || !product?.id || product.stockQty <= 0) return;
+      if (pending || !product?.id) return;
       const adding = product;
       pending = true;
       updateAction();
@@ -148,7 +148,7 @@
   }
   function updateAction() {
     find('.cc-qv-size-label').textContent = `Size — ${selectedSize || 'Unavailable'}`;
-    find('.cc-qv-add').disabled = pending || !selectedSize || product.stockQty <= 0;
+    find('.cc-qv-add').disabled = pending;
     find('.cc-qv-add').textContent = pending ? 'Adding…' : 'Add to Wishlist';
   }
   function option(label, selected, handler) {

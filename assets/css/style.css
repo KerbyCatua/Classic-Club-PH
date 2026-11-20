@@ -18,6 +18,7 @@
 
 /* Collection controls inherit the global storefront palette and typography. */
 [data-collection] > [hidden], .cc-collection-controls [hidden], .cc-catalog-empty[hidden] { display: none !important; }
+.cc-product-card.is-out-of-stock [data-product-image] { opacity: 0.84; }
 .cc-catalog-nav { max-height: 60vh; max-height: 60dvh; padding: .5rem; margin: -.5rem; }
 .cc-catalog-nav > * { flex-shrink: 0; }
 .cc-catalog-fields { display: grid; grid-template-columns: minmax(12rem, 2fr) repeat(2, minmax(8rem, 1fr)) auto minmax(11rem, 1.25fr); align-items: end; gap: 1rem; padding-top: .5rem; }

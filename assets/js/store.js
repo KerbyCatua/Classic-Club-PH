@@ -478,12 +478,7 @@ const CCStore = (function () {
           return product ? Number(product.stockQty || 0) : 0;
         },
         getSizeStock: function (productId, size) {
-          const product = this.getProductById(productId);
-          if (!product || !product.sizeStock) return null;
-          const pair = String(product.sizeStock).split(',')
-            .map(entry => entry.split(':'))
-            .find(([code]) => code === String(size));
-          return pair ? Number(pair[1] || 0) : null;
+          return this.getSizes(productId).find(({ code }) => code === String(size))?.stock ?? null;
         },
         getSizes: function (productId) {
           const product = this.getProductById(productId);
@@ -514,12 +509,11 @@ const CCStore = (function () {
         c => c.id === item.id && c.color === color && c.size === size
       );
 
-      const sizeStock = this.getSizeStock(item.id, size);
-      const availableStock = sizeStock ?? this.getProductStock(item.id);
+      const availableStock = this.getSizeStock(item.id, size);
       const requestedQty = Number(item.quantity || 1);
       const currentQty = existing ? Number(existing.quantity) : 0;
 
-      if (typeof availableStock === 'number' && currentQty + requestedQty > availableStock) {
+      if (availableStock !== null && currentQty + requestedQty > availableStock) {
         onStockLimit(
           availableStock > 0
             ? `Only ${availableStock} unit(s) of this item are in stock.`
@@ -566,10 +560,8 @@ const CCStore = (function () {
       if (!target) return;
 
       if (Number(newQty) > 0) {
-        const sizeStock = this.getSizeStock(id, size);
-        const productStock = this.getProductStock(id);
-        const availableStock = sizeStock === null ? productStock : sizeStock;
-        if (typeof availableStock === 'number' && Number(newQty) > availableStock) {
+        const availableStock = this.getSizeStock(id, size);
+        if (availableStock !== null && Number(newQty) > availableStock) {
           onStockLimit(
             availableStock > 0
               ? `Only ${availableStock} unit(s) of this item are in stock.`

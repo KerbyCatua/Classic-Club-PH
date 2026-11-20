@@ -75,6 +75,26 @@ async function expectProducts(page, expected, ordered = false) {
         await page.waitForFunction(() => document.querySelector('#product-grid')?.getAttribute('aria-busy') === 'false');
         const collectionItems = items.filter(item => belongs(item, collection));
         await expectProducts(page, collectionItems);
+        if (collection === 'shop-all') {
+          for (const item of collectionItems) {
+            const card = page.locator('.cc-product-card').filter({ has: page.locator(`.cc-wishlist-btn[data-product-id="${key(item)}"]`) });
+            const opacity = await card.locator('[data-product-image]').evaluate(image => Number(getComputedStyle(image).opacity));
+            if (Number(item.stock_qty) > 0) assert.equal(opacity, 1);
+            else assert.ok(opacity > 0.7 && opacity < 1, `${key(item)} has a subtly dimmed image`);
+          }
+          const soldOut = collectionItems.find(item => Number(item.stock_qty) === 0);
+          if (soldOut) {
+            const card = page.locator('.cc-product-card').filter({ has: page.locator(`.cc-wishlist-btn[data-product-id="${key(soldOut)}"]`) });
+            await card.locator('.cc-qv-image-link').click();
+            await page.locator('dialog.cc-qv[open]').waitFor();
+            assert.equal(new URL(await page.locator('.cc-qv-details').getAttribute('href'), base).searchParams.get('id'), key(soldOut));
+            await page.locator('.cc-qv-add').click();
+            await page.waitForFunction(id => CCStore.isInWishlist(id), key(soldOut));
+            await page.locator('.cc-qv-close').click();
+            await card.locator('.cc-wishlist-btn').click();
+            await page.waitForFunction(id => !CCStore.isInWishlist(id), key(soldOut));
+          }
+        }
         const baseline = await page.locator(visible).evaluateAll(elements => elements.map(element => element.dataset.productId || element.querySelector('[data-product-id]').dataset.productId));
         const featured = baseline.map(id => collectionItems.find(item => key(item) === id));
         assert.equal(await page.locator('#clear-filters-btn').isVisible(), false);
@@ -184,7 +204,8 @@ async function expectProducts(page, expected, ordered = false) {
           await page.locator('.cc-qv-sizes button').filter({ hasText: new RegExp('^' + availableSize + '$') }).click();
           await page.locator('.cc-qv-add').click();
           await page.waitForFunction(() => document.querySelector('.cc-qv-status').textContent.includes('Added'));
-          assert.equal(counts().cartAdds, 1);
+          await page.waitForFunction(id => CCStore.isInWishlist(id), id);
+          assert.equal(counts().cartAdds, 0);
         }
         await page.locator('.cc-qv-close').click();
         await page.setViewportSize({ width: 390, height: 844 });
@@ -198,7 +219,7 @@ async function expectProducts(page, expected, ordered = false) {
         await page.locator('#clear-filters-btn').click();
         await expectProducts(page, featured, true);
         assert.equal(counts().navigations, 1, 'Filtering and sorting must not navigate');
-        console.log(`${label} ${collection}: sizes, colours, stock by size, search, combinations, all sorting, reset, links, wishlist, cart and mobile passed (${collectionItems.length} products)`);
+        console.log(`${label} ${collection}: sizes, colours, stock by size, search, combinations, all sorting, reset, links, wishlist and mobile passed (${collectionItems.length} products)`);
       } finally { await context.close(); }
     }
     for (const collection of pages) await exercise(catalog, collection, 'Live API');

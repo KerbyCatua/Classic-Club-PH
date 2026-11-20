@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     if (!addToCartBtn) return;
     const params = new URLSearchParams(window.location.search);
-    const requestedId = params.get('id');
+    const requestedId = params.get('id') || addToCartBtn.getAttribute('data-product-id');
 
     if (requestedId) {
       const product = CCStore.getProductById(requestedId);
@@ -217,6 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       card.style.display = CCStore.isProductAvailable(productId) ? '' : 'none';
+      if (card.matches('[data-collection="shop-all"] .cc-product-card')) {
+        card.classList.toggle('is-out-of-stock', CCStore.getVariantStock(productId) <= 0);
+      }
 
       // Update image
       const image = card.querySelector('[data-product-image]');
