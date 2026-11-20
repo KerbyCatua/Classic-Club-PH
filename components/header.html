@@ -4,7 +4,6 @@
 <style>
   /* Header micro-interactions */
   .cc-header-brand,
-  .cc-nav-link,
   .cc-header-action,
   .cc-header-menu-toggle {
     -webkit-tap-highlight-color: transparent;
@@ -20,35 +19,8 @@
   }
 
   .cc-nav-link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
+    --cc-nav-underline-offset: 5px;
     min-height: 44px;
-    transition: color 0.25s ease, transform 0.25s ease;
-  }
-
-  .cc-nav-link::after {
-    position: absolute;
-    right: 0;
-    bottom: 5px;
-    left: 0;
-    height: 1px;
-    background-color: var(--cc-accent);
-    content: '';
-    transform: scaleX(0);
-    transform-origin: center;
-    transition: transform 0.25s ease;
-  }
-
-  .cc-nav-link:hover,
-  .cc-nav-link:focus-visible {
-    color: var(--cc-accent) !important;
-    transform: translateY(-1px);
-  }
-
-  .cc-nav-link:hover::after,
-  .cc-nav-link:focus-visible::after {
-    transform: scaleX(1);
   }
 
   .cc-header-action {
@@ -338,17 +310,14 @@
 
   @media (prefers-reduced-motion: reduce) {
     .cc-header-brand,
-    .cc-nav-link,
     .cc-header-action,
     .cc-header-action i,
     .cc-header-action-label,
-    .cc-header-menu-toggle,
-    .cc-nav-link::after {
+    .cc-header-menu-toggle {
       transition: none;
     }
 
     .cc-header-brand:hover,
-    .cc-nav-link:hover,
     .cc-header-action:hover,
     .cc-header-action:hover i,
     .cc-header-menu-toggle:hover {

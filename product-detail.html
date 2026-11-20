@@ -33,7 +33,7 @@
 
     <!-- Product Layout Section -->
     <section class="cc-section-px pb-5">
-      <div class="row g-5">
+      <div class="row gx-5 row-gap-5">
         
         <!-- Left Column: Product Gallery -->
         <div class="col-12 col-lg-7 col-xl-8">
@@ -145,7 +145,7 @@
             <div class="d-flex flex-column gap-3">
               <div class="d-flex justify-content-between align-items-center">
                 <span class="cc-xs-text text-light-cc m-0" id="selected-size-label">Size — M selected</span>
-                <a href="size-guide.html" class="cc-underline-link m-0 text-light-cc">Size &amp; fit guide</a>
+                <a href="size-guide.html" id="product-size-guide-link" class="cc-underline-link m-0 text-light-cc">Size &amp; fit guide</a>
               </div>
               <div class="d-flex gap-2" id="size-button-row">
                 <button type="button" class="btn p-0 text-light-cc size-select-btn flex-grow-1" style="height: 44px; border: 1px solid var(--cc-border); border-radius: 0; font-size: 12px;" data-size="XS">XS</button>
@@ -517,11 +517,12 @@
 
       // Product Setup — the catalog is fetched asynchronously, so wait for it
       // before deciding that a requested product does not exist.
+      const requestedProductId = new URLSearchParams(window.location.search).get('id');
+      const urlProductId = requestedProductId || 'essential-hw-tee-obsidian';
+      document.getElementById('product-size-guide-link').href = `size-guide.html?id=${encodeURIComponent(urlProductId)}`;
       if (typeof CCStore !== 'undefined' && typeof CCStore.whenCatalogReady === 'function') {
         await CCStore.whenCatalogReady();
       }
-      const requestedProductId = new URLSearchParams(window.location.search).get('id');
-      const urlProductId = requestedProductId || 'essential-hw-tee-obsidian';
       const loadedProduct = (typeof CCStore !== 'undefined') ? CCStore.getProductById(urlProductId) : null;
       if (requestedProductId && !loadedProduct) {
         document.querySelector('main').innerHTML = `

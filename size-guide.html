@@ -48,9 +48,11 @@
         <nav aria-label="breadcrumb" class="cc-eyebrow text-transform-none" style="text-transform: none;">
           <a href="index.html" class="text-muted-cc text-decoration-none">Home</a>
           <span class="mx-1">/</span>
-          <span class="text-muted-cc">Size & fit guide</span>
-          <span class="mx-1">/</span>
-          <span class="text-muted-cc">Find your balance.</span>
+          <span id="size-guide-product-crumb" hidden>
+            <a class="text-muted-cc text-decoration-none"></a>
+            <span class="mx-1">/</span>
+          </span>
+          <span class="text-muted-cc" aria-current="page">Size &amp; Fit Guide</span>
         </nav>
 
         <!-- Title & Description -->
@@ -389,7 +391,7 @@
   <script src="assets/js/main.js?v=20261108-1"></script>
   <script src="assets/js/scroll-reveal.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const buttons = document.querySelectorAll('#size-unit-toggle button');
       const labels = document.querySelectorAll('[data-size-unit]');
       const measurements = Array.from(
@@ -410,6 +412,19 @@
         });
         window.CCSnackbar?.show(`Size chart converted to ${unit}.`);
       }));
+
+      const productId = new URLSearchParams(window.location.search).get('id');
+      if (!productId || typeof CCStore === 'undefined') return;
+
+      await CCStore.whenCatalogReady();
+      const product = CCStore.getProductById(productId);
+      if (!product) return;
+
+      const productCrumb = document.getElementById('size-guide-product-crumb');
+      const productLink = productCrumb.querySelector('a');
+      productLink.textContent = product.name;
+      productLink.href = `product-detail.html?id=${encodeURIComponent(productId)}`;
+      productCrumb.hidden = false;
     });
   </script>
 

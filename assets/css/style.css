@@ -265,6 +265,60 @@ h1, h2, h3, h4, .font-lora {
 }
 
 /* Buttons & Interactive Links */
+.cc-nav-link,
+nav[aria-label="breadcrumb"] a[href] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.cc-nav-link::after,
+nav[aria-label="breadcrumb"] a[href]::after {
+  position: absolute;
+  right: 0;
+  bottom: var(--cc-nav-underline-offset, -2px);
+  left: 0;
+  height: 1px;
+  background-color: var(--cc-accent);
+  content: '';
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.cc-nav-link:is(:hover, :focus-visible),
+nav[aria-label="breadcrumb"] a[href]:is(:hover, :focus-visible, :active) {
+  color: var(--cc-accent) !important;
+  transform: translateY(-1px);
+}
+
+.cc-nav-link:is(:hover, :focus-visible)::after,
+nav[aria-label="breadcrumb"] a[href]:is(:hover, :focus-visible, :active)::after {
+  transform: scaleX(1);
+}
+
+nav[aria-label="breadcrumb"] a[href]:focus-visible {
+  outline: 2px solid var(--cc-accent-hover);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-nav-link,
+  .cc-nav-link::after,
+  nav[aria-label="breadcrumb"] a[href],
+  nav[aria-label="breadcrumb"] a[href]::after {
+    transition: none;
+  }
+
+  .cc-nav-link:is(:hover, :focus-visible),
+  nav[aria-label="breadcrumb"] a[href]:is(:hover, :focus-visible, :active) {
+    transform: none;
+  }
+}
+
 .btn-cc-teal, .btn-accent {
   height: 50px;
   padding: 0 24px;

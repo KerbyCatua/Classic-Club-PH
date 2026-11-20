@@ -69,7 +69,7 @@
           <div class="cc-qv-badge"></div><h2 class="cc-qv-title" id="cc-qv-title"></h2><div class="cc-qv-price"></div>
           <p class="cc-qv-description"></p>
           <div class="cc-qv-section"><div class="cc-qv-label cc-qv-color-label"></div><div class="cc-qv-options cc-qv-colors" role="group" aria-label="Colour"></div></div>
-          <div class="cc-qv-section"><div class="cc-qv-label"><span class="cc-qv-size-label"></span><a href="size-guide.html" target="_blank" rel="noopener">Size & fit guide</a></div><div class="cc-qv-options cc-qv-sizes" role="group" aria-label="Size"></div></div>
+          <div class="cc-qv-section"><div class="cc-qv-label"><span class="cc-qv-size-label"></span><a class="cc-qv-size-guide" target="_blank" rel="noopener">Size & fit guide</a></div><div class="cc-qv-options cc-qv-sizes" role="group" aria-label="Size"></div></div>
           <div class="cc-qv-stock"></div><button type="button" class="cc-qv-action cc-qv-add"></button>
           <a class="cc-qv-action cc-qv-details">View full product details　 ↗</a>
           <div class="cc-qv-status" role="status" aria-live="polite"></div>
@@ -171,6 +171,7 @@
     find('.cc-qv-price').textContent = CCStore.formatPHP(product.price);
     find('.cc-qv-description').textContent = product.description;
     find('.cc-qv-color-label').textContent = `Colour — ${product.color}`;
+    find('.cc-qv-size-guide').href = `size-guide.html?id=${encodeURIComponent(product.id)}`;
     find('.cc-qv-details').href = `product-detail.html?id=${encodeURIComponent(product.id)}`;
     find('.cc-qv-status').textContent = '';
     find('.cc-qv-stock').textContent = product.stockQty > 0 ? 'IN STOCK / READY TO SHIP' : 'OUT OF STOCK';
