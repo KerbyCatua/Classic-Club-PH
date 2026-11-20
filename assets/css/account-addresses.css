@@ -3,11 +3,11 @@ body:is(.cc-address-modal-open, .cc-sign-out-modal-open) > :not(#manage-address-
 }
 .cc-address-backdrop, body.cc-sign-out-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-backdrop-opacity: .5; }
 #manage-address-modal .modal-dialog { max-width: 1120px; }
-#manage-address-modal .modal-content { background: var(--cc-surface); border: 1px solid var(--cc-border); border-radius: 0; padding: 32px; }
-#manage-address-modal .modal-header, #manage-address-modal .modal-body, #manage-address-modal .modal-footer { padding: 0; border: 0; }
+.cc-manage-address-content { background: var(--cc-surface); border: 1px solid var(--cc-border); border-radius: 0; padding: 32px; }
+.cc-manage-address-content > :is(.modal-header, .modal-body, .modal-footer) { padding: 0; border: 0; }
 #manage-address-modal .modal-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
 #manage-address-modal .modal-header > .cc-address-button { display: inline-flex; align-items: center; justify-content: center; align-self: start; white-space: nowrap; }
-#manage-address-modal .modal-body { margin-top: 28px; }
+.cc-manage-address-content > .modal-body { margin-top: 28px; }
 #manage-address-modal .modal-body > .row { margin-left: 0; margin-right: 0; }
 #manage-address-modal .modal-footer { border-top: 1px solid var(--cc-border); margin-top: 28px; padding-top: 20px; }
 #manage-address-modal .cc-address-title { font-size: clamp(26px, 4vw, 34px); }
@@ -22,8 +22,19 @@ body:is(.cc-address-modal-open, .cc-sign-out-modal-open) > :not(#manage-address-
 .cc-address-card.is-selected { background: #112B2E; border-color: var(--cc-accent); }
 .cc-address-card button { color: var(--cc-text); background: none; border: 0; padding: 0; font-size: 12px; text-decoration: underline; }
 .cc-address-lines { white-space: pre-line; }
+#remove-address-modal {
+  width: var(--bs-modal-width);
+  max-width: calc(100% - 2 * var(--bs-modal-margin));
+  max-height: calc(100% - 2 * var(--bs-modal-margin));
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#remove-address-modal::backdrop { background: rgba(0, 0, 0, .5); }
+#manage-address-modal:has(> #remove-address-modal[open]) > .modal-dialog { filter: blur(5px); }
 @media (max-width: 575.98px) {
-  #manage-address-modal .modal-content { padding: 20px; }
+  .cc-manage-address-content { padding: 20px; }
   #manage-address-modal .modal-footer { gap: 12px; }
   #manage-address-modal .modal-footer > p { flex-basis: 100%; }
 }

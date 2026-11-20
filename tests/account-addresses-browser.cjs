@@ -13,7 +13,10 @@ const fixture = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    page.on('dialog', dialog => dialog.accept());
+    page.on('dialog', dialog => {
+      errors.push(`Unexpected browser dialog: ${dialog.message()}`);
+      return dialog.dismiss();
+    });
     await page.goto(fixture.base + '/account-dashboard.html');
     await page.locator('#account-main').waitFor({ state: 'visible' });
     await page.locator('#dashboard-shipping-address').filter({ hasText: '20 Work Street' }).waitFor();
@@ -40,9 +43,10 @@ const fixture = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
     assert.equal(await page.locator('.cc-address-card').count(), 2);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    const modalBounds = await page.locator('#manage-address-modal .modal-content').boundingBox();
+    const addressManager = page.locator('.cc-manage-address-content');
+    const modalBounds = await addressManager.boundingBox();
     assert(modalBounds.x >= 0 && modalBounds.x + modalBounds.width <= 390, 'Modal fits mobile viewport');
-    assert(await page.locator('#manage-address-modal .modal-body').evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'No horizontal modal overflow');
+    assert(await addressManager.locator('.modal-body').evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'No horizontal modal overflow');
     await page.locator('#manage-address-modal [aria-label="Close manage addresses"]').click();
     await page.locator('#manage-address-modal').waitFor({ state: 'hidden' });
     await page.waitForFunction(() => !document.body.classList.contains('cc-address-modal-open'));
@@ -68,9 +72,31 @@ const fixture = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
     await page.goto(fixture.base + '/account-dashboard.html');
     await page.locator('#manage-addresses-link').click();
     await page.waitForFunction(() => !document.getElementById('address-save').disabled);
-    await page.locator('.cc-address-card').filter({ hasText: 'Browser Home' }).getByRole('button', { name: 'Remove', exact: true }).click();
+    const remove = page.locator('.cc-address-card').filter({ hasText: 'Browser Home' }).getByRole('button', { name: 'Remove', exact: true });
+    const confirmation = page.getByRole('dialog', { name: 'Remove saved address?' });
+    const cancel = confirmation.getByRole('button', { name: 'Cancel' });
+    await page.locator('#address-street_address').fill('Unsaved address edit');
+    await remove.click();
+    await confirmation.waitFor({ state: 'visible' });
+    assert(await cancel.evaluate(el => el === document.activeElement), 'Cancel has initial keyboard focus');
+    await cancel.click();
+    await confirmation.waitFor({ state: 'hidden' });
+    assert(await remove.evaluate(el => el === document.activeElement), 'Cancel restores focus to Remove');
+    assert.equal(await page.locator('#address-street_address').inputValue(), 'Unsaved address edit');
+    assert.equal(await page.locator('.cc-address-card').count(), 2);
+
+    await remove.click();
+    await confirmation.waitFor({ state: 'visible' });
+    await page.keyboard.press('Escape');
+    await confirmation.waitFor({ state: 'hidden' });
+    assert(await page.locator('#manage-address-modal').isVisible(), 'Escape keeps the address manager open');
+
+    await remove.click();
+    await confirmation.getByRole('button', { name: 'OK', exact: true }).click();
+    await confirmation.waitFor({ state: 'hidden' });
     await page.locator('#address-status').filter({ hasText: 'Address removed.' }).waitFor();
     assert.equal(await page.locator('.cc-address-card').count(), 1);
+    assert.equal(await remove.count(), 0);
     await page.keyboard.press('Escape');
     await page.locator('#manage-address-modal').waitFor({ state: 'hidden' });
 
@@ -83,6 +109,6 @@ const fixture = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
     await otherPage.waitForFunction(() => !document.getElementById('checkout-save-address').disabled);
     assert.equal(await otherPage.locator('#checkout-street').inputValue(), '');
     assert.deepEqual(errors, []);
-    console.log('PASS: desktop/mobile modal, blur/overlay, browser CRUD, reload persistence, checkout selection/autofill/save, billing preview, Escape and account isolation.');
+    console.log('PASS: desktop/mobile modal, blur/overlay, browser CRUD and removal confirmation, reload persistence, checkout selection/autofill/save, billing preview, Escape and account isolation.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

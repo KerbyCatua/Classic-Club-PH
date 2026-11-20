@@ -208,7 +208,7 @@
 
   <div class="modal fade" id="manage-address-modal" tabindex="-1" aria-labelledby="manage-address-title" aria-describedby="manage-address-description" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-      <div class="modal-content">
+      <div class="modal-content cc-manage-address-content">
         <div class="modal-header align-items-start gap-3">
           <div><p class="cc-eyebrow mb-2" id="manage-address-title">MANAGE ADDRESS MODAL</p><h2 class="font-lora cc-address-title mb-2">Manage your addresses</h2><p id="manage-address-description" class="cc-xs-text mb-0">Keep your delivery details ready for your next considered purchase.</p></div>
           <button type="button" class="cc-address-button flex-shrink-0" data-bs-dismiss="modal" aria-label="Close manage addresses">Close &times;</button>
@@ -253,6 +253,19 @@
         </div>
       </div>
     </div>
+
+    <dialog class="cc-sign-out-modal" id="remove-address-modal" aria-labelledby="remove-address-title" aria-describedby="remove-address-description">
+      <div class="modal-content">
+        <div class="modal-body d-flex flex-column">
+          <h2 id="remove-address-title" class="font-lora text-light-cc m-0">Remove saved address?</h2>
+          <p id="remove-address-description" class="text-muted-cc m-0">Are you sure you want to remove this saved address? Past orders will keep their delivery details.</p>
+          <div class="cc-sign-out-actions d-flex pt-2">
+            <button type="button" id="cancel-remove-address-btn" class="btn btn-cc-outline flex-grow-1" autofocus>Cancel</button>
+            <button type="button" id="confirm-remove-address-btn" class="btn btn-cc-teal flex-grow-1">OK</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
   </div>
 
   <script src="assets/js/addresses.js"></script>

@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
   const modalEl = document.getElementById('manage-address-modal');
+  const removeDialog = document.getElementById('remove-address-modal');
   const form = document.getElementById('address-form');
   const list = document.getElementById('address-book');
   const status = document.getElementById('address-status');
   const save = document.getElementById('address-save');
   const add = document.getElementById('address-add');
   let addresses = [], selectedId = null, busy = false, loaded = false;
+  let addressToRemove;
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
   function message(text, error = false) {
@@ -63,9 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
       actions.className = 'd-flex gap-3';
       for (const [label, handler] of [
         ['Edit address', () => { edit(address); message(''); CCSnackbar.show('Address selected.'); form.elements.first_name.focus(); }],
-        ['Remove', async () => {
-          if (!confirm('Remove this saved address? Past orders will keep their delivery details.')) return;
-          await mutate({ action: 'delete', id: Number(address.id) }, 'Address removed.');
+        ['Remove', event => {
+          addressToRemove = Number(address.id);
+          event.currentTarget.focus({ preventScroll: true });
+          removeDialog.showModal();
         }]
       ]) {
         const button = document.createElement('button');
@@ -124,6 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   modalEl.addEventListener('hide.bs.modal', e => { if (busy) e.preventDefault(); });
   modalEl.addEventListener('hidden.bs.modal', () => document.body.classList.remove('cc-address-modal-open'));
+  removeDialog.addEventListener('keydown', event => {
+    // Let Escape dismiss the confirmation without closing the address manager.
+    if (event.key === 'Escape') event.stopPropagation();
+  });
+  document.getElementById('cancel-remove-address-btn').addEventListener('click', () => removeDialog.close());
+  document.getElementById('confirm-remove-address-btn').addEventListener('click', () => {
+    removeDialog.close();
+    mutate({ action: 'delete', id: addressToRemove }, 'Address removed.');
+  });
   add.addEventListener('click', () => { edit(); message(''); form.elements.first_name.focus(); });
   form.addEventListener('submit', async e => {
     e.preventDefault();
