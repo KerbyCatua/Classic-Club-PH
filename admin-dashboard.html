@@ -865,88 +865,552 @@
     </section>
 
     <!-- SECTION 20.7: BUSINESS STAFF MANAGEMENT -->
-    <section id="module-staff" class="admin-section px-4 px-lg-5">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <span class="admin-section-eyebrow">20.7 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
-      </div>
-      <h2 class="admin-section-title mb-2">Business staff management</h2>
-      <p class="admin-section-desc mb-4">
-        Authorized staff for Classic Club PH only. Assign permissions for inventory, products, reports, or reviews. Global role administration is strictly prohibited here.
-      </p>
+    <section id="module-staff" class="admin-section px-4 px-lg-5" aria-labelledby="staffHeading">
+      <style>
+        #module-staff .staff-header,
+        #module-staff .staff-toolbar { display: flex; justify-content: space-between; gap: 16px; }
 
-      <!-- Staff Actions -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <input type="text" id="staffSearchInput" class="admin-input-filter" placeholder="Search staff name or email...">
-        <button class="btn-admin-primary" id="btnInviteStaff" data-bs-toggle="modal" data-bs-target="#modalInviteStaff">
-          <i class="bi bi-person-plus me-1"></i> Invite / add business staff
-        </button>
+        #module-staff .staff-header { align-items: flex-start; margin-bottom: 24px; }
+        #module-staff .staff-header a { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        #module-staff .admin-section-title { font-size: clamp(28px, 4vw, 36px); line-height: 1.2; }
+        #module-staff .staff-panel { border: 1px solid var(--cc-border); background: var(--cc-surface); }
+        #module-staff .staff-toolbar { flex-wrap: wrap; align-items: center; padding: 18px 20px; }
+        #module-staff .staff-toolbar h3,
+        #module-staff .staff-permissions-title { font-size: 20px; line-height: 1.3; }
+        #module-staff .staff-caption { color: var(--cc-muted); font-size: 12px; }
+        #module-staff .staff-controls { display: flex; align-items: center; gap: 10px; }
+        #module-staff .staff-search { position: relative; width: min(280px, 36vw); min-width: 0; }
+        #module-staff .staff-search i { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--cc-muted); pointer-events: none; }
+        #module-staff .staff-search input { width: 100%; padding-inline-start: 38px; }
+        #module-staff :is(.admin-input-filter, .admin-select-filter) { font-size: 14px; }
+        #module-staff .admin-input-filter::placeholder { color: var(--cc-muted); }
+        #module-staff :is(.admin-input-filter, .admin-select-filter, button, summary, .staff-matrix-scroll):focus-visible {
+          outline: 2px solid #76d7d3;
+          outline-offset: 2px;
+        }
+
+        #module-staff .staff-roster { border-top: 1px solid var(--cc-border); }
+        #module-staff .staff-roster thead th { padding: 12px 16px; font-weight: 600; }
+        #module-staff .staff-roster tbody td { padding: 14px 16px; overflow-wrap: anywhere; }
+        #module-staff .staff-person { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        #module-staff .staff-initials {
+          display: grid; place-items: center; flex: 0 0 38px; height: 38px;
+          background: #153135; color: #a9eeeb; border: 1px solid #285052; font-size: 12px; font-weight: 600;
+        }
+        #module-staff .staff-name { font-size: 14px; }
+        #module-staff .staff-secondary { display: block; color: var(--cc-muted); font-size: 12px; }
+        #module-staff .staff-status {
+          display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border: 1px solid var(--cc-border);
+          border-radius: 20px; color: var(--cc-muted); background: var(--cc-placeholder); font-size: 12px;
+        }
+        #module-staff .staff-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        #module-staff .staff-status[data-active="true"] { color: #a9eeeb; border-color: #285052; background: #153135; }
+        #module-staff .staff-row-action { min-height: 44px; white-space: nowrap; }
+        #module-staff .staff-state { padding: 28px 20px; color: var(--cc-muted); text-align: center; }
+        #module-staff .staff-state p { font-size: 14px; }
+
+        #module-staff .staff-permissions { margin-top: 24px; }
+        #module-staff .staff-permissions summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; cursor: pointer; list-style: none; }
+        #module-staff .staff-permissions summary::-webkit-details-marker { display: none; }
+        #module-staff .staff-permissions[open] .staff-permissions-chevron { transform: rotate(180deg); }
+        #module-staff .staff-matrix-scroll { overflow-x: auto; scrollbar-width: thin; border-top: 1px solid var(--cc-border); }
+        #module-staff .staff-matrix-scroll .admin-table { min-width: 620px; }
+        #module-staff .staff-matrix-scroll tbody th { font-size: 13px; color: var(--cc-text); white-space: normal; }
+
+        #module-staff .staff-dialog {
+          width: min(calc(100% - 24px), var(--bs-modal-width)); height: fit-content;
+          max-height: calc(100% - 24px); margin: auto; padding: 0; border: 0;
+          background: transparent; color: var(--cc-text); overscroll-behavior: contain;
+        }
+        #module-staff .staff-dialog[open] { display: block; }
+        #module-staff .staff-dialog[data-mode="invite"] { --bs-modal-width: 620px; }
+        #module-staff .staff-dialog::backdrop { background: rgb(0 0 0 / .5); backdrop-filter: blur(5px); }
+        #module-staff .staff-dialog .modal-content { border: 1px solid var(--cc-border); }
+        #module-staff .staff-dialog .cc-sign-out-actions .btn { min-width: 0; padding-inline: 10px; }
+        #module-staff .staff-dialog .form-label { margin-bottom: 6px; font-size: 13px; font-weight: 500; }
+        #module-staff .staff-dialog .staff-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        #module-staff .staff-dialog fieldset { margin-top: 18px; padding: 12px 0 0; border-top: 1px solid var(--cc-border); }
+        #module-staff .staff-dialog legend { margin-bottom: 2px; font-size: 14px; font-weight: 600; }
+        #module-staff .staff-dialog .form-check-label { font-size: 13px; }
+        #module-staff .staff-dialog .form-check-input:checked { background-color: var(--cc-accent); border-color: var(--cc-accent); }
+        #module-staff .staff-dialog [aria-invalid="true"] { border-color: #f4aaa5; }
+        #module-staff .staff-dialog :is(p, h2) { overflow-wrap: anywhere; }
+        #module-staff .staff-error { padding: 10px 12px; border-left: 2px solid #f4aaa5; color: #f4c4c0; background: #302022; }
+
+        @media (max-width: 767.98px) {
+          #module-staff .staff-controls { width: 100%; }
+          #module-staff .staff-search { flex: 1; }
+          #module-staff .staff-joined span::before { content: 'Joined '; }
+          #module-staff .staff-roster thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+          #module-staff .staff-roster :is(table, tbody) { display: block; }
+          #module-staff .staff-roster tbody tr {
+            display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center;
+            gap: 12px; padding: 16px;
+          }
+          #module-staff .staff-roster tbody tr + tr { border-top: 1px solid var(--cc-border); }
+          #module-staff .staff-roster tbody td { padding: 0; border: 0; }
+          #module-staff .staff-roster td:first-child { grid-column: 1 / -1; }
+          #module-staff .staff-roster td:nth-child(3) { justify-self: end; text-align: right; }
+          #module-staff .staff-roster td:nth-child(4) { justify-self: start; }
+        }
+
+        @media (max-width: 479.98px) {
+          #module-staff .staff-toolbar,
+          #module-staff .staff-permissions summary { padding: 14px; }
+          #module-staff .staff-controls { flex-direction: column; align-items: stretch; }
+          #module-staff .staff-search { width: 100%; }
+          #module-staff .staff-dialog .staff-form-grid:not(.staff-permission-options) { grid-template-columns: minmax(0, 1fr); }
+          #module-staff .staff-dialog[data-mode="invite"] { --bs-modal-padding: 20px; scroll-padding-bottom: 76px; }
+          #module-staff .staff-dialog[data-mode="invite"] .modal-body { gap: 14px; }
+          #module-staff .staff-dialog[data-mode="invite"] .cc-sign-out-actions {
+            position: sticky; bottom: 0; z-index: 1; margin: 0 -20px -20px; padding-inline: 20px; padding-bottom: 12px;
+            border-top: 1px solid var(--cc-border); background: var(--cc-surface);
+          }
+        }
+      </style>
+
+      <header class="staff-header">
+        <div>
+          <h2 id="staffHeading" class="admin-section-title mb-2">Business staff management</h2>
+          <p class="admin-section-desc mb-0">Manage staff access and permissions for Classic Club PH.</p>
+        </div>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link">
+          Directory <i class="bi bi-arrow-up" aria-hidden="true"></i>
+        </a>
+      </header>
+
+      <div class="staff-panel" role="region" aria-labelledby="staffRosterTitle">
+        <div class="staff-toolbar">
+          <div>
+            <h3 id="staffRosterTitle" class="font-lora text-light-cc mb-1">Staff roster</h3>
+            <div id="staffCount" class="staff-caption" role="status"></div>
+          </div>
+          <div class="staff-controls">
+            <div class="staff-search">
+              <label for="staffSearchInput" class="visually-hidden">Search staff by name, email, or role</label>
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" id="staffSearchInput" class="admin-input-filter" placeholder="Search name, email, or role" aria-controls="staffTable">
+            </div>
+            <button type="button" class="btn-admin-primary" id="btnInviteStaff" aria-haspopup="dialog">
+              <i class="bi bi-person-plus" aria-hidden="true"></i> Add staff member
+            </button>
+          </div>
+        </div>
+
+        <div class="staff-roster">
+          <div id="staffRosterState" class="staff-state">
+            <p id="staffRosterMessage" class="mb-0" role="status">Loading staff&hellip;</p>
+            <button type="button" id="staffRetry" class="btn-admin-outline btn-admin-sm mt-3" hidden>Try again</button>
+          </div>
+          <table class="admin-table" id="staffTable" role="table" aria-labelledby="staffRosterTitle" hidden>
+            <thead role="rowgroup">
+              <tr role="row">
+                <th scope="col" role="columnheader">Staff member</th>
+                <th scope="col" role="columnheader">Role &amp; permission set</th>
+                <th scope="col" role="columnheader">Joined</th>
+                <th scope="col" role="columnheader">Status</th>
+                <th scope="col" role="columnheader" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staffRosterBody" role="rowgroup"></tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Staff Table -->
-      <div class="admin-table-container mb-5">
-        <table class="admin-table" id="staffTable">
-          <thead>
-            <tr>
-              <th>Staff account</th>
-              <th>Contact & Joined</th>
-              <th>Role title</th>
-              <th>Permission scope</th>
-              <th>Status</th>
-              <th class="text-end">Manage</th>
-            </tr>
-          </thead>
-          <tbody id="staffTableBody">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
-      </div>
+      <!-- The shared dashboard still writes its initial Staff snapshot here. Template content is inert. -->
+      <template id="staffTableBody"></template>
+      <template id="staffRosterRow">
+        <tr role="row">
+          <td role="cell">
+            <div class="staff-person">
+              <span class="staff-initials" aria-hidden="true"></span>
+              <div>
+                <strong class="staff-name"></strong>
+                <span class="staff-email staff-secondary"></span>
+              </div>
+            </div>
+          </td>
+          <td role="cell">
+            <span class="staff-role"></span>
+            <span class="staff-scope staff-secondary"></span>
+          </td>
+          <td role="cell" class="staff-joined"><span class="staff-secondary"></span></td>
+          <td role="cell"><span class="staff-status"></span></td>
+          <td role="cell" class="text-end">
+            <button type="button" class="staff-row-action btn-admin-outline btn-admin-sm" aria-haspopup="dialog" hidden></button>
+            <span class="staff-access-note staff-secondary" hidden></span>
+          </td>
+        </tr>
+      </template>
 
-      <!-- Staff Permission Matrix -->
-      <h3 class="font-lora text-light-cc mb-3" style="font-size: 20px;">Business permission matrix</h3>
-      <div class="admin-table-container">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Permission set</th>
-              <th>Manage products</th>
-              <th>Adjust stock</th>
-              <th>View sales reports</th>
-              <th>Reply to reviews</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="fw-medium text-light-cc">Business Owner</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-            </tr>
-            <tr>
-              <td class="fw-medium text-light-cc">Inventory Manager</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
-            </tr>
-            <tr>
-              <td class="fw-medium text-light-cc">Review & Reports Staff</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> View</td>
-              <td class="text-accent"><i class="bi bi-check-lg"></i> Full</td>
-            </tr>
-            <tr>
-              <td class="fw-medium text-light-cc">Inventory Viewer</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> View only</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> View only</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
-              <td class="text-muted-cc"><i class="bi bi-dash"></i> No</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <details class="staff-permissions staff-panel">
+        <summary>
+          <span id="staffPermissionsTitle" class="staff-permissions-title font-lora text-light-cc">Business permission matrix</span>
+          <i class="bi bi-chevron-down staff-permissions-chevron text-muted-cc" aria-hidden="true"></i>
+        </summary>
+        <div class="staff-matrix-scroll" tabindex="0" role="region" aria-labelledby="staffPermissionsTitle">
+          <table class="admin-table" aria-labelledby="staffPermissionsTitle">
+            <thead>
+              <tr>
+                <th scope="col">Permission set</th>
+                <th scope="col">Manage products</th>
+                <th scope="col">Adjust stock</th>
+                <th scope="col">View sales reports</th>
+                <th scope="col">Reply to reviews</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Business Owner</th>
+                <td>Full</td><td>Full</td><td>Full</td><td>Full</td>
+              </tr>
+              <tr>
+                <th scope="row">Inventory Manager</th>
+                <td>Full</td><td>Full</td><td class="text-muted-cc">No</td><td class="text-muted-cc">No</td>
+              </tr>
+              <tr>
+                <th scope="row">Review &amp; Reports Staff</th>
+                <td class="text-muted-cc">No</td><td class="text-muted-cc">No</td><td>View</td><td>Full</td>
+              </tr>
+              <tr>
+                <th scope="row">Inventory Viewer</th>
+                <td>View only</td><td>View only</td><td class="text-muted-cc">No</td><td class="text-muted-cc">No</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <dialog class="modal cc-sign-out-modal staff-dialog" id="staffActionDialog" aria-labelledby="staffDialogTitle" aria-describedby="staffDialogDescription">
+        <div class="modal-content">
+          <div class="modal-body d-flex flex-column">
+            <h2 id="staffDialogTitle" class="font-lora text-light-cc m-0" tabindex="-1"></h2>
+            <p id="staffDialogDescription" class="text-muted-cc m-0"></p>
+
+            <form id="formInviteStaff" novalidate hidden>
+              <div class="staff-form-grid">
+                <div>
+                  <label class="form-label" for="newStaffName">Full name</label>
+                  <input type="text" id="newStaffName" class="admin-input-filter w-100" autocomplete="off" required>
+                </div>
+                <div>
+                  <label class="form-label" for="newStaffEmail">Staff email</label>
+                  <input type="email" id="newStaffEmail" class="admin-input-filter w-100" autocomplete="off" required>
+                </div>
+                <div>
+                  <label class="form-label" for="newStaffRoleTitle">Role title</label>
+                  <input type="text" id="newStaffRoleTitle" class="admin-input-filter w-100" placeholder="e.g. Warehouse Lead" required>
+                </div>
+                <div>
+                  <label class="form-label" for="newStaffPreset">Permission preset</label>
+                  <select id="newStaffPreset" class="admin-select-filter w-100" aria-describedby="staffPermissionHint">
+                    <option value="Inventory manager">Inventory manager</option>
+                    <option value="Review &amp; reports staff">Review &amp; reports staff</option>
+                    <option value="Inventory viewer">Inventory viewer (Read-only)</option>
+                  </select>
+                </div>
+              </div>
+
+              <fieldset>
+                <legend>Business permissions</legend>
+                <p id="staffPermissionHint" class="text-muted-cc mb-2">The preset fills in these permissions. Adjust them as needed.</p>
+                <div class="staff-form-grid staff-permission-options">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permManageProducts" checked>
+                    <label class="form-check-label" for="permManageProducts">Manage products</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permAdjustStock" checked>
+                    <label class="form-check-label" for="permAdjustStock">Restock and adjust inventory</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permViewReports">
+                    <label class="form-check-label" for="permViewReports">View sales and analytics</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="permReplyReviews">
+                    <label class="form-check-label" for="permReplyReviews">Reply to customer reviews</label>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+
+            <p id="staffDialogError" class="staff-error m-0" role="alert" tabindex="-1" hidden></p>
+            <div class="cc-sign-out-actions d-flex pt-2">
+              <button type="button" id="staffDialogCancel" class="btn btn-cc-outline flex-grow-1">Cancel</button>
+              <button type="button" id="staffDialogConfirm" class="btn btn-cc-teal flex-grow-1"></button>
+            </div>
+          </div>
+        </div>
+      </dialog>
+
+      <script>
+        (() => {
+          const section = document.getElementById('module-staff');
+          const find = selector => section.querySelector(selector);
+          const api = 'public/api/admin/staff.php';
+          const search = find('#staffSearchInput');
+          const inviteButton = find('#btnInviteStaff');
+          const count = find('#staffCount');
+          const table = find('#staffTable');
+          const roster = find('#staffRosterBody');
+          const rowTemplate = find('#staffRosterRow');
+          const rosterState = find('#staffRosterState');
+          const rosterMessage = find('#staffRosterMessage');
+          const retry = find('#staffRetry');
+          const dialog = find('#staffActionDialog');
+          const title = find('#staffDialogTitle');
+          const description = find('#staffDialogDescription');
+          const errorMessage = find('#staffDialogError');
+          const cancel = find('#staffDialogCancel');
+          const confirmButton = find('#staffDialogConfirm');
+          const form = find('#formInviteStaff');
+          const staffName = find('#newStaffName');
+          const email = find('#newStaffEmail');
+          const roleTitle = find('#newStaffRoleTitle');
+          const preset = find('#newStaffPreset');
+          const staffActions = new WeakMap();
+          let requestId = 0;
+          let searchTimer;
+          let saving = false;
+          let backdropPressed = false;
+          let previousFocus;
+          let selectedStaff;
+
+          function canManage() {
+            return CCAdmin.getContext()?.permissions?.can_manage_staff === true;
+          }
+
+          function rowFor(member) {
+            const row = rowTemplate.content.firstElementChild.cloneNode(true);
+            const setText = (selector, value) => { row.querySelector(selector).textContent = value; };
+            const initials = (member.name || '').trim().split(/\s+/).slice(0, 2)
+              .map(part => Array.from(part)[0] || '').join('').toUpperCase();
+            const active = member.status === 'active';
+            const owner = member.role_title === 'Business owner';
+            setText('.staff-initials', initials || '—');
+            setText('.staff-name', member.name);
+            setText('.staff-email', member.email);
+            setText('.staff-role', member.role_title);
+            setText('.staff-scope', member.permission_set);
+            setText('.staff-joined span', member.joined_date || '—');
+
+            const status = row.querySelector('.staff-status');
+            status.dataset.active = active;
+            status.textContent = active ? 'Active' : 'Inactive';
+
+            if (owner || !canManage()) {
+              const note = row.querySelector('.staff-access-note');
+              note.textContent = owner ? 'Protected owner' : 'View only';
+              note.hidden = false;
+            } else {
+              const button = row.querySelector('.staff-row-action');
+              const action = active ? 'deactivate' : 'activate';
+              button.dataset.staffId = member.id;
+              button.textContent = active ? 'Deactivate' : 'Activate';
+              button.setAttribute('aria-label', button.textContent + ' ' + member.name);
+              staffActions.set(button, { action, id: Number(member.id), name: member.name });
+              button.hidden = false;
+            }
+            return row;
+          }
+
+          function showRosterState(message, canRetry = false) {
+            count.textContent = '';
+            table.hidden = true;
+            rosterState.hidden = false;
+            rosterMessage.textContent = message;
+            retry.hidden = !canRetry;
+          }
+
+          async function loadRoster() {
+            clearTimeout(searchTimer);
+            const currentRequest = ++requestId;
+            const query = search.value.trim();
+            const params = new URLSearchParams();
+            if (query) params.set('search', query);
+            showRosterState('Loading staff…');
+            try {
+              const data = await CCAdmin.apiRequest(api + '?' + params);
+              if (currentRequest !== requestId) return;
+              const members = data.staff || [];
+              roster.replaceChildren(...members.map(rowFor));
+              if (!members.length) {
+                showRosterState(query ? 'No staff match your search.' : 'No staff members have been added yet.');
+                return;
+              }
+              rosterState.hidden = true;
+              table.hidden = false;
+              count.textContent = members.length + (members.length === 1 ? ' staff member' : ' staff members');
+            } catch {
+              if (currentRequest === requestId) showRosterState('Unable to load staff. Please try again.', true);
+            }
+          }
+
+          // The shared page still binds the legacy Staff inputs. Handle these events locally first.
+          search.addEventListener('input', event => {
+            event.stopImmediatePropagation();
+            clearTimeout(searchTimer);
+            requestId++;
+            showRosterState('Loading staff…');
+            searchTimer = setTimeout(loadRoster, 250);
+          }, true);
+          retry.addEventListener('click', () => {
+            search.focus({ preventScroll: true });
+            loadRoster();
+          });
+
+          function setError(message) {
+            errorMessage.textContent = message;
+            errorMessage.hidden = !message;
+          }
+
+          function showDialogContent(mode, heading, message, label) {
+            dialog.dataset.mode = mode;
+            title.textContent = heading;
+            description.textContent = message;
+            form.hidden = mode !== 'invite';
+            cancel.hidden = mode === 'result';
+            confirmButton.textContent = label;
+            confirmButton.type = mode === 'invite' ? 'submit' : 'button';
+            if (mode === 'invite') confirmButton.setAttribute('form', form.id);
+            else confirmButton.removeAttribute('form');
+            setError('');
+          }
+
+          function openDialog(trigger, mode, heading, message, label) {
+            if (dialog.open) return;
+            previousFocus = trigger;
+            showDialogContent(mode, heading, message, label);
+            dialog.showModal();
+            (mode === 'invite' ? staffName : cancel).focus();
+          }
+
+          inviteButton.addEventListener('click', () => {
+            if (!canManage()) return;
+            selectedStaff = null;
+            form.querySelectorAll('[aria-invalid]').forEach(field => {
+              field.removeAttribute('aria-invalid');
+              field.removeAttribute('aria-describedby');
+            });
+            openDialog(inviteButton, 'invite', 'Add staff member', 'Set the role and business permissions for this staff member.', 'Add staff member');
+          });
+
+          roster.addEventListener('click', event => {
+            const button = event.target.closest('.staff-row-action');
+            const member = staffActions.get(button);
+            if (!member || dialog.open || !canManage()) return;
+            selectedStaff = member;
+            const activate = member.action === 'activate';
+            openDialog(button, 'status', activate ? 'Activate staff member?' : 'Deactivate staff member?',
+              activate
+                ? 'Restore business access for ' + member.name + ' with their existing permissions.'
+                : 'Suspend business access for ' + member.name + '. You can activate their account again later.',
+              activate ? 'Activate' : 'Deactivate');
+          });
+
+          function setSaving(isSaving) {
+            saving = isSaving;
+            const controls = Array.from(form.elements).filter(control => control.matches('input, select'));
+            [...controls, cancel, confirmButton].forEach(control => { control.disabled = isSaving; });
+          }
+
+          async function saveStaff(payload, pendingLabel, heading, message) {
+            const label = confirmButton.textContent;
+            setError('');
+            setSaving(true);
+            confirmButton.textContent = pendingLabel;
+            try {
+              await CCAdmin.apiRequest(api, { method: 'POST', body: JSON.stringify(payload) });
+            } catch (error) {
+              setSaving(false);
+              confirmButton.textContent = label;
+              setError(error.message || 'Unable to save changes. Please try again.');
+              errorMessage.focus();
+              return;
+            }
+
+            setSaving(false);
+            if (payload.action === 'invite') {
+              form.reset();
+              preset.dispatchEvent(new Event('change'));
+            }
+            showDialogContent('result', heading, message, 'Done');
+            title.focus();
+            loadRoster();
+            // Use the existing Activity Logs refresh after successful Staff changes.
+            document.getElementById('logActionFilter')?.dispatchEvent(new Event('change'));
+          }
+
+          form.addEventListener('submit', event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (saving || !dialog.open || dialog.dataset.mode !== 'invite' || !canManage()) return;
+
+            for (const field of [staffName, email, roleTitle]) {
+              field.removeAttribute('aria-invalid');
+              field.removeAttribute('aria-describedby');
+            }
+            const invalidField = [staffName, email, roleTitle].find(field => !field.value.trim() || !field.validity.valid);
+            if (invalidField) {
+              const message = invalidField === email ? 'Enter a valid staff email.' : 'Enter the ' + invalidField.labels[0].textContent.toLowerCase() + '.';
+              setError(message);
+              invalidField.setAttribute('aria-invalid', 'true');
+              invalidField.setAttribute('aria-describedby', errorMessage.id);
+              invalidField.focus();
+              return;
+            }
+
+            saveStaff({
+              action: 'invite',
+              name: staffName.value.trim(),
+              email: email.value.trim(),
+              role_title: roleTitle.value.trim(),
+              permission_set: preset.value,
+              can_manage_products: Number(find('#permManageProducts').checked),
+              can_adjust_stock: Number(find('#permAdjustStock').checked),
+              can_view_reports: Number(find('#permViewReports').checked),
+              can_reply_reviews: Number(find('#permReplyReviews').checked)
+            }, 'Adding…', 'Staff member added', staffName.value.trim() + ' has been added to the staff roster.');
+          }, true);
+
+          confirmButton.addEventListener('click', () => {
+            if (dialog.dataset.mode === 'result') {
+              dialog.close();
+            } else if (dialog.dataset.mode === 'status' && selectedStaff && !saving && canManage()) {
+              const { action, id, name } = selectedStaff;
+              const activate = action === 'activate';
+              saveStaff({ action, staff_id: id }, activate ? 'Activating…' : 'Deactivating…',
+                activate ? 'Staff member activated' : 'Staff member deactivated',
+                name + (activate ? ' now has business access.' : ' no longer has business access.'));
+            }
+          });
+
+          cancel.addEventListener('click', () => { if (!saving) dialog.close(); });
+          dialog.addEventListener('pointerdown', event => { backdropPressed = event.target === dialog; });
+          dialog.addEventListener('click', event => {
+            if (!saving && backdropPressed && event.target === dialog) dialog.close();
+          });
+          dialog.addEventListener('cancel', event => { if (saving) event.preventDefault(); });
+          dialog.addEventListener('close', () => {
+            if (dialog.open) return;
+            const replacement = selectedStaff && roster.querySelector('[data-staff-id="' + selectedStaff.id + '"]');
+            const target = previousFocus?.isConnected && !previousFocus.closest('[hidden]') ? previousFocus
+              : !table.hidden && replacement ? replacement : search;
+            target.focus({ preventScroll: true });
+            selectedStaff = null;
+            previousFocus = null;
+          });
+
+          const dashboard = section.closest('main');
+          const authObserver = new MutationObserver(() => {
+            if (dashboard.hidden) return;
+            authObserver.disconnect();
+            loadRoster();
+          });
+          authObserver.observe(dashboard, { attributes: true, attributeFilter: ['hidden'] });
+        })();
+      </script>
     </section>
 
     <!-- SECTION 20.8: BUSINESS ACTIVITY LOGS -->
@@ -1367,79 +1831,6 @@
           <div class="modal-footer">
             <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn-admin-primary">Submit flag</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Invite Business Staff -->
-  <div class="modal fade" id="modalInviteStaff" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content admin-modal">
-        <div class="modal-header">
-          <h5 class="modal-title font-lora">Invite business staff</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form id="formInviteStaff">
-          <div class="modal-body d-flex flex-column gap-3">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label text-muted-cc" style="font-size: 12px;">Full name *</label>
-                <input type="text" class="admin-input-filter w-100" id="newStaffName" required placeholder="e.g. Christian Reyes">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-muted-cc" style="font-size: 12px;">Staff email *</label>
-                <input type="email" class="admin-input-filter w-100" id="newStaffEmail" required placeholder="christian@classicclub.ph">
-              </div>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label text-muted-cc" style="font-size: 12px;">Role title *</label>
-                <input type="text" class="admin-input-filter w-100" id="newStaffRoleTitle" required placeholder="e.g. Warehouse Lead">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-muted-cc" style="font-size: 12px;">Permission preset</label>
-                <select class="admin-select-filter w-100" id="newStaffPreset">
-                  <option value="Inventory manager">Inventory manager</option>
-                  <option value="Review & reports staff">Review & reports staff</option>
-                  <option value="Inventory viewer">Inventory viewer (Read-only)</option>
-                </select>
-              </div>
-            </div>
-            <div class="border-top border-cc pt-3">
-              <span class="cc-eyebrow text-muted-cc d-block mb-2">CUSTOM PERMISSION TOGGLES</span>
-              <div class="row g-2">
-                <div class="col-md-6">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="permManageProducts" checked>
-                    <label class="form-check-label text-light-cc" for="permManageProducts" style="font-size: 12px;">Can manage products</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="permAdjustStock" checked>
-                    <label class="form-check-label text-light-cc" for="permAdjustStock" style="font-size: 12px;">Can restock & adjust inventory</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="permViewReports">
-                    <label class="form-check-label text-light-cc" for="permViewReports" style="font-size: 12px;">Can view sales & analytics</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="permReplyReviews">
-                    <label class="form-check-label text-light-cc" for="permReplyReviews" style="font-size: 12px;">Can reply to customer reviews</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-admin-outline" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn-admin-primary">Add staff member</button>
           </div>
         </form>
       </div>
