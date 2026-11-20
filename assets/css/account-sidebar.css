@@ -1,3 +1,23 @@
+.cc-account-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  border-bottom: 1px solid var(--cc-border);
+}
+
+.cc-account-tabs a {
+  padding: 10px 0;
+  border-bottom: 2px solid transparent;
+  color: var(--cc-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.cc-account-tabs a:is(:hover, :focus-visible, [aria-current]) {
+  border-bottom-color: var(--cc-accent);
+  color: var(--cc-text);
+}
+
 @media (min-width: 992px) {
   /* Give the whole sidebar a sticky track ending with the main content. */
   .cc-account-sidebar-column {

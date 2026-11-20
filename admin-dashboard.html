@@ -66,6 +66,7 @@
       </button>
       <ul class="dropdown-menu dropdown-menu-end bg-cc-surface border-cc shadow">
         <li><h6 class="dropdown-header text-muted-cc" id="adminUserRoleLabel">Assigned: Business Owner</h6></li>
+        <li><a class="dropdown-item text-light-cc" href="account-dashboard.html"><i class="bi bi-person-circle me-2"></i>Account</a></li>
         <li><a class="dropdown-item text-light-cc" href="#module-settings"><i class="bi bi-person me-2"></i>Account settings</a></li>
         <li><a class="dropdown-item text-light-cc" href="#module-logs"><i class="bi bi-clock-history me-2"></i>Activity logs</a></li>
         <li><hr class="dropdown-divider border-cc"></li>
@@ -113,66 +114,45 @@
       </div>
     </section>
 
-    <!-- Workspace Directory Navigation Grid (9 Modules) -->
-    <nav class="px-4 px-lg-5 py-4 bg-cc-surface border-top border-bottom border-cc" id="module-directory">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <span class="cc-eyebrow text-muted-cc">WORKSPACE DIRECTORY</span>
-        <span class="text-muted-cc" style="font-size: 12px;">Select a module to navigate</span>
-      </div>
-      <div class="row g-2 g-md-3">
-        <div class="col-12 col-md-4">
-          <a href="#module-overview" class="admin-module-link active" data-module="module-overview">
-            <span>01 / Dashboard overview</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-products" class="admin-module-link" data-module="module-products">
-            <span>02 / Product management</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-inventory" class="admin-module-link" data-module="module-inventory">
-            <span>03 / Inventory & stock</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-sales" class="admin-module-link" data-module="module-sales">
-            <span>04 / Sales & analytics</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-reviews" class="admin-module-link" data-module="module-reviews">
-            <span>05 / Reviews & feedback</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-notifications" class="admin-module-link" data-module="module-notifications">
-            <span>06 / Business notifications</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-staff" class="admin-module-link" data-module="module-staff">
-            <span>07 / Business staff</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-logs" class="admin-module-link" data-module="module-logs">
-            <span>08 / Business activity logs</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-md-4">
-          <a href="#module-settings" class="admin-module-link" data-module="module-settings">
-            <span>09 / Business account settings</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
+    <!-- Workspace directory -->
+    <nav class="px-4 px-lg-5 py-4 bg-cc-surface border-top border-bottom border-cc" id="module-directory" aria-label="Workspace directory" tabindex="-1">
+      <h2 class="cc-eyebrow text-muted-cc mb-3">Workspace directory</h2>
+      <div class="admin-module-grid">
+        <a href="#module-overview" class="admin-module-link">
+          <span>01 / Dashboard overview</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-products" class="admin-module-link">
+          <span>02 / Product management</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-inventory" class="admin-module-link">
+          <span>03 / Inventory &amp; stock</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-sales" class="admin-module-link">
+          <span>04 / Sales &amp; analytics</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-reviews" class="admin-module-link">
+          <span>05 / Reviews &amp; feedback</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-notifications" class="admin-module-link">
+          <span>06 / Business notifications</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-staff" class="admin-module-link">
+          <span>07 / Business staff</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-logs" class="admin-module-link">
+          <span>08 / Business activity logs</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-settings" class="admin-module-link">
+          <span>09 / Business account settings</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
       </div>
     </nav>
 
     <!-- SECTION 20.1: DASHBOARD OVERVIEW -->
-    <section id="module-overview" class="admin-section px-4 px-lg-5">
+    <section id="module-overview" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.1 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Dashboard overview</h2>
       <p class="admin-section-desc mb-4">
@@ -347,10 +327,10 @@
     </section>
 
     <!-- SECTION 20.2: PRODUCT MANAGEMENT -->
-    <section id="module-products" class="admin-section px-4 px-lg-5">
+    <section id="module-products" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.2 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Product management</h2>
       <p class="admin-section-desc mb-4">
@@ -422,10 +402,10 @@
     </section>
 
     <!-- SECTION 20.3: INVENTORY & STOCK MANAGEMENT -->
-    <section id="module-inventory" class="admin-section px-4 px-lg-5">
+    <section id="module-inventory" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.3 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Inventory & stock management</h2>
       <p class="admin-section-desc mb-4">
@@ -622,10 +602,10 @@
     </section>
 
     <!-- SECTION 20.4: SALES REPORTS & BUSINESS ANALYTICS -->
-    <section id="module-sales" class="admin-section px-4 px-lg-5">
+    <section id="module-sales" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.4 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Sales reports & business analytics</h2>
       <p class="admin-section-desc mb-4">
@@ -710,10 +690,10 @@
     </section>
 
     <!-- SECTION 20.5: CUSTOMER REVIEWS & FEEDBACK -->
-    <section id="module-reviews" class="admin-section px-4 px-lg-5">
+    <section id="module-reviews" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.5 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Customer reviews & feedback</h2>
       <p class="admin-section-desc mb-4">
@@ -789,10 +769,10 @@
     </section>
 
     <!-- SECTION 20.6: BUSINESS NOTIFICATIONS & ALERTS -->
-    <section id="module-notifications" class="admin-section px-4 px-lg-5">
+    <section id="module-notifications" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.6 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Business notifications & alerts</h2>
       <p class="admin-section-desc mb-4">
@@ -865,7 +845,7 @@
     </section>
 
     <!-- SECTION 20.7: BUSINESS STAFF MANAGEMENT -->
-    <section id="module-staff" class="admin-section px-4 px-lg-5" aria-labelledby="staffHeading">
+    <section id="module-staff" class="admin-section px-4 px-lg-5" tabindex="-1" aria-labelledby="staffHeading">
       <style>
         #module-staff .staff-header,
         #module-staff .staff-toolbar { display: flex; justify-content: space-between; gap: 16px; }
@@ -974,9 +954,7 @@
           <h2 id="staffHeading" class="admin-section-title mb-2">Business staff management</h2>
           <p class="admin-section-desc mb-0">Manage staff access and permissions for Classic Club PH.</p>
         </div>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link">
-          Directory <i class="bi bi-arrow-up" aria-hidden="true"></i>
-        </a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </header>
 
       <div class="staff-panel" role="region" aria-labelledby="staffRosterTitle">
@@ -1414,10 +1392,10 @@
     </section>
 
     <!-- SECTION 20.8: BUSINESS ACTIVITY LOGS -->
-    <section id="module-logs" class="admin-section px-4 px-lg-5">
+    <section id="module-logs" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.8 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Business activity logs</h2>
       <p class="admin-section-desc mb-4">
@@ -1481,10 +1459,10 @@
     </section>
 
     <!-- SECTION 20.9: BUSINESS ACCOUNT SETTINGS -->
-    <section id="module-settings" class="admin-section px-4 px-lg-5">
+    <section id="module-settings" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">20.9 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Business account settings</h2>
       <p class="admin-section-desc mb-4">
@@ -1840,6 +1818,7 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/admin.js"></script>
+  <script src="assets/js/admin-directory.js"></script>
   <script src="assets/js/admin-page.js"></script>
   <script src="assets/js/scroll-reveal.js"></script>
 </body>

@@ -10,6 +10,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     for (const width of [1440, 375]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
+      await page.route('**/admin-dashboard.html', route => route.fulfill({ path: path.join(__dirname, '../admin-dashboard.html') }));
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       const read = new Set();
@@ -33,7 +34,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
         const url = new URL(route.request().url());
         let data = {};
         if (url.pathname.endsWith('/auth-check.php')) data = {
-          authenticated: true, user: { id: 7, first_name: 'Test', last_name: 'Admin' }, roles: ['admin'],
+          authenticated: true, can_access_owner_workspace: true, user: { id: 7, first_name: 'Test', last_name: 'Admin' }, roles: ['admin'],
           business: { id: 1, name: 'Classic Club PH' }, permissions: {}
         };
         if (url.pathname.endsWith('/csrf.php')) data = { token: 'logs-test-token' };

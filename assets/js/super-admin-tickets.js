@@ -23,7 +23,8 @@
     // Include disabled fields so in-flight saves do not hide unsaved editor values.
     const values = form => Object.fromEntries(Array.from(form.elements).filter(el => el.name && el.type !== 'file').map(el => [el.name, el.value]));
     const agentOptions = () => agents.map(a => [String(a.id), a.name]);
-    root.innerHTML = '<span class="admin-section-eyebrow">06 / SUPPORT</span>' +
+    root.innerHTML = '<div class="d-flex justify-content-between align-items-start mb-2"><span class="admin-section-eyebrow">06 / SUPPORT</span>' +
+      '<a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a></div>' +
       '<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h2 class="admin-section-title mb-2">Support tickets</h2><p class="admin-section-desc mb-0">Review requests, assign support and follow up.</p></div><div id="supportStats" class="d-flex flex-wrap gap-3 text-muted-cc" role="status"></div></div>' +
       '<details id="supportCreatePanel" class="admin-card mb-4"><summary class="text-light-cc">Create ticket</summary><form id="supportCreate" class="mt-3"><fieldset class="d-flex flex-column gap-3" disabled>' +
       '<div class="row g-3">' + col(input('full_name', 'Requester name', 160)) + col(input('email', 'Requester email', 190, 'email')) + col(input('subject', 'Subject', 200), 12) +

@@ -46,7 +46,7 @@ async function initDashboard() {
     window.location.replace('auth.html?notice=admin_required');
   }, 2500);
 
-  // 1. Authenticate & Verify Business Admin
+  // 1. Authenticate & Verify Business Owner
   try {
     const authRes = await CCAdmin.apiRequest('public/api/admin/auth-check.php');
     if (!authRes || !authRes.authenticated || !authRes.user) {
@@ -55,15 +55,12 @@ async function initDashboard() {
       return;
     }
 
-    const roles = authRes.roles || authRes.user.roles || [];
-    if (!roles.includes('admin') && !roles.includes('super_admin')) {
-      clearTimeout(watchdog);
-      alert('Access restricted. This workspace is available to authorized business administrators only.');
-      window.location.replace('auth.html?notice=admin_required');
+    clearTimeout(watchdog);
+    if (authRes.can_access_owner_workspace !== true) {
+      window.location.replace('account-dashboard.html');
       return;
     }
 
-    clearTimeout(watchdog);
     CCAdmin.setContext(authRes);
     adminPermissions = authRes.permissions || {};
     // Bind a CSRF token to the authenticated session immediately after login.
@@ -76,6 +73,7 @@ async function initDashboard() {
 
     // Unhide the dashboard now that access is strictly verified
     hideLoader();
+    initDashboardDirectory();
 
     // Hydrate all module data smoothly in the background
     loadAllDashboardData();
@@ -159,14 +157,6 @@ async function initDashboard() {
         document.cookie = 'cc_csrf_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location.replace('auth.html?notice=logged_out');
       }
-    });
-
-    // Directory Module Smooth Scroll & Active Indicator
-    document.querySelectorAll('.admin-module-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        document.querySelectorAll('.admin-module-link').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-      });
     });
   }
 

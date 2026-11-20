@@ -33,6 +33,11 @@
   background-color: var(--cc-bg);
 }
 
+.admin-header > .dropdown > .dropdown-menu {
+  /* Keep the account menu above the sticky Modules bar and below modal backdrops. */
+  --bs-dropdown-zindex: 1030;
+}
+
 .admin-announcement {
   height: 30px;
   background: var(--cc-surface);
@@ -42,6 +47,25 @@
 }
 
 /* Module Directory Tabs & Links */
+:root:has(.admin-sticky-nav) {
+  --admin-module-nav-height: 3.5rem;
+  scroll-padding-top: var(--admin-module-nav-height);
+}
+
+.admin-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 991.98px) {
+  .admin-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575.98px) {
+  .admin-module-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
 .admin-module-link {
   display: flex;
   align-items: center;
@@ -49,6 +73,7 @@
   min-height: 50px;
   padding: 12px 16px;
   background: var(--cc-surface);
+  border-left: 2px solid transparent;
   border-bottom: 1px solid var(--cc-border);
   color: var(--cc-text);
   text-decoration: none;
@@ -56,18 +81,37 @@
   transition: all 0.2s ease;
 }
 
-.admin-module-link:hover {
+.admin-module-link:hover,
+.admin-module-link:focus-visible {
   background: #112B2E;
   color: #fff;
-  border-left: 2px solid var(--cc-accent);
+  border-left-color: var(--cc-accent);
 }
 
 .admin-module-link.active {
   background: #112B2E;
-  border-left: 2px solid var(--cc-accent);
+  border-left-color: var(--cc-accent);
   border-bottom: 1px solid var(--cc-accent);
   color: #fff;
   font-weight: 500;
+}
+
+#module-directory,
+.admin-section[id^="module-"] {
+  scroll-margin-top: .75rem;
+}
+
+.admin-section[id^="module-"].cc-reveal {
+  transform: none;
+}
+
+.admin-section[id^="module-"]:is(:target, :focus-within) {
+  opacity: 1;
+}
+
+.admin-directory-return {
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 /* Section styling */
@@ -543,7 +587,24 @@ body.cc-inventory-modal-open > .modal-backdrop { --bs-backdrop-bg: #000; --bs-ba
   position: sticky;
   top: 0;
   z-index: 1020;
+  min-height: var(--admin-module-nav-height);
   background: rgba(16, 17, 18, 0.95);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--cc-border);
+}
+
+.admin-sticky-nav .dropdown-menu {
+  width: max-content;
+  max-width: calc(100vw - 3rem);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.admin-sticky-nav .dropdown-item {
+  white-space: normal;
+}
+
+.admin-sticky-nav .dropdown-item.active {
+  background: #112B2E;
+  color: var(--cc-text);
 }

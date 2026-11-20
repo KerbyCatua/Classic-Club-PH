@@ -10,6 +10,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     for (const width of [1440, 375]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
+      await page.route('**/admin-dashboard.html', route => route.fulfill({ path: path.join(__dirname, '../admin-dashboard.html') }));
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       const products = Array.from({ length: 10 }, (_, i) => ({ id: i + 1, name: i === 0 ? 'Linen shirt' : 'A long product name '.repeat(8), sku: `SKU-${i}`, stock_qty: i === 0 ? '20' : '0', min_stock_threshold: 0, is_active: 1 }));
@@ -31,7 +32,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
       await page.route('**/public/api/**', async route => {
         const url = new URL(route.request().url());
         let data = {};
-        if (url.pathname.endsWith('/auth-check.php')) data = { authenticated: true, user: { id: 7, first_name: 'Test', last_name: 'Admin' }, roles: ['admin'], business: { id: 1, name: 'Classic Club PH' }, permissions: { can_adjust_stock: true } };
+        if (url.pathname.endsWith('/auth-check.php')) data = { authenticated: true, can_access_owner_workspace: true, user: { id: 7, first_name: 'Test', last_name: 'Admin' }, roles: ['admin'], business: { id: 1, name: 'Classic Club PH' }, permissions: { can_adjust_stock: true } };
         if (url.pathname.endsWith('/csrf.php')) data = { token: 'inventory-test-token' };
         if (/\/(inventory|movements)\.php$/.test(url.pathname)) {
           if (route.request().method() === 'POST') {

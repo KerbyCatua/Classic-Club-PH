@@ -19,6 +19,7 @@ try {
         'user' => $user,
         'business' => $business,
         'roles' => $user['roles'] ?? ['admin'],
+        'can_access_owner_workspace' => $ctx['auth']['can_access_owner_workspace'],
         'permissions' => $ctx['permissions'] ?? [],
         'staff_role' => $ctx['auth']['staff_role'] ?? null,
     ])->send();

@@ -76,7 +76,11 @@
               </div>
             </div>
 
-            <hr class="border-cc m-0 opacity-100">
+            <nav class="cc-account-tabs flex-column flex-nowrap gap-2 text-break" aria-label="Account">
+              <a href="#account-main" aria-current="page">Account</a>
+              <a href="admin-dashboard.html" id="business-workspace-link" hidden>Business Workspace</a>
+              <a href="super-admin-dashboard.html" id="system-workspace-link" hidden>System Workspace</a>
+            </nav>
 
             <!-- Sidebar Links -->
             <div class="d-flex flex-column">
@@ -289,6 +293,22 @@
           return;
         }
         const user = profileResult.data.user;
+        const roles = user.roles || [];
+        if (roles.includes('super_admin')) {
+          document.getElementById('system-workspace-link').hidden = user.status !== 'active';
+        } else if (roles.includes('admin')) {
+          fetch('public/api/admin/auth-check.php', {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json' }
+          }).then(async response => {
+            if (!response.ok) return;
+            const result = await response.json();
+            if (result.data?.can_access_owner_workspace === true) {
+              document.getElementById('business-workspace-link').hidden = false;
+            }
+          }).catch(error => console.warn('Unable to check Business Workspace access:', error));
+        }
         profile = {
           id: user.id,
           firstName: user.first_name,

@@ -10,6 +10,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
     for (const width of [1440, 375]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
+      await page.route('**/admin-dashboard.html', route => route.fulfill({ path: path.join(__dirname, '../admin-dashboard.html') }));
       const errors = [], dialogs = [], writes = [];
       page.on('pageerror', error => errors.push(error.message));
       page.on('dialog', dialog => { dialogs.push(dialog.message()); dialog.dismiss(); });
@@ -31,7 +32,7 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
         const url = new URL(route.request().url());
         let data = {};
         if (url.pathname.endsWith('/auth-check.php')) data = {
-          authenticated: true, user: { id: 7, first_name: 'Test', last_name: 'Admin' }, roles: ['admin'],
+          authenticated: true, can_access_owner_workspace: true, user: { id: 7, first_name: 'Test', last_name: 'Admin' }, roles: ['admin'],
           business: { id: 1, name: 'Classic Club PH' }, permissions: { can_manage_products: !readOnly }
         };
         if (url.pathname.endsWith('/csrf.php')) data = { token: 'products-test' };
@@ -279,7 +280,8 @@ const base = process.env.CC_TEST_URL || 'http://localhost/classic-club-ph/';
 
       // Product-specific styling does not change another module's modal.
       await page.evaluate(() => bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRestock')).show());
-      assert.equal(await page.locator('#adminMainContent').evaluate(el => getComputedStyle(el).filter), 'none');
+      assert.equal(await page.locator('body').evaluate(el => el.classList.contains('cc-product-modal-open')), false);
+      assert.equal(await page.locator('body').evaluate(el => el.classList.contains('cc-inventory-modal-open')), true);
       await page.keyboard.press('Escape');
       readOnly = true;
       await page.reload();

@@ -5,6 +5,7 @@
   # can never be served to an unauthenticated or non-super-admin visitor.
   RewriteRule ^super-admin-dashboard\.html$ super-admin-gate.php [L,QSA,NC]
 
+  RewriteRule ^admin-dashboard\.html$ maintenance-gate.php?resource=admin-dashboard.html [NC,QSA,END]
   RewriteRule ^((?:cart|checkout|order-confirmation)\.html)$ maintenance-gate.php?resource=$1 [NC,END]
 
   # Apply Maintenance to application pages and API requests.
@@ -15,7 +16,7 @@
 
 # Keep protected pages private when mod_rewrite is unavailable.
 <IfModule !mod_rewrite.c>
-  <FilesMatch "(?i)^(?:super-admin-dashboard|cart|checkout|order-confirmation)\.html$">
+  <FilesMatch "(?i)^(?:admin-dashboard|super-admin-dashboard|cart|checkout|order-confirmation)\.html$">
     Require all denied
   </FilesMatch>
 </IfModule>

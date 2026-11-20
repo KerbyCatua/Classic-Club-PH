@@ -90,6 +90,9 @@ final class AdminBusinessService
             'user' => $user,
             'business_id' => $businessId,
             'business' => $business,
+            'can_access_owner_workspace' => in_array('admin', $roles, true)
+                && !in_array('super_admin', $roles, true)
+                && ($bizStaff['permission_set'] ?? null) === 'owner',
             'permissions' => $permissions,
             'staff_role' => $bizStaff['role_title'] ?? null,
         ];

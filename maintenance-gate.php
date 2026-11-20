@@ -7,6 +7,7 @@ require_once __DIR__ . '/app/Services/MaintenanceService.php';
 require_once __DIR__ . '/app/Auth/SessionManager.php';
 
 use ClassicClub\Auth\SessionManager;
+use ClassicClub\Services\AdminBusinessService;
 use ClassicClub\Services\MaintenanceService;
 
 $resource = (string) ($_GET['resource'] ?? '');
@@ -25,8 +26,32 @@ if ($loginNotice !== null) {
         exit;
     }
 }
-if ($resource === 'super-admin-dashboard.html') {
+if (strcasecmp($resource, 'super-admin-dashboard.html') === 0) {
     $resource = 'super-admin-gate.php';
+}
+if (strcasecmp($resource, 'admin-dashboard.html') === 0) {
+    $resource = 'admin-dashboard.html';
+    header('Cache-Control: no-store');
+    $userId = SessionManager::userId();
+    if ($userId === null) {
+        header('Location: auth.html?notice=admin_required', true, 302);
+        exit;
+    }
+
+    require_once __DIR__ . '/app/Services/AdminBusinessService.php';
+    try {
+        $canAccessWorkspace = (new AdminBusinessService($pdo))->authorizeAdmin($userId)['can_access_owner_workspace'];
+    } catch (PDOException $exception) {
+        error_log('Business Workspace access check failed: ' . $exception->getMessage());
+        http_response_code(503);
+        exit('Service temporarily unavailable.');
+    } catch (RuntimeException) {
+        $canAccessWorkspace = false;
+    }
+    if (!$canAccessWorkspace) {
+        header('Location: account-dashboard.html', true, 302);
+        exit;
+    }
 }
 $allowed = $resource !== 'maintenance-gate.php' && (preg_match('/^[A-Za-z0-9_-]+\.(?:html|php)$/', $resource)
     || preg_match('#^components/[A-Za-z0-9_-]+\.html$#', $resource)

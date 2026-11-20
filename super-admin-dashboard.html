@@ -14,15 +14,12 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/scroll-reveal.css">
   <link rel="stylesheet" href="assets/css/admin.css">
+  <link rel="stylesheet" href="assets/css/account-sidebar.css">
 
   <style>
     /* ============================================================
        Super Admin (Page 21) page-specific styles
        ============================================================ */
-    html { scroll-behavior: smooth; }
-    .admin-section,
-    #module-directory { scroll-margin-top: 16px; }
-
     .sa-hero-title {
       font-family: var(--font-serif);
       font-size: clamp(2.45rem, 5vw, 56px);
@@ -747,61 +744,42 @@
       </div>
     </section>
 
-    <!-- Workspace Directory Navigation Grid (8 Modules) -->
-    <nav class="px-4 px-lg-5 py-4 bg-cc-surface border-top border-bottom border-cc" id="module-directory">
-      <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
-        <span class="cc-eyebrow text-muted-cc">WORKSPACE DIRECTORY / ALL MODULES SHOWN BELOW</span>
-        <span class="text-muted-cc d-none d-sm-inline" style="font-size: 12px;">Select a module to navigate</span>
-      </div>
-      <div class="row g-2 g-md-3">
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-overview" class="admin-module-link active" data-module="module-overview">
-            <span>01 / System overview</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-users" class="admin-module-link" data-module="module-users">
-            <span>02 / Global user management</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-maintenance" class="admin-module-link" data-module="module-maintenance">
-            <span>03 / System maintenance</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-monitoring" class="admin-module-link" data-module="module-monitoring">
-            <span>04 / Monitoring &amp; health</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-errors" class="admin-module-link" data-module="module-errors">
-            <span>05 / Errors &amp; debug</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-tickets" class="admin-module-link" data-module="module-tickets">
-            <span>06 / Support tickets</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-config" class="admin-module-link" data-module="module-config">
-            <span>07 / Global configuration</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <a href="#module-account" class="admin-module-link" data-module="module-account">
-            <span>08 / Super Admin account</span> <i class="bi bi-arrow-down-short"></i>
-          </a>
-        </div>
+    <!-- Workspace directory -->
+    <nav class="px-4 px-lg-5 py-4 bg-cc-surface border-top border-bottom border-cc" id="module-directory" aria-label="Workspace directory" tabindex="-1">
+      <h2 class="cc-eyebrow text-muted-cc mb-3">Workspace directory</h2>
+      <div class="admin-module-grid">
+        <a href="#module-overview" class="admin-module-link">
+          <span>01 / System overview</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-users" class="admin-module-link">
+          <span>02 / Global user management</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-maintenance" class="admin-module-link">
+          <span>03 / System maintenance</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-monitoring" class="admin-module-link">
+          <span>04 / Monitoring &amp; health</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-errors" class="admin-module-link">
+          <span>05 / Errors &amp; debug</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-tickets" class="admin-module-link">
+          <span>06 / Support tickets</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-config" class="admin-module-link">
+          <span>07 / Global configuration</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
+        <a href="#module-account" class="admin-module-link">
+          <span>08 / Super Admin account</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+        </a>
       </div>
     </nav>
 
     <!-- SECTION 21.1: SYSTEM DASHBOARD OVERVIEW -->
-    <section id="module-overview" class="admin-section px-4 px-lg-5">
+    <section id="module-overview" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.1 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">System dashboard overview</h2>
       <p class="admin-section-desc mb-4" id="overviewDescription">
@@ -992,15 +970,15 @@
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-2 border-top border-cc">
         <span class="sa-tiny-label" id="overviewDataFootnote">LIVE DATABASE DATA · AUTO-REFRESH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
     </section>
 
     <!-- SECTION 21.2: GLOBAL USER MANAGEMENT -->
-    <section id="module-users" class="admin-section px-4 px-lg-5">
+    <section id="module-users" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.2 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory &#8593;</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Global user management</h2>
       <p class="admin-section-desc mb-4">Manage registered accounts, account access, and business assignments.</p>
@@ -1148,15 +1126,15 @@
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
         <span class="sa-tiny-label" id="usersDataFootnote">LIVE DATABASE DATA &middot; MODULE 21.2</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory &#8593;</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
     </section>
 
     <!-- SECTION 21.4: SYSTEM MAINTENANCE MANAGEMENT -->
-    <section id="module-maintenance" class="admin-section px-4 px-lg-5" aria-busy="true">
+    <section id="module-maintenance" class="admin-section px-4 px-lg-5" tabindex="-1" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.4 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">System maintenance management</h2>
       <p class="admin-section-desc mb-4">
@@ -1334,15 +1312,15 @@
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
         <span class="sa-tiny-label" id="maintenanceDataFootnote" role="status" aria-live="polite">Loading maintenance data…</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
     </section>
 
     <!-- SECTION 21.5: SYSTEM MONITORING & HEALTH -->
-    <section id="module-monitoring" class="admin-section px-4 px-lg-5" aria-busy="true">
+    <section id="module-monitoring" class="admin-section px-4 px-lg-5" tabindex="-1" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.5 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">System monitoring &amp; health</h2>
       <p class="admin-section-desc mb-2" id="monitorSnapshot">Loading measured health checks…</p>
@@ -1411,7 +1389,7 @@
       <p class="text-muted-cc monitor-note mb-0">Checks refresh every 60 seconds while this dashboard is visible. Availability measures successful application, API and database checks in the selected range; maintenance counts as a failed check. Unobserved time is excluded. PHP memory covers this monitoring request.</p>
     </section>
     <!-- SECTION 21.6: ERROR & DEBUG MANAGEMENT -->
-    <section id="module-errors" class="admin-section px-4 px-lg-5">
+    <section id="module-errors" class="admin-section px-4 px-lg-5" tabindex="-1">
       <style>
         #module-errors .error-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
         #module-errors .error-search { grid-column: span 2; }
@@ -1446,7 +1424,7 @@
       </style>
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.6 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link">Directory &uarr;</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Error management</h2>
       <p class="admin-section-desc mb-4">Review failures, assign a reviewer, and track resolution.</p>
@@ -1496,13 +1474,13 @@
       </div>
     </section>
     <!-- SECTION 21.8: SUPPORT TICKET MANAGEMENT -->
-    <section id="module-tickets" class="admin-section px-4 px-lg-5"><h2 class="admin-section-title">Support ticket management</h2><p>Loading support tickets...</p></section>
+    <section id="module-tickets" class="admin-section px-4 px-lg-5" tabindex="-1"><h2 class="admin-section-title">Support ticket management</h2><p>Loading support tickets...</p></section>
 
     <!-- SECTION 21.10: GLOBAL SYSTEM CONFIGURATION -->
-    <section id="module-config" class="admin-section px-4 px-lg-5" aria-busy="true">
+    <section id="module-config" class="admin-section px-4 px-lg-5" tabindex="-1" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.10 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link">Directory &uarr;</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Global configuration</h2>
       <p class="admin-section-desc mb-4">Manage registration, business features, and security. Review changes before saving.</p>
@@ -1551,15 +1529,20 @@
     </section>
 
     <!-- SECTION 21.11: SUPER ADMIN ACCOUNT SETTINGS -->
-    <section id="module-account" class="admin-section px-4 px-lg-5">
+    <section id="module-account" class="admin-section px-4 px-lg-5" tabindex="-1">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="admin-section-eyebrow">21.11 / CLASSIC CLUB PH</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
       <h2 class="admin-section-title mb-2">Super Admin account settings</h2>
       <p class="admin-section-desc mb-4">
         Update your profile, change your password, and review your activity.
       </p>
+
+      <nav class="cc-account-tabs mb-4" aria-label="Account">
+        <a href="#module-account" aria-current="location">Account</a>
+        <a href="super-admin-dashboard.html#module-overview">System Workspace</a>
+      </nav>
 
       <p class="sa-form-note" id="accountStatus" role="status">Loading your account...</p>
       <button type="button" class="btn-admin-outline mb-3" id="btnReloadAccount">Reload account</button>
@@ -1649,7 +1632,7 @@
 
       <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 border-top border-cc">
         <span class="sa-tiny-label">PERSONAL SUPER ADMIN ACCOUNT</span>
-        <a href="#module-directory" class="text-muted-cc cc-underline-link" style="font-size: 12px;">Module directory ↑</a>
+        <a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a>
       </div>
     </section>
     <div class="modal fade" id="accountHistoryModal" tabindex="-1" aria-labelledby="accountHistoryTitle" aria-hidden="true">
@@ -1676,6 +1659,7 @@
     </footer>
   </main>
 
+  <script src="assets/js/admin-directory.js"></script>
   <script src="assets/js/super-admin-errors.js"></script>
   <script src="assets/js/super-admin-tickets.js"></script>
   <script src="assets/js/system-configuration.js"></script>
@@ -2113,7 +2097,6 @@
         const main = byId('adminMainContent');
 
         verifySuperAdminSession().then(function (auth) {
-          initDirectory();
           initUserManagement();
           window.initLiveMaintenance({ byId, showToast, escapeHtml, getCsrfToken, refreshOverview: loadOverview });
           window.initErrorManagement({ byId, showToast, escapeHtml, getCsrfToken });
@@ -2128,6 +2111,7 @@
 
           if (overlay) overlay.classList.add('is-hidden');
           if (main) main.hidden = false;
+          initDashboardDirectory();
           if (typeof window.refreshScrollReveal === 'function') {
             window.refreshScrollReveal();
           }
@@ -2135,32 +2119,6 @@
           window.location.replace('auth.html?notice=super_admin_required');
         });
       });
-
-      /* ============================================================
-         Directory / scroll-spy
-         ============================================================ */
-      function initDirectory() {
-        const links = Array.prototype.slice.call(document.querySelectorAll('.admin-module-link'));
-        if (!links.length) return;
-
-        function update() {
-          let current = links[0].getAttribute('data-module');
-          links.forEach(function (link) {
-            const section = byId(link.getAttribute('data-module'));
-            if (section && window.scrollY + 130 >= section.offsetTop) {
-              current = link.getAttribute('data-module');
-            }
-          });
-          links.forEach(function (link) {
-            link.classList.toggle('active', link.getAttribute('data-module') === current);
-          });
-        }
-
-        update();
-        window.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        window.addEventListener('hashchange', update);
-      }
 
       /* ============================================================
          21.2 — Global user management (live database data)
