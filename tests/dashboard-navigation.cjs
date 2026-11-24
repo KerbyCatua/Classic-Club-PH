@@ -152,7 +152,7 @@ async function checkDenied(context, route, location) {
       assert.equal(ownerPage.url(), base + business);
       assert.equal(Number((await (await owner.request.get(base + 'public/api/auth/me.php')).json()).data.user.id), sessions.owner.userId);
       await checkAccountDropdown(ownerPage, '#module-settings');
-      await checkDirectory(ownerPage, business, ['overview', 'products', 'inventory', 'sales', 'reviews', 'notifications', 'staff', 'logs', 'settings'].map(name => '#module-' + name));
+      await checkDirectory(ownerPage, business, ['overview', 'products', 'inventory', 'sales', 'reviews', 'notifications', 'staff', 'logs', 'settings', 'tickets'].map(name => '#module-' + name));
       await owner.close();
 
       const admin = await browserContext('super_admin', width);
@@ -168,7 +168,7 @@ async function checkDenied(context, route, location) {
       await checkModule(adminPage, '#module-overview');
       assert.equal(await adminPage.evaluate(() => window.accountNavigationTest), true);
       assert.equal(Number((await (await admin.request.get(base + 'public/api/auth/me.php')).json()).data.user.id), sessions.super_admin.userId);
-      await checkDirectory(adminPage, system, ['overview', 'users', 'maintenance', 'monitoring', 'errors', 'tickets', 'config', 'account'].map(name => '#module-' + name));
+      await checkDirectory(adminPage, system, ['overview', 'users', 'maintenance', 'monitoring', 'errors', 'config', 'account'].map(name => '#module-' + name));
       await admin.close();
       console.log(`PASS ${width}px: all module links and returns, keyboard shortcuts, browser history, workspace routes and session continuity.`);
     }

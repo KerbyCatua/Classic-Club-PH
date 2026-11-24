@@ -12,17 +12,17 @@ final class InquiryRepository
     {
     }
 
-    public function create(array $inquiry): int
+    public function create(array $inquiry, int $businessId = 1): int
     {
         $statement = $this->pdo->prepare(
             <<<'SQL'
                 INSERT INTO contact_inquiries
-                    (user_id, full_name, email, topic, order_number, message)
+                    (business_id, user_id, full_name, email, topic, order_number, message)
                 VALUES
-                    (:user_id, :full_name, :email, :topic, :order_number, :message)
+                    (:business_id, :user_id, :full_name, :email, :topic, :order_number, :message)
             SQL
         );
-        $statement->execute($inquiry);
+        $statement->execute(['business_id' => $businessId] + $inquiry);
 
         return (int) $this->pdo->lastInsertId();
     }
@@ -43,7 +43,7 @@ final class InquiryRepository
         ]);
     }
 
-    public function list(string $status = ''): array
+    public function list(int $businessId, string $status = ''): array
     {
         $sql = <<<'SQL'
             SELECT i.id, i.full_name, i.email, i.topic, i.order_number, i.message,
@@ -51,10 +51,11 @@ final class InquiryRepository
                    COUNT(a.id) AS attachment_count
             FROM contact_inquiries i
             LEFT JOIN inquiry_attachments a ON a.inquiry_id = i.id
+            WHERE i.business_id = :business_id
         SQL;
-        $parameters = [];
+        $parameters = ['business_id' => $businessId];
         if ($status !== '') {
-            $sql .= ' WHERE i.status = :status';
+            $sql .= ' AND i.status = :status';
             $parameters['status'] = $status;
         }
         $sql .= ' GROUP BY i.id ORDER BY i.created_at DESC';
@@ -64,12 +65,13 @@ final class InquiryRepository
         return $statement->fetchAll();
     }
 
-    public function updateStatus(int $id, string $status, ?int $assignedTo): bool
+    public function updateStatus(int $businessId, int $id, string $status, ?int $assignedTo): bool
     {
         $statement = $this->pdo->prepare(
-            'UPDATE contact_inquiries SET status = :status, assigned_to = :assigned_to WHERE id = :id'
+            'UPDATE contact_inquiries SET status = :status, assigned_to = :assigned_to WHERE business_id = :business_id AND id = :id'
         );
         $statement->execute([
+            'business_id' => $businessId,
             'status' => $status,
             'assigned_to' => $assignedTo,
             'id' => $id,
@@ -78,12 +80,14 @@ final class InquiryRepository
         return $statement->rowCount() > 0;
     }
 
-    public function attachment(int $id): ?array
+    public function attachment(int $businessId, int $id): ?array
     {
         $statement = $this->pdo->prepare(
-            'SELECT original_name, mime_type, storage_path FROM inquiry_attachments WHERE id = :id'
+            'SELECT a.original_name, a.mime_type, a.storage_path
+             FROM inquiry_attachments a JOIN contact_inquiries i ON i.id = a.inquiry_id
+             WHERE i.business_id = :business_id AND a.id = :id'
         );
-        $statement->execute(['id' => $id]);
+        $statement->execute(['business_id' => $businessId, 'id' => $id]);
         $attachment = $statement->fetch();
 
         return $attachment ?: null;

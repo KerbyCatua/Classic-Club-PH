@@ -8,16 +8,9 @@ use ClassicClub\Middleware\PermissionMiddleware;
 use ClassicClub\Repositories\InquiryRepository;
 use ClassicClub\Support\AuditLogger;
 
-require_once __DIR__ . '/../../../app/Database/Connection.php';
-require_once __DIR__ . '/../../../app/Support/Input.php';
-require_once __DIR__ . '/../../../app/Http/Request.php';
-require_once __DIR__ . '/../../../app/Http/Response.php';
-require_once __DIR__ . '/../../../app/Http/JsonResponse.php';
-require_once __DIR__ . '/../../../app/Auth/SessionManager.php';
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../../app/Authorization/PermissionChecker.php';
-require_once __DIR__ . '/../../../app/Middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../app/Middleware/PermissionMiddleware.php';
-require_once __DIR__ . '/../../../app/Middleware/CsrfMiddleware.php';
 require_once __DIR__ . '/../../../app/Repositories/InquiryRepository.php';
 require_once __DIR__ . '/../../../app/Support/AuditLogger.php';
 
@@ -27,7 +20,7 @@ try {
     if ($request->method() !== 'PATCH') {
         JsonResponse::error('Method not allowed.', 405)->send();
     }
-    \ClassicClub\Middleware\CsrfMiddleware::require();
+    $context = getSupportTicketContext($pdo, true);
     $body = $request->json();
     $id = filter_var($body['id'] ?? null, FILTER_VALIDATE_INT);
     $status = trim((string) ($body['status'] ?? ''));
@@ -35,6 +28,7 @@ try {
         JsonResponse::error('A valid inquiry id and status are required.', 422)->send();
     }
     $updated = (new InquiryRepository($pdo))->updateStatus(
+        $context['business_id'],
         (int) $id,
         $status,
         isset($body['assigned_to']) ? (int) $body['assigned_to'] : $userId

@@ -1,0 +1,46 @@
+#module-tickets [hidden] { display: none !important; }
+#module-tickets :is(label, summary, #supportPage, #supportStats) { font-size: 13px; }
+#module-tickets :is(label, fieldset, [class*="col-"], .support-subject) { min-width: 0; }
+#module-tickets :is(.admin-card, td, #supportDetailMessage, #supportError) { overflow-wrap: anywhere; }
+#module-tickets .admin-table { min-width: 800px; table-layout: fixed; }
+#module-tickets th:first-child { width: 30%; }
+#module-tickets th:nth-child(5) { width: 18%; }
+#module-tickets th:last-child { width: 100px; }
+#module-tickets summary { cursor: pointer; }
+#module-tickets .support-message { white-space: pre-wrap; overflow-wrap: anywhere; }
+#module-tickets :is(button, input, select, textarea):disabled { opacity: .6; cursor: not-allowed; }
+#module-tickets :is(button, summary, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
+#module-tickets #supportDetail { scroll-margin-top: 24px; }
+
+#module-tickets .support-badge {
+  display: inline-flex;
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .4px;
+  line-height: 16px;
+  text-transform: uppercase;
+  border: 1px solid;
+  border-radius: 2px;
+}
+#module-tickets .support-badge-success { color: #5eead4; background: rgba(2, 128, 144, .18); border-color: rgba(2, 128, 144, .5); }
+#module-tickets .support-badge-warning { color: #facc15; background: rgba(234, 179, 8, .14); border-color: rgba(234, 179, 8, .4); }
+#module-tickets .support-badge-danger { color: #f87171; background: rgba(239, 68, 68, .14); border-color: rgba(239, 68, 68, .4); }
+#module-tickets .support-badge-info { color: #93c5fd; background: rgba(59, 130, 246, .14); border-color: rgba(59, 130, 246, .4); }
+#module-tickets .support-badge-neutral { color: var(--cc-muted); background: rgba(168, 170, 167, .12); border-color: var(--cc-border); }
+#module-tickets .support-entry { padding: 12px 0; border-bottom: 1px solid var(--cc-border); }
+
+@media (max-width: 767.98px) {
+  #module-tickets .admin-table { min-width: 0; display: block; }
+  #module-tickets .admin-table thead { display: none; }
+  #module-tickets .admin-table tbody { display: block; }
+  #module-tickets .admin-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--cc-border); }
+  #module-tickets .admin-table td { display: block; border: 0; padding: 12px; }
+  #module-tickets .admin-table td:first-child,
+  #module-tickets .admin-table td:last-child { grid-column: 1 / -1; }
+  #module-tickets td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 6px; font-size: 11px; color: var(--cc-muted); }
+}
+@media (max-width: 575.98px) {
+  #module-tickets .admin-card { padding: 16px; }
+  #module-tickets :is(.admin-input-filter, .admin-select-filter) { min-width: 0; font-size: 16px; }
+}

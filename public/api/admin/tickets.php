@@ -9,9 +9,9 @@ use ClassicClub\Services\SupportTicketService;
 
 try {
     $request=new Request();
-    $context=getSuperAdminContext($pdo,$request->method()==='POST');
+    $context=getSupportTicketContext($pdo,$request->method()==='POST');
     header('Cache-Control: no-store');
-    $service=new SupportTicketService($pdo);
+    $service=new SupportTicketService($pdo,$context['business_id']);
     if ($request->method()==='GET') {
         if (isset($_GET['id'])) JsonResponse::success($service->detail($service->integer($_GET['id']),(int)$context['user_id'],$service->integer($_GET['page'] ?? 1)))->send();
         JsonResponse::success($service->listing($_GET))->send();
@@ -26,5 +26,5 @@ try {
 } catch (Throwable $e) {
     if (in_array($e->getCode(),[404,409],true)) JsonResponse::error($e->getMessage(),(int)$e->getCode())->send();
     error_log('Support tickets: '.$e->getMessage());
-    JsonResponse::error('Unable to access support tickets. Check database access and migration 016.',500)->send();
+    JsonResponse::error('Unable to access support tickets. Please retry.',500)->send();
 }

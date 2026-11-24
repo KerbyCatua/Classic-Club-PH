@@ -18,7 +18,7 @@ final class SupportTicketService
     public const CATEGORIES = ['Order / checkout', 'Inventory report', 'Account access', 'Business permissions', 'Account appeal', 'Delivery question', 'Report export', 'Product information', 'Sizing', 'Returns', 'Other'];
     public const STATUSES = ['open','in_progress','resolved','closed'];
     public const PRIORITIES = ['Critical','High','Medium','Low'];
-    public function __construct(private readonly PDO $pdo) {}
+    public function __construct(private readonly PDO $pdo, private readonly int $businessId) {}
 
     private function query(string $sql, array $args = []): \PDOStatement
     {
@@ -44,14 +44,28 @@ final class SupportTicketService
     }
     public function agents(): array
     {
-        return $this->query("SELECT u.id, CONCAT(u.first_name,' ',u.last_name) AS name FROM users u WHERE u.status='active' AND u.deleted_at IS NULL AND EXISTS (SELECT 1 FROM user_roles ur JOIN roles r ON r.id=ur.role_id WHERE ur.user_id=u.id AND r.name='super_admin') ORDER BY name,u.id")->fetchAll();
+        return $this->query(<<<'SQL'
+            SELECT u.id, CONCAT(u.first_name, ' ', u.last_name) AS name
+            FROM users u
+            WHERE u.status = 'active' AND u.deleted_at IS NULL
+              AND EXISTS (
+                  SELECT 1 FROM business_users bu
+                  WHERE bu.business_id = ? AND bu.user_id = u.id AND bu.status = 'active'
+              )
+              AND NOT EXISTS (
+                  SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+                  WHERE ur.user_id = u.id AND r.name = 'super_admin'
+              )
+            ORDER BY name, u.id
+            SQL, [$this->businessId])->fetchAll();
     }
-    private function assignee(mixed $id): ?int
+    private function assignee(mixed $id, ?int $current = null): ?int
     {
         if ($id === null || $id === '') return null;
         $id = $this->integer($id);
+        if ($id === $current) return $id;
         foreach ($this->agents() as $agent) if ((int)$agent['id'] === $id) return $id;
-        throw new InvalidArgumentException('Choose an active Super Admin support agent.');
+        throw new InvalidArgumentException('Choose an active support agent in your business.');
     }
     private function base(): string
     {
@@ -59,12 +73,14 @@ final class SupportTicketService
     }
     public function listing(array $data): array
     {
-        $page = $this->integer($data['page'] ?? 1); $where = []; $args = [];
+        $page = $this->integer($data['page'] ?? 1);
+        $where = ['t.business_id = ?'];
+        $args = [$this->businessId];
         $search = $this->text($data,'search',200,false);
         if ($search !== '') {
-            $where[] = "(CAST(t.id AS CHAR)=? OR CONCAT('INQ-',t.id)=? OR t.full_name LIKE ? OR t.email LIKE ? OR t.subject LIKE ? OR t.message LIKE ?)";
-            $args = [$search,$search,...array_fill(0,4,'%'.strtr($search,['!'=>'!!','%'=>'!%','_'=>'!_']).'%')];
-            $where[0] = str_replace('LIKE ?', "LIKE ? ESCAPE '!'", $where[0]);
+            $condition = "(CAST(t.id AS CHAR)=? OR CONCAT('INQ-',t.id)=? OR t.full_name LIKE ? OR t.email LIKE ? OR t.subject LIKE ? OR t.message LIKE ?)";
+            $where[] = str_replace('LIKE ?', "LIKE ? ESCAPE '!'", $condition);
+            array_push($args, $search, $search, ...array_fill(0, 4, '%'.strtr($search, ['!'=>'!!', '%'=>'!%', '_'=>'!_']).'%'));
         }
         foreach (['status'=>self::STATUSES,'priority'=>self::PRIORITIES,'category'=>self::CATEGORIES] as $key=>$choices) {
             if (($data[$key] ?? '') !== '') { $where[] = "t.$key=?"; $args[] = $this->choice($data,$key,$choices); }
@@ -73,16 +89,16 @@ final class SupportTicketService
             if ($data['assigned_to'] === 'unassigned') $where[] = 't.assigned_to IS NULL';
             else { $where[] = 't.assigned_to=?'; $args[] = $this->integer($data['assigned_to']); }
         }
-        $from = ' FROM ('.$this->base().') t'.($where ? ' WHERE '.implode(' AND ',$where) : '');
+        $from = ' FROM ('.$this->base().') t WHERE '.implode(' AND ', $where);
         $total = (int)$this->query('SELECT COUNT(*)'.$from,$args)->fetchColumn();
         $pages = max(1,(int)ceil($total/20)); $page = min($page,$pages); $offset = ($page-1)*20;
         $rows = $this->query('SELECT *'.$from." ORDER BY t.created_at DESC,t.id DESC LIMIT 20 OFFSET $offset",$args)->fetchAll();
-        $stats = $this->query("SELECT SUM(i.status IN ('open','in_progress')) AS unresolved, SUM(i.status IN ('resolved','closed')) AS completed, AVG(TIMESTAMPDIFF(MINUTE,i.created_at,d.first_response_at)) AS response_minutes, AVG(TIMESTAMPDIFF(MINUTE,i.created_at,d.resolved_at)) AS resolution_minutes FROM contact_inquiries i LEFT JOIN support_ticket_details d ON d.inquiry_id=i.id")->fetch();
+        $stats = $this->query("SELECT SUM(i.status IN ('open','in_progress')) AS unresolved, SUM(i.status IN ('resolved','closed')) AS completed, AVG(TIMESTAMPDIFF(MINUTE,i.created_at,d.first_response_at)) AS response_minutes, AVG(TIMESTAMPDIFF(MINUTE,i.created_at,d.resolved_at)) AS resolution_minutes FROM contact_inquiries i LEFT JOIN support_ticket_details d ON d.inquiry_id=i.id WHERE i.business_id=?", [$this->businessId])->fetch();
         return compact('rows','total','page','pages','stats') + ['agents'=>$this->agents(),'categories'=>self::CATEGORIES];
     }
     public function detail(int $id, int $actor, int $page = 1): array
     {
-        $ticket = $this->query($this->base().' WHERE i.id=?',[$id])->fetch();
+        $ticket = $this->query($this->base().' WHERE i.business_id=? AND i.id=?',[$this->businessId,$id])->fetch();
         if (!$ticket) throw new RuntimeException('Ticket not found.',404);
         $total = (int)$this->query('SELECT COUNT(*) FROM support_ticket_entries WHERE inquiry_id=?',[$id])->fetchColumn();
         $pages = max(1,(int)ceil($total/30)); $page = min($page,$pages); $offset = ($page-1)*30;
@@ -110,20 +126,21 @@ final class SupportTicketService
                 $assigned=$this->assignee($data['assigned_to'] ?? null); $order=$this->text($data,'order_number',30,false);
                 $user=$this->query('SELECT id FROM users WHERE email=? AND deleted_at IS NULL',[$email])->fetchColumn();
                 $topic=match($category) {'Order / checkout','Delivery question'=>'order','Sizing'=>'sizing','Returns'=>'return',default=>'other'};
-                $id=(new InquiryRepository($this->pdo))->create(['user_id'=>$user ?: null,'full_name'=>$name,'email'=>$email,'topic'=>$topic,'order_number'=>$order ?: null,'message'=>$message]);
+                $id=(new InquiryRepository($this->pdo))->create(['user_id'=>$user ?: null,'full_name'=>$name,'email'=>$email,'topic'=>$topic,'order_number'=>$order ?: null,'message'=>$message], $this->businessId);
                 $this->query('UPDATE contact_inquiries SET assigned_to=? WHERE id=?',[$assigned,$id]);
                 $this->query('INSERT INTO support_ticket_details (inquiry_id,subject,category,priority) VALUES (?,?,?,?)',[$id,$subject,$category,$priority]);
                 $this->entry($id,$actor,'history','Ticket created. Assigned to '.($assigned ?? 'Unassigned').'.');
             } else {
                 $id=$this->integer($data['id'] ?? null);
                 // Serialize all module writes on the canonical inquiry, including legacy inquiries.
-                if (!$this->query('SELECT id FROM contact_inquiries WHERE id=? FOR UPDATE',[$id])->fetchColumn()) throw new RuntimeException('Ticket not found.',404);
+                if (!$this->query('SELECT id FROM contact_inquiries WHERE business_id=? AND id=? FOR UPDATE',[$this->businessId,$id])->fetchColumn()) throw new RuntimeException('Ticket not found.',404);
                 $ticket=$this->detail($id,$actor)['ticket'];
                 if (!isset($data['version']) || !is_numeric($data['version']) || (string)(int)$data['version'] !== (string)$data['version'] || (int)$data['version'] !== (int)$ticket['version'] || ($data['updated_at'] ?? null) !== $ticket['updated_at']) throw new RuntimeException('Ticket changed. Reload it before saving.',409);
                 $this->query('INSERT IGNORE INTO support_ticket_details (inquiry_id,subject,category) VALUES (?,?,?)',[$id,$ticket['subject'],$ticket['category']]);
                 if ($action === 'update') {
                     $status=$this->choice($data,'status',self::STATUSES); $priority=$this->choice($data,'priority',self::PRIORITIES); $category=$this->choice($data,'category',self::CATEGORIES);
-                    $subject=$this->text($data,'subject',200); $summary=$this->text($data,'resolution_summary',10000,false); $assigned=$this->assignee($data['assigned_to'] ?? null);
+                    $subject=$this->text($data,'subject',200); $summary=$this->text($data,'resolution_summary',10000,false);
+                    $assigned=$this->assignee($data['assigned_to'] ?? null, $ticket['assigned_to'] === null ? null : (int)$ticket['assigned_to']);
                     if (in_array($status,['resolved','closed'],true) && $summary==='') throw new InvalidArgumentException('A resolution summary is required.');
                     $changes=[];
                     foreach (['status'=>$status,'priority'=>$priority,'category'=>$category,'subject'=>$subject,'assigned_to'=>$assigned,'resolution_summary'=>$summary] as $key=>$value) if ((string)($ticket[$key] ?? '') !== (string)$value) $changes[$key]=['from'=>$ticket[$key] ?? null,'to'=>$value];
@@ -155,9 +172,10 @@ final class SupportTicketService
                         if ($action==='reply') {
                             $this->query('UPDATE support_ticket_details SET first_response_at=COALESCE(first_response_at,NOW()) WHERE inquiry_id=?',[$id]);
                             $this->query('DELETE FROM support_ticket_drafts WHERE inquiry_id=? AND actor_id=?',[$id,$actor]);
-                            // Reuse business notification delivery only for the requester's actual businesses.
-                            $businesses=$this->query("SELECT DISTINCT business_id FROM business_users WHERE user_id=? AND status='active'",[$ticket['user_id']])->fetchAll(PDO::FETCH_COLUMN);
-                            foreach ($businesses as $business) (new AdminBusinessService($this->pdo))->createNotification((int)$business,'Support reply: INQ-'.$id,'support',$body,'contact_inquiry',(string)$id,'');
+                            $linked = $this->query("SELECT 1 FROM business_users WHERE business_id=? AND user_id=? AND status='active' LIMIT 1", [$this->businessId, $ticket['user_id']])->fetchColumn();
+                            if ($linked) {
+                                (new AdminBusinessService($this->pdo))->createNotification($this->businessId,'Support reply: INQ-'.$id,'support',$body,'contact_inquiry',(string)$id,'');
+                            }
                         }
                     }
                 }

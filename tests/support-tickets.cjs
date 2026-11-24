@@ -15,9 +15,10 @@ const base = fixture.base.replace(/\/?$/, '/');
     const page = await context.newPage();
     const errors = [], writes = [];
     let failList = false, failDetail = false, failWrite = false, holdDetail = false, releaseDetail, holdList = false, releaseList;
+    let expireUploadToken = false;
     page.on('pageerror', error => errors.push(error.message));
     page.on('request', request => {
-      if (request.url().includes('/super-admin/tickets.php') && request.method() === 'POST') writes.push(request.postData());
+      if (request.url().includes('/admin/tickets.php') && request.method() === 'POST') writes.push(request.postData());
     });
     if (process.env.CC_TEST_ASSETS_DIR) await page.route(/^https:\/\//, route => {
       const filename = path.basename(new URL(route.request().url()).pathname);
@@ -25,8 +26,12 @@ const base = fixture.base.replace(/\/?$/, '/');
         ? route.fulfill({ path: path.join(process.env.CC_TEST_ASSETS_DIR, filename) })
         : route.fulfill({ body: '', contentType: filename.endsWith('.js') ? 'text/javascript' : 'text/css' });
     });
-    await page.route('**/public/api/super-admin/tickets.php*', async route => {
+    await page.route('**/public/api/admin/tickets.php*', async route => {
       const request = route.request(), detail = new URL(request.url()).searchParams.has('id');
+      if (expireUploadToken && request.method() === 'POST' && request.headers()['content-type']?.startsWith('multipart/form-data')) {
+        expireUploadToken = false;
+        return route.fulfill({ status: 403, json: { success: false, error: { message: 'Invalid or expired CSRF token. Please retry.' } } });
+      }
       if ((failList && !detail && request.method() === 'GET') || (failDetail && detail) || (failWrite && request.method() === 'POST')) {
         return route.fulfill({ status: 503, json: { success: false, error: { message: 'Temporary ticket failure. Retry.' } } });
       }
@@ -66,7 +71,7 @@ const base = fixture.base.replace(/\/?$/, '/');
       await pending;
       await idle();
     };
-    await page.goto(base + 'super-admin-dashboard.html#module-tickets');
+    await page.goto(base + 'admin-dashboard.html#module-tickets');
     await page.locator('#supportRows [data-ticket]').first().waitFor(); await idle();
     assert.equal(await page.locator('#supportDetail').isVisible(), false);
     await filter('search', fixture.marker);
@@ -107,7 +112,7 @@ const base = fixture.base.replace(/\/?$/, '/');
     assert.match(await field('supportReply', 'body').inputValue(), /^Unsent reply/);
     assert.equal(await field('supportNote', 'body').inputValue(), 'Unsent private note');
     assert.equal(await page.locator('#supportDetail img').count(), 0);
-    assert.equal(await page.locator('#supportDetail .sa-list-row').filter({ hasText: '"status"' }).count(), 0);
+    assert.equal(await page.locator('#supportDetail .support-entry').filter({ hasText: '"status"' }).count(), 0);
     await post(() => page.locator('#supportNote [type=submit]').click());
     assert.equal(await field('supportNote', 'body').inputValue(), '');
     await post(() => page.locator('#supportReply [type=submit]').click());
@@ -162,9 +167,9 @@ const base = fixture.base.replace(/\/?$/, '/');
     failWrite = false; await post(() => page.locator('#supportReply [type=submit]').click());
 
     // An actual concurrent write must not overwrite the current user's text.
-    const latest = await (await context.request.get(base + 'public/api/super-admin/tickets.php?id=' + fixture.id)).json();
+    const latest = await (await context.request.get(base + 'public/api/admin/tickets.php?id=' + fixture.id)).json();
     const ticket = latest.data.ticket;
-    const changed = await context.request.post(base + 'public/api/super-admin/tickets.php', {
+    const changed = await context.request.post(base + 'public/api/admin/tickets.php', {
       headers: { 'X-CSRF-Token': fixture.session.token },
       data: { action: 'note', id: ticket.id, version: ticket.version, updated_at: ticket.updated_at, body: 'Concurrent administrator note' }
     });
@@ -208,9 +213,17 @@ const base = fixture.base.replace(/\/?$/, '/');
     assert.equal(writes.length, beforeUpload);
     await field('supportUpload', 'attachment').setInputFiles({ name: 'ticket-proof.pdf', mimeType: 'application/pdf', buffer: pdf });
     await field('supportReply', 'body').fill('Keep while uploading');
-    const uploaded = await post(() => page.locator('#supportUpload [type=submit]').click());
+    expireUploadToken = true;
+    const tokenRefresh = page.waitForResponse(response => response.url().endsWith('/auth/csrf.php') && response.ok());
+    const uploadRetry = page.waitForResponse(response => response.url().endsWith('/tickets.php') && response.request().method() === 'POST' && response.ok());
+    await page.locator('#supportUpload [type=submit]').click();
+    await tokenRefresh;
+    const uploaded = (await (await uploadRetry).json()).data;
+    await idle();
+    assert.equal(writes.length, beforeUpload + 2);
+    assert.equal(uploaded.attachments.length, 1);
     assert.equal(await field('supportReply', 'body').inputValue(), 'Keep while uploading');
-    const download = await context.request.get(base + 'public/api/super-admin/ticket-attachment.php?id=' + uploaded.attachments[0].id);
+    const download = await context.request.get(base + 'public/api/admin/ticket-attachment.php?id=' + uploaded.attachments[0].id);
     assert.deepEqual(await download.body(), pdf);
     await post(() => action('draft').click());
 
@@ -237,6 +250,6 @@ const base = fixture.base.replace(/\/?$/, '/');
     assert.equal(await action('next').isDisabled(), true);
     failList = false; await action('refresh').click(); await idle();
     assert.equal(await field('supportCreate', 'full_name').isDisabled(), false);
-    console.log('PASS: browser creation, filters, assignments, all statuses, replies, drafts, notes, upload/download, both paginations, unsaved text, conflicts, error recovery and responsive layouts');
+    console.log('PASS: browser creation, filters, assignments, all statuses, replies, drafts, notes, upload/download, both paginations, unsaved text, conflicts, CSRF retry, error recovery and responsive layouts');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

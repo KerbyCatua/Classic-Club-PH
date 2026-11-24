@@ -45,3 +45,20 @@ function requireAdminPermission(array $ctx, string $permission): void
         JsonResponse::error('Your staff account does not have permission for this action.', 403)->send();
     }
 }
+
+function getSupportTicketContext(PDO $pdo, bool $requireCsrf = false): array
+{
+    try {
+        $context = getAdminContext($pdo, $requireCsrf);
+    } catch (PDOException $exception) {
+        throw $exception;
+    } catch (RuntimeException $exception) {
+        JsonResponse::error('Business Owner access is required.', 403)->send();
+    }
+
+    if (!$context['auth']['can_access_owner_workspace']) {
+        JsonResponse::error('Business Owner access is required.', 403)->send();
+    }
+
+    return $context;
+}

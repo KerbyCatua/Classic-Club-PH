@@ -331,35 +331,6 @@
       flex: 0 0 7px;
     }
 
-    /* Support tickets: styles remain inside this module. */
-    #module-tickets [hidden] { display: none !important; }
-    #module-tickets :is(label, summary, #supportPage, #supportStats) { font-size: 13px; }
-    #module-tickets :is(label, fieldset, [class*="col-"], .support-subject) { min-width: 0; }
-    #module-tickets :is(.admin-card, td, #supportDetailMessage, #supportError) { overflow-wrap: anywhere; }
-    #module-tickets .admin-table { min-width: 800px; table-layout: fixed; }
-    #module-tickets th:first-child { width: 30%; }
-    #module-tickets th:nth-child(5) { width: 18%; }
-    #module-tickets th:last-child { width: 100px; }
-    #module-tickets summary { cursor: pointer; }
-    #module-tickets .support-message { white-space: pre-wrap; overflow-wrap: anywhere; }
-    #module-tickets :is(button, input, select, textarea):disabled { opacity: .6; cursor: not-allowed; }
-    #module-tickets :is(button, summary, [tabindex]):focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 2px; }
-    #module-tickets #supportDetail { scroll-margin-top: 24px; }
-    @media (max-width: 767.98px) {
-      #module-tickets .admin-table { min-width: 0; display: block; }
-      #module-tickets .admin-table thead { display: none; }
-      #module-tickets .admin-table tbody { display: block; }
-      #module-tickets .admin-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--cc-border); }
-      #module-tickets .admin-table td { display: block; border: 0; padding: 12px; }
-      #module-tickets .admin-table td:first-child,
-      #module-tickets .admin-table td:last-child { grid-column: 1 / -1; }
-      #module-tickets td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 6px; font-size: 11px; color: var(--cc-muted); }
-    }
-    @media (max-width: 575.98px) {
-      #module-tickets .admin-card { padding: 16px; }
-      #module-tickets :is(.admin-input-filter, .admin-select-filter) { min-width: 0; font-size: 16px; }
-    }
-
     .sa-table-wide { min-width: 940px; }
     .sa-table-medium { min-width: 760px; }
 
@@ -763,14 +734,11 @@
         <a href="#module-errors" class="admin-module-link">
           <span>05 / Errors &amp; debug</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
         </a>
-        <a href="#module-tickets" class="admin-module-link">
-          <span>06 / Support tickets</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
-        </a>
         <a href="#module-config" class="admin-module-link">
-          <span>07 / Global configuration</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+          <span>06 / Global configuration</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
         </a>
         <a href="#module-account" class="admin-module-link">
-          <span>08 / Super Admin account</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+          <span>07 / Super Admin account</span> <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
         </a>
       </div>
     </nav>
@@ -904,7 +872,6 @@
                 <div class="sa-list-meta">Reading contact inquiries</div>
               </div>
             </div>
-            <a href="#module-tickets" class="btn-admin-outline btn-admin-sm mt-3 w-100">Review support queue <i class="bi bi-arrow-down"></i></a>
           </div>
         </div>
 
@@ -1473,9 +1440,6 @@
         <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mt-3"><span id="errorEventNote" class="text-muted-cc small" role="status"></span><div class="d-flex gap-2"><button id="errorEventPrev" type="button" class="btn-admin-outline">Previous</button><button id="errorEventNext" type="button" class="btn-admin-outline">Next</button></div></div></div>
       </div>
     </section>
-    <!-- SECTION 21.8: SUPPORT TICKET MANAGEMENT -->
-    <section id="module-tickets" class="admin-section px-4 px-lg-5" tabindex="-1"><h2 class="admin-section-title">Support ticket management</h2><p>Loading support tickets...</p></section>
-
     <!-- SECTION 21.10: GLOBAL SYSTEM CONFIGURATION -->
     <section id="module-config" class="admin-section px-4 px-lg-5" tabindex="-1" aria-busy="true">
       <div class="d-flex justify-content-between align-items-start mb-2">
@@ -1661,7 +1625,6 @@
 
   <script src="assets/js/admin-directory.js"></script>
   <script src="assets/js/super-admin-errors.js"></script>
-  <script src="assets/js/super-admin-tickets.js"></script>
   <script src="assets/js/system-configuration.js"></script>
   <script src="assets/js/super-admin-account.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -2101,7 +2064,6 @@
           window.initLiveMaintenance({ byId, showToast, escapeHtml, getCsrfToken, refreshOverview: loadOverview });
           window.initErrorManagement({ byId, showToast, escapeHtml, getCsrfToken });
 
-          window.initSupportTickets({ byId, showToast, escapeHtml, getCsrfToken, refreshOverview: loadOverview });
           initConfigEvents();
           initAccountEvents();
           initDemoActions();
@@ -2457,9 +2419,6 @@
 
       /* ============================================================
          21.6 — Error & debug management
-         ============================================================ */
-      /* ============================================================
-         21.8 — Support tickets
          ============================================================ */
       /* ============================================================
          21.10 — Global configuration

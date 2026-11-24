@@ -6,10 +6,11 @@ require_once __DIR__.'/../app/Database/Connection.php';
 require_once __DIR__.'/../app/Services/SupportTicketService.php';
 use ClassicClub\Services\SupportTicketService;
 function check(bool $value,string $message): void { if (!$value) throw new RuntimeException($message); }
-$service=new SupportTicketService($pdo);
-$actor=(int)($service->agents()[0]['id'] ?? 0);
-check($actor>0,'An active Super Admin is required.');
-$ids=[]; $marker='support-test-'.bin2hex(random_bytes(8)); $businessStaff=0;
+$service=new SupportTicketService($pdo, 1);
+$actor=(int)$pdo->query("SELECT u.id FROM users u JOIN business_users bu ON bu.user_id=u.id WHERE bu.business_id=1 AND bu.status='active' AND bu.permission_set='owner' AND u.status='active' AND u.deleted_at IS NULL ORDER BY u.id LIMIT 1")->fetchColumn();
+$formerAssignee=(int)$pdo->query("SELECT ur.user_id FROM user_roles ur JOIN roles r ON r.id=ur.role_id WHERE r.name='super_admin' LIMIT 1")->fetchColumn();
+check($actor>0 && $formerAssignee>0,'An active Business Owner and a legacy Super Admin assignee are required.');
+$ids=[]; $marker='support-test-'.bin2hex(random_bytes(8));
 $create=['action'=>'create','full_name'=>'Support integration test','email'=>$marker.'@example.com','subject'=>$marker,'message'=>'Original request <script> with unicode ñ','category'=>'Order / checkout','priority'=>'High','assigned_to'=>$actor,'order_number'=>'TEST-123'];
 function payload(array $detail,string $action,array $fields=[]): array {
     $t=$detail['ticket']; return ['id'=>$t['id'],'version'=>$t['version'],'updated_at'=>$t['updated_at'],'action'=>$action]+$fields;
@@ -47,10 +48,13 @@ try {
     try { $service->mutate($actor,$update); throw new LogicException('Expected unauthorized assignee rejection.'); } catch (InvalidArgumentException) {}
     try { $service->mutate($actor,payload($d,'attachment'),['error'=>UPLOAD_ERR_OK,'tmp_name'=>__FILE__,'size'=>100,'name'=>'unsafe.php']); throw new LogicException('Expected invalid upload.'); } catch (InvalidArgumentException) {}
     // Existing Contact records appear directly, without importing or duplicating them.
-    $q=$pdo->prepare("INSERT INTO contact_inquiries (full_name,email,topic,message) VALUES (?,?,'sizing',?)");
-    $q->execute(['Legacy contact',$marker.'@example.com',$marker]); $legacy=(int)$pdo->lastInsertId(); $ids[]=$legacy;
+    $q=$pdo->prepare("INSERT INTO contact_inquiries (full_name,email,topic,message,assigned_to) VALUES (?,?,'sizing',?,?)");
+    $q->execute(['Legacy contact',$marker.'@example.com',$marker,$formerAssignee]); $legacy=(int)$pdo->lastInsertId(); $ids[]=$legacy;
     $old=$service->detail($legacy,$actor); check((int)$old['ticket']['version']===0 && $old['ticket']['category']==='Sizing','Legacy inquiry is immediately manageable.');
-    $service->mutate($actor,payload($old,'note',['body'=>'Legacy inquiry note']));
+    $legacyUpdate=$service->mutate($actor,payload($old,'update',[
+        'subject'=>$old['ticket']['subject'], 'category'=>'Sizing', 'priority'=>'Low', 'status'=>'in_progress', 'assigned_to'=>$formerAssignee,
+    ]));
+    check($legacyUpdate['ticket']['priority']==='Low' && $legacyUpdate['ticket']['status']==='in_progress' && (int)$legacyUpdate['ticket']['assigned_to']===$formerAssignee,'Priority and status can change while retaining a historic assignment.');
     for ($i=0;$i<21;$i++) { $row=$service->mutate($actor,$create); $ids[]=(int)$row['ticket']['id']; }
     $list=$service->listing(['search'=>$marker,'page'=>2]);
     check($list['total']===23 && count($list['rows'])===3 && $list['pages']===2,'Queue paginates with stable totals.');
@@ -58,7 +62,6 @@ try {
     check($service->detail($id,$actor,2)['pages']===2 && count($service->detail($id,$actor,2)['entries'])>0,'Full conversation and history are paginated.');
     // Notify only businesses actually linked to the requester, and never for internal notes.
     $email=$pdo->query('SELECT email FROM users WHERE id='.$actor)->fetchColumn();
-    $q=$pdo->prepare("INSERT INTO business_users (business_id,user_id,name,email,role_title,permission_set) VALUES (1,?,'Support test',?,'Test','Test')"); $q->execute([$actor,$marker.'@example.com']); $businessStaff=(int)$pdo->lastInsertId();
     $linked=$service->mutate($actor,array_replace($create,['email'=>$email])); $linkedId=(int)$linked['ticket']['id']; $ids[]=$linkedId;
     $linked=$service->mutate($actor,payload($linked,'note',['body'=>'Private']));
     $q=$pdo->prepare("SELECT COUNT(*) FROM business_notifications WHERE reference_type='contact_inquiry' AND reference_id=?"); $q->execute([$linkedId]); check((int)$q->fetchColumn()===0,'Private note does not notify.');
@@ -72,5 +75,4 @@ try {
         $q=$pdo->prepare("DELETE FROM audit_logs WHERE entity_type='contact_inquiry' AND entity_id=?"); $q->execute([$id]);
         $q=$pdo->prepare('DELETE FROM contact_inquiries WHERE id=?'); $q->execute([$id]);
     }
-    if ($businessStaff) $pdo->exec('DELETE FROM business_users WHERE id='.$businessStaff);
 }

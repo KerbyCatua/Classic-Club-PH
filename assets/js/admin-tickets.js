@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  window.initSupportTickets = function ({ byId, escapeHtml: esc, showToast, getCsrfToken, refreshOverview }) {
+  window.initSupportTickets = function ({ byId, escapeHtml: esc, showToast, refreshNotifications }) {
     const root = byId('module-tickets');
     if (!root || root.dataset.initialized) return;
     root.dataset.initialized = 'true';
@@ -18,12 +18,12 @@
     const statusLabel = value => statuses.find(s => s[0] === value)?.[1] || value;
     const badge = (value, status = false) => {
       const variant = status ? ({ open: 'info', in_progress: 'warning', resolved: 'success', closed: 'neutral' }[value]) : ({ Critical: 'danger', High: 'danger', Medium: 'warning', Low: 'neutral' }[value]);
-      return '<span class="sa-badge sa-badge-' + (variant || 'neutral') + '">' + esc(status ? statusLabel(value) : value) + '</span>';
+      return '<span class="support-badge support-badge-' + (variant || 'neutral') + '">' + esc(status ? statusLabel(value) : value) + '</span>';
     };
     // Include disabled fields so in-flight saves do not hide unsaved editor values.
     const values = form => Object.fromEntries(Array.from(form.elements).filter(el => el.name && el.type !== 'file').map(el => [el.name, el.value]));
     const agentOptions = () => agents.map(a => [String(a.id), a.name]);
-    root.innerHTML = '<div class="d-flex justify-content-between align-items-start mb-2"><span class="admin-section-eyebrow">06 / SUPPORT</span>' +
+    root.innerHTML = '<div class="d-flex justify-content-between align-items-start mb-2"><span class="admin-section-eyebrow">10 / SUPPORT</span>' +
       '<a href="#module-directory" class="text-muted-cc cc-underline-link admin-directory-return">Directory ↑</a></div>' +
       '<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h2 class="admin-section-title mb-2">Support tickets</h2><p class="admin-section-desc mb-0">Review requests, assign support and follow up.</p></div><div id="supportStats" class="d-flex flex-wrap gap-3 text-muted-cc" role="status"></div></div>' +
       '<details id="supportCreatePanel" class="admin-card mb-4"><summary class="text-light-cc">Create ticket</summary><form id="supportCreate" class="mt-3"><fieldset class="d-flex flex-column gap-3" disabled>' +
@@ -41,20 +41,27 @@
     createForm.elements.priority.value = 'Medium';
     filters.elements.search.placeholder = 'ID, subject, requester, email or request';
     function message(id, text = '') { byId(id).textContent = text; byId(id).hidden = !text; }
-    async function api(params, body, file) {
+    async function api(params, body, file, retry = true) {
       const headers = { Accept: 'application/json' };
       const init = { credentials: 'same-origin', cache: 'no-store', headers };
       if (body) {
-        init.method = 'POST'; headers['X-CSRF-Token'] = await getCsrfToken();
+        init.method = 'POST';
+        headers['X-CSRF-Token'] = CCAdmin.getCsrfToken() || await CCAdmin.refreshCsrfToken();
         if (file) {
           const form = new FormData(); Object.entries(body).forEach(([key, value]) => form.append(key, value == null ? '' : value));
           form.append('attachment', file); init.body = form;
         } else { headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(body); }
       }
-      const response = await fetch('public/api/super-admin/tickets.php' + (params ? '?' + new URLSearchParams(params) : ''), init);
+      const response = await fetch('public/api/admin/tickets.php' + (params ? '?' + new URLSearchParams(params) : ''), init);
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !payload.success) {
-        const error = new Error(payload.error?.message || 'Unable to access support tickets. Please retry.'); error.status = response.status; throw error;
+        const error = new Error(payload.error?.message || 'Unable to access support tickets. Please retry.');
+        if (body && retry && response.status === 403 && /csrf/i.test(error.message)) {
+          await CCAdmin.refreshCsrfToken();
+          return api(params, body, file, false);
+        }
+        error.status = response.status;
+        throw error;
       }
       return payload.data;
     }
@@ -125,9 +132,9 @@
             body = '<ul class="mb-0">' + Object.entries(changes).map(([key, change]) => '<li>' + esc(labels[key] || key) + ': ' + esc(display(key, change.from)) + ' → ' + esc(display(key, change.to)) + '</li>').join('') + '</ul>';
           }
         } catch (_) { /* Legacy history is plain text. */ }
-        return '<details class="sa-list-row"><summary class="text-muted-cc">Update · ' + esc(entry.author || 'Deleted user') + ' · ' + esc(entry.created_at) + '</summary>' + body + '</details>';
+        return '<details class="support-entry"><summary class="text-muted-cc">Update · ' + esc(entry.author || 'Deleted user') + ' · ' + esc(entry.created_at) + '</summary>' + body + '</details>';
       }
-      return '<div class="sa-list-row"><div class="text-muted-cc mb-2">' + esc(entry.kind === 'reply' ? 'Reply' : 'Internal note') + ' · ' + esc(entry.author || 'Deleted user') + ' · ' + esc(entry.created_at) + '</div>' + body + '</div>';
+      return '<div class="support-entry"><div class="text-muted-cc mb-2">' + esc(entry.kind === 'reply' ? 'Reply' : 'Internal note') + ' · ' + esc(entry.author || 'Deleted user') + ' · ' + esc(entry.created_at) + '</div>' + body + '</div>';
     }
     function resolution() {
       const form = byId('supportEdit'), summary = form.elements.resolution_summary;
@@ -143,17 +150,17 @@
       message('supportDetailMessage');
       panel.innerHTML = '<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3"><div><h3 id="supportDetailTitle" class="font-lora mb-2" tabindex="-1">INQ-' + esc(t.id) + ' · ' + esc(t.subject) + '</h3><div class="text-muted-cc">' + esc(t.full_name) + ' · ' + esc(t.email) + (t.order_number ? ' · Order ' + esc(t.order_number) : '') + '</div><small class="text-muted-cc">Created ' + esc(t.created_at) + ' · PHT</small></div><div class="d-flex flex-wrap gap-2">' + button('Reload ticket', 'reload') + button('Close view', 'close') + '</div></div>' +
         '<div class="row g-4"><div class="col-lg-5"><form id="supportEdit"><fieldset class="d-flex flex-column gap-3">' + input('subject', 'Subject', 200) + '<div class="row g-3">' + col(select('status', 'Status', statuses)) + col(select('priority', 'Priority', priorities)) + col(select('category', 'Category', categories), 12) + col(select('assigned_to', 'Assigned to', agentOptions(), 'Unassigned'), 12) + '</div>' + textarea('resolution_summary', 'Resolution summary', false) + '<div><button type="submit" class="btn-admin-primary">Save changes</button></div></fieldset></form>' +
-        '<details id="supportAttachments" class="mt-4"><summary>Attachments (' + data.attachments.length + ')</summary>' + (data.attachments.length ? '<ul class="my-3">' + data.attachments.map(a => '<li><a class="text-accent" href="public/api/super-admin/ticket-attachment.php?id=' + esc(a.id) + '">' + esc(a.original_name) + '</a> <small class="text-muted-cc">(' + Math.ceil(a.file_size / 1024) + ' KB)</small></li>').join('') + '</ul>' : '') +
+        '<details id="supportAttachments" class="mt-4"><summary>Attachments (' + data.attachments.length + ')</summary>' + (data.attachments.length ? '<ul class="my-3">' + data.attachments.map(a => '<li><a class="text-accent" href="public/api/admin/ticket-attachment.php?id=' + esc(a.id) + '">' + esc(a.original_name) + '</a> <small class="text-muted-cc">(' + Math.ceil(a.file_size / 1024) + ' KB)</small></li>').join('') + '</ul>' : '') +
         '<form id="supportUpload" class="mt-3"><fieldset class="d-flex flex-column gap-3"><label class="d-flex flex-column gap-1 text-muted-cc">JPG, PNG or PDF · up to 5 MB<input class="admin-input-filter w-100" name="attachment" type="file" accept="image/jpeg,image/png,application/pdf" required></label><div><button class="btn-admin-outline" type="submit">Add attachment</button></div></fieldset></form></details></div>' +
         '<div class="col-lg-7"><h4 class="h6 text-light-cc">Original request</h4><p class="support-message">' + esc(t.message) + '</p><h4 class="h6 text-light-cc mt-4">Activity <small class="text-muted-cc">· newest first · PHT</small></h4>' +
         (data.entries.map(history).join('') || '<p class="text-muted-cc">No activity yet.</p>') +
         (data.pages > 1 ? '<nav class="d-flex flex-wrap align-items-center gap-2 my-3" aria-label="Activity pages">' + (data.page > 1 ? button('Newer', 'newer') : '') + '<span class="text-muted-cc">Page ' + data.page + ' of ' + data.pages + '</span>' + (data.page < data.pages ? button('Older', 'older') : '') + '</nav>' : '') +
-        '<form id="supportReply" class="my-4"><fieldset class="d-flex flex-column gap-3">' + textarea('body', 'Reply', false) + '<div class="d-flex flex-wrap gap-2"><button class="btn-admin-primary" type="submit">Post reply</button>' + button('Save draft', 'draft') + '</div><small class="text-muted-cc">Replies are saved here. Linked businesses receive an in-app notification; email is not sent.</small></fieldset></form>' +
-        '<details id="supportNotes"><summary>Add internal note</summary><form id="supportNote" class="mt-3"><fieldset class="d-flex flex-column gap-3">' + textarea('body', 'Visible to support administrators only') + '<div><button class="btn-admin-outline" type="submit">Add note</button></div></fieldset></form></details></div></div>';
+        '<form id="supportReply" class="my-4"><fieldset class="d-flex flex-column gap-3">' + textarea('body', 'Reply', false) + '<div class="d-flex flex-wrap gap-2"><button class="btn-admin-primary" type="submit">Post reply</button>' + button('Save draft', 'draft') + '</div><small class="text-muted-cc">Replies are saved here. Requests from members of your business also create an in-app business notification.</small></fieldset></form>' +
+        '<details id="supportNotes"><summary>Add internal note</summary><form id="supportNote" class="mt-3"><fieldset class="d-flex flex-column gap-3">' + textarea('body', 'Visible to business owners only') + '<div><button class="btn-admin-outline" type="submit">Add note</button></div></fieldset></form></details></div></div>';
       const form = byId('supportEdit');
       Object.keys(values(form)).forEach(key => {
         const value = Object.hasOwn(edits, key) ? edits[key] : t[key] ?? '';
-        if (key === 'assigned_to' && value && !agents.some(a => String(a.id) === String(value))) form.elements[key].add(new Option((t.assignee || 'Unavailable agent') + ' (inactive)', value));
+        if (key === 'assigned_to' && value && !agents.some(a => String(a.id) === String(value))) form.elements[key].add(new Option((t.assignee || 'Agent') + ' (unavailable)', value));
         form.elements[key].value = value;
       });
       const reply = byId('supportReply'); reply.dataset.draft = data.draft;
@@ -194,7 +201,7 @@
         }
         showToast(({ create: 'Ticket created.', update: 'Ticket updated.', reply: 'Reply posted.', draft: 'Draft saved.', note: 'Internal note added.', attachment: 'Attachment added.' })[action]);
         await loadList();
-        if (refreshOverview && action !== 'draft') Promise.resolve().then(refreshOverview).catch(() => {});
+        if (action === 'reply') Promise.resolve().then(refreshNotifications).catch(() => {});
       } catch (error) {
         if (error.status === 409) conflict = true;
         message(action === 'create' ? 'supportError' : 'supportDetailMessage', error.status === 409 ? 'This ticket changed. Reload ticket to review the latest version before saving. Your text has been kept.' : error.message);
@@ -212,7 +219,8 @@
       }
       if (form.id === 'supportEdit') {
         const assignee = form.elements.assigned_to;
-        assignee.setCustomValidity(assignee.value && !agents.some(a => String(a.id) === assignee.value) ? 'Choose an active support agent or Unassigned.' : '');
+        const changed = assignee.value !== String(selected.assigned_to ?? '');
+        assignee.setCustomValidity(changed && assignee.value && !agents.some(a => String(a.id) === assignee.value) ? 'Choose an active support agent or Unassigned.' : '');
       }
       if (form.id === 'supportUpload') {
         const control = form.elements.attachment, file = control.files[0];

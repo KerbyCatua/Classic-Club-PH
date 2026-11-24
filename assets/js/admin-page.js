@@ -70,6 +70,12 @@ async function initDashboard() {
       console.warn('CSRF token initialization deferred:', csrfErr);
     }
     initAdminHeader(authRes);
+    window.initSupportTickets({
+      byId: id => document.getElementById(id),
+      escapeHtml: value => escapeHtml(String(value ?? '')),
+      showToast: CCAdmin.showToast,
+      refreshNotifications: loadNotifications
+    });
 
     // Unhide the dashboard now that access is strictly verified
     hideLoader();
